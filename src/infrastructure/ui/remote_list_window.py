@@ -8,6 +8,8 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw
 
+from infrastructure.ui.remote_edit_window import RemoteEditWindow
+
 
 class RemoteListWindow(Adw.Window):
     def __init__(self, parent, *args, **kwargs):
@@ -35,12 +37,20 @@ class RemoteListWindow(Adw.Window):
         pref_group.set_description(_('List of remote Samba shares'))
 
         for remote_loop in remote_list:
+            row = Adw.ActionRow()
+            row.set_title(remote_loop.path)
+            row.set_subtitle(remote_loop.remote_path)
+            row.set_icon_name('folder-remote-symbolic')
 
-            row1 = Adw.ActionRow()
-            row1.set_title(remote_loop.path)
-            row1.set_subtitle(remote_loop.remote_path )
-            row1.set_icon_name('folder-remote-symbolic')
-            pref_group.add(row1)
+            # Add edit button
+            edit_button = Gtk.Button()
+            edit_button.set_icon_name('document-edit-symbolic')
+            edit_button.set_valign(Gtk.Align.CENTER)
+            edit_button.add_css_class('flat')
+            edit_button.connect('clicked', self.on_edit_clicked, remote_loop)
+            row.add_suffix(edit_button)
+
+            pref_group.add(row)
 
         
 
@@ -48,3 +58,7 @@ class RemoteListWindow(Adw.Window):
 
         toolbar_view.set_content(pref_page)
         self.set_content(toolbar_view)
+
+    def on_edit_clicked(self, _button, remote):
+        window = RemoteEditWindow(self, remote)
+        window.present()
