@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from infrastructure.ui.app import App
+from infrastructure.ui.app_window import AppWindow
 
 import gettext
 
@@ -18,7 +18,7 @@ def main():
     en_i18n.install()
 
 
-    app = App()
+    app = AppWindow()
     app.run(None)
 
 

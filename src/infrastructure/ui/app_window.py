@@ -5,8 +5,8 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw
 
-from infrastructure.ui.remote_list import RemoteListWindow
-from infrastructure.ui.remote_add import RemoteAddWindow
+from infrastructure.ui.remote_list_window import RemoteListWindow
+from infrastructure.ui.remote_add_window import RemoteAddWindow
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -59,9 +59,9 @@ class MainWindow(Adw.ApplicationWindow):
         window.present()
 
 
-class App(Adw.Application):
+class AppWindow(Adw.Application):
     def __init__(self):
-        super().__init__(application_id="com.example.myapp")
+        super().__init__(application_id="org.dupot.glfosnixsamba")
 
     def do_activate(self):
         win = MainWindow(application=self)
