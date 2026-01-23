@@ -1,0 +1,1 @@
+docker build -t gtk4-python-dev .

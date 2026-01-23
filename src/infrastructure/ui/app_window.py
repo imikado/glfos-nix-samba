@@ -20,6 +20,11 @@ class MainWindow(Adw.ApplicationWindow):
         toolbar_view = Adw.ToolbarView()
         header_bar = Adw.HeaderBar()
         toolbar_view.add_top_bar(header_bar)
+        
+        # 2. Use a ScrolledWindow to prevent the 1.4 million pixel overflow
+        scrolled = Gtk.ScrolledWindow()
+        #  scrolled.set_hscrollbar_policy(Gtk.PolicyType.NEVER)
+        scrolled.set_propagate_natural_height(True)
 
         # Create preferences page
         pref_page_remote = Adw.PreferencesPage()
@@ -46,6 +51,8 @@ class MainWindow(Adw.ApplicationWindow):
 
         pref_page_remote.add(pref_group_remote)
 
+        scrolled.set_child(pref_page_remote)
+        toolbar_view.set_content(scrolled)
 
         toolbar_view.set_content(pref_page_remote)
         self.set_content(toolbar_view)
