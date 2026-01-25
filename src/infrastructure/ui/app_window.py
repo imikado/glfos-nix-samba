@@ -5,8 +5,8 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw
 
-from infrastructure.ui.remote_list_window import RemoteListWindow
-from infrastructure.ui.remote_add_window import RemoteAddWindow
+from infrastructure.ui.remote_list_page import RemoteListPage
+from infrastructure.ui.remote_add_page import RemoteAddPage
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -16,15 +16,23 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_title("Nix Samba")
         self.set_default_size(400, 300)
 
+        # Create navigation view for in-window navigation
+        self.navigation_view = Adw.NavigationView()
+        self.set_content(self.navigation_view)
+
+        # Create and push the home page
+        home_page = self._create_home_page()
+        self.navigation_view.push(home_page)
+
+    def _create_home_page(self):
+        page = Adw.NavigationPage.new(self._create_home_content(), _('Nix Samba'))
+        return page
+
+    def _create_home_content(self):
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
         header_bar = Adw.HeaderBar()
         toolbar_view.add_top_bar(header_bar)
-        
-        # 2. Use a ScrolledWindow to prevent the 1.4 million pixel overflow
-        scrolled = Gtk.ScrolledWindow()
-        #  scrolled.set_hscrollbar_policy(Gtk.PolicyType.NEVER)
-        scrolled.set_propagate_natural_height(True)
 
         # Create preferences page
         pref_page_remote = Adw.PreferencesPage()
@@ -50,20 +58,17 @@ class MainWindow(Adw.ApplicationWindow):
         pref_group_remote.add(button_remote_add)
 
         pref_page_remote.add(pref_group_remote)
-
-        scrolled.set_child(pref_page_remote)
-        toolbar_view.set_content(scrolled)
-
         toolbar_view.set_content(pref_page_remote)
-        self.set_content(toolbar_view)
+
+        return toolbar_view
 
     def on_list_remote_clicked(self, _button):
-        window = RemoteListWindow(self)
-        window.present()
+        page = RemoteListPage(self.navigation_view)
+        self.navigation_view.push(page)
 
     def on_add_remote_clicked(self, _button):
-        window = RemoteAddWindow(self)
-        window.present()
+        page = RemoteAddPage(self.navigation_view)
+        self.navigation_view.push(page)
 
 
 class AppWindow(Adw.Application):
