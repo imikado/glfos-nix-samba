@@ -36,3 +36,29 @@ class RemoteDomain():
                 remote_list.append(new_remote_share)
 
         return remote_list
+    
+    def add_item(self):
+        pass
+
+    def edit_item(self,path_to_update:str,remote_share_to_update:RemoteShare):
+        new_remote_list=[]
+        for remote_list_loop  in self.get_list():
+            if(remote_list_loop.path==path_to_update):
+                new_remote_list.append(remote_share_to_update)
+            else:
+                new_remote_list.append(remote_list_loop)
+
+
+        self.save_list(new_remote_list)
+
+    def save_list(self,remote_list:list):
+        nix_dict:dict = self._nix_file_api.parse_config_file(self._nix_file)
+        
+        for remote_list_loop in remote_list:
+            nix_dict['fileSystems'][remote_list_loop.path]=remote_list_loop.get_nixcontent()
+
+        nix_content=self._nix_file_api.convert_dict_to_string(nix_dict)
+
+        self._system_api.write_file(self._nix_file,nix_content)
+
+        pass 

@@ -14,7 +14,7 @@ class MainWindow(Adw.ApplicationWindow):
         super().__init__(*args, **kwargs)
 
         self.set_title("Nix Samba")
-        self.set_default_size(400, 300)
+        self.set_default_size(800, 600)
 
         # Create navigation view for in-window navigation
         self.navigation_view = Adw.NavigationView()

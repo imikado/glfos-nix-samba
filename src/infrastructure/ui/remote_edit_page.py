@@ -1,5 +1,8 @@
 from domain.entity.remote_share import RemoteShare
+from domain.remote_domain import RemoteDomain
 import gi
+from infrastructure.api.nix_file_api import NixFileApi
+from infrastructure.api.system_api import SystemApi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -82,19 +85,21 @@ class RemoteEditPage(Adw.NavigationPage):
         systemd_group.set_title(_('Systemd Options'))
         systemd_group.set_description(_('Automount and timeout settings'))
 
-        # Automount switch
-        self.switch_automount = Adw.SwitchRow()
-        self.switch_automount.set_title(_('Automount'))
-        self.switch_automount.set_subtitle(_('Mount automatically when accessed'))
-        self.switch_automount.set_active(self._has_option('x-systemd.automount'))
-        systemd_group.add(self.switch_automount)
-
-        # Noauto switch
-        self.switch_noauto = Adw.SwitchRow()
-        self.switch_noauto.set_title(_('No auto mount at boot'))
-        self.switch_noauto.set_subtitle(_('Do not mount at system startup'))
-        self.switch_noauto.set_active(self._has_option('noauto'))
-        systemd_group.add(self.switch_noauto)
+        # Mount behavior choice
+        self.combo_mount_behavior = Adw.ComboRow()
+        self.combo_mount_behavior.set_title(_('Mount behavior'))
+        self.combo_mount_behavior.set_subtitle(_('When to mount the share'))
+        mount_options = Gtk.StringList.new([
+            _('Auto mount at boot'),
+            _('Mount on access')
+        ])
+        self.combo_mount_behavior.set_model(mount_options)
+        # Set initial selection based on current options
+        if self._has_option('x-systemd.automount') and self._has_option('noauto'):
+            self.combo_mount_behavior.set_selected(1)  # Mount on access
+        else:
+            self.combo_mount_behavior.set_selected(0)  # Auto mount at boot
+        systemd_group.add(self.combo_mount_behavior)
 
         # Idle timeout
         self.entry_idle_timeout = Adw.EntryRow()
@@ -150,14 +155,16 @@ class RemoteEditPage(Adw.NavigationPage):
         return False
 
     def on_save_clicked(self, _button):
-        # Gather all values
-        config = {
-            'path': self.entry_mount_path.get_text(),
-            'device': self.entry_device.get_text(),
-            'fsType': self.entry_fstype.get_text(),
-            'options': self._build_options()
-        }
-        print(f"Saving config: {config}")
+
+        remote_share_to_update=RemoteShare(
+            path=self.entry_mount_path.get_text(),
+            remote_path=self.entry_device.get_text(),
+            )
+        remote_share_to_update.set_options(self._build_options())
+
+        remote_domain = RemoteDomain(SystemApi(), NixFileApi())
+        remote_domain.edit_item(self.remote.path,remote_share_to_update)
+
         self.navigation_view.pop()
 
     def _build_options(self) -> list:
@@ -169,12 +176,14 @@ class RemoteEditPage(Adw.NavigationPage):
         if creds:
             options.append(f'credentials={creds}')
 
-        # Systemd options
-        if self.switch_automount.get_active():
-            options.append('x-systemd.automount')
-
-        if self.switch_noauto.get_active():
+        # Mount behavior
+        if self.combo_mount_behavior.get_selected() == 1:  # Mount on access
             options.append('noauto')
+            options.append('x-systemd.automount')
+        elif self.combo_mount_behavior.get_selected() == 0:  # Mount on access
+            #options.append('noauto')
+            options.append('x-systemd.automount')
+        
 
         idle_timeout = self.entry_idle_timeout.get_text()
         if idle_timeout:

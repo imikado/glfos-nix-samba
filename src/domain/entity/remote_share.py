@@ -12,3 +12,11 @@ class RemoteShare:
 
     def set_options(self,options:list):
         self.options=options
+
+    def get_nixcontent(self)->dict:
+        nix_dict:dict={}
+        nix_dict['device']=self.remote_path
+        nix_dict['fsType']='cifs'
+        nix_dict['options']=self.options
+
+        return nix_dict
