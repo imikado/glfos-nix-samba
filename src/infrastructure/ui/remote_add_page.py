@@ -1,9 +1,13 @@
+from domain.entity.remote_share import RemoteShare
+from domain.remote_domain import RemoteDomain
 import gi
+from infrastructure.api.nix_file_api import NixFileApi
+from infrastructure.api.system_api import SystemApi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw
+from gi.repository import Gtk, Adw
 
 
 class RemoteAddPage(Adw.NavigationPage):
@@ -18,34 +22,96 @@ class RemoteAddPage(Adw.NavigationPage):
         header_bar = Adw.HeaderBar()
         toolbar_view.add_top_bar(header_bar)
 
-        # Create preferences page for adding a share
+        # Create scrollable content
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+
+        # Create preferences page
         pref_page = Adw.PreferencesPage()
 
-        pref_group = Adw.PreferencesGroup()
-        pref_group.set_title(_('Share Details'))
-        pref_group.set_description(_('Enter the remote Samba share details'))
+        # Basic settings group
+        basic_group = Adw.PreferencesGroup()
+        basic_group.set_title(_('Basic Settings'))
+        basic_group.set_description(_('Mount point and remote share configuration'))
 
-        # Server address entry
-        self.entry_server = Adw.EntryRow()
-        self.entry_server.set_title(_('Server address'))
-        pref_group.add(self.entry_server)
+        # Mount path (e.g., /media/blender2)
+        self.entry_mount_path = Adw.EntryRow()
+        self.entry_mount_path.set_title(_('Mount path'))
+        basic_group.add(self.entry_mount_path)
 
-        # Share name entry
-        self.entry_share = Adw.EntryRow()
-        self.entry_share.set_title(_('Share name'))
-        pref_group.add(self.entry_share)
+        # Device/Remote path (e.g., //192.168.1.103/Blender2)
+        self.entry_device = Adw.EntryRow()
+        self.entry_device.set_title(_('Remote address'))
+        basic_group.add(self.entry_device)
 
-        # Username entry
-        self.entry_username = Adw.EntryRow()
-        self.entry_username.set_title(_('Username'))
-        pref_group.add(self.entry_username)
+        # Filesystem type
+        self.entry_fstype = Adw.EntryRow()
+        self.entry_fstype.set_title(_('Filesystem type'))
+        self.entry_fstype.set_text('cifs')
+        basic_group.add(self.entry_fstype)
 
-        # Password entry
-        self.entry_password = Adw.PasswordEntryRow()
-        self.entry_password.set_title(_('Password'))
-        pref_group.add(self.entry_password)
+        pref_page.add(basic_group)
 
-        pref_page.add(pref_group)
+        # Credentials group
+        creds_group = Adw.PreferencesGroup()
+        creds_group.set_title(_('Credentials'))
+        creds_group.set_description(_('Authentication settings'))
+
+        # Credentials file path
+        self.entry_credentials = Adw.EntryRow()
+        self.entry_credentials.set_title(_('Credentials file'))
+        creds_group.add(self.entry_credentials)
+
+        # UID
+        self.entry_uid = Adw.EntryRow()
+        self.entry_uid.set_title(_('UID'))
+        self.entry_uid.set_text('1000')
+        creds_group.add(self.entry_uid)
+
+        # GID
+        self.entry_gid = Adw.EntryRow()
+        self.entry_gid.set_title(_('GID'))
+        self.entry_gid.set_text('100')
+        creds_group.add(self.entry_gid)
+
+        pref_page.add(creds_group)
+
+        # Systemd options group
+        systemd_group = Adw.PreferencesGroup()
+        systemd_group.set_title(_('Systemd Options'))
+        systemd_group.set_description(_('Automount and timeout settings'))
+
+        # Mount behavior choice
+        self.combo_mount_behavior = Adw.ComboRow()
+        self.combo_mount_behavior.set_title(_('Mount behavior'))
+        self.combo_mount_behavior.set_subtitle(_('When to mount the share'))
+        mount_options = Gtk.StringList.new([
+            _('Auto mount at boot'),
+            _('Mount on access')
+        ])
+        self.combo_mount_behavior.set_model(mount_options)
+        self.combo_mount_behavior.set_selected(0)
+        systemd_group.add(self.combo_mount_behavior)
+
+        # Idle timeout
+        self.entry_idle_timeout = Adw.EntryRow()
+        self.entry_idle_timeout.set_title(_('Idle timeout (seconds)'))
+        self.entry_idle_timeout.set_text('300')
+        systemd_group.add(self.entry_idle_timeout)
+
+        # Device timeout
+        self.entry_device_timeout = Adw.EntryRow()
+        self.entry_device_timeout.set_title(_('Device timeout'))
+        self.entry_device_timeout.set_text('10s')
+        systemd_group.add(self.entry_device_timeout)
+
+        # Mount timeout
+        self.entry_mount_timeout = Adw.EntryRow()
+        self.entry_mount_timeout.set_title(_('Mount timeout'))
+        self.entry_mount_timeout.set_text('10s')
+        systemd_group.add(self.entry_mount_timeout)
+
+        pref_page.add(systemd_group)
 
         # Add button group
         button_group = Adw.PreferencesGroup()
@@ -58,12 +124,92 @@ class RemoteAddPage(Adw.NavigationPage):
 
         pref_page.add(button_group)
 
-        toolbar_view.set_content(pref_page)
+        scrolled.set_child(pref_page)
+        toolbar_view.set_content(scrolled)
         self.set_child(toolbar_view)
 
     def on_add_clicked(self, _button):
-        server = self.entry_server.get_text()
-        share = self.entry_share.get_text()
-        username = self.entry_username.get_text()
-        print(f"Adding share: //{server}/{share} as {username}")
-        self.navigation_view.pop()
+        # Show password dialog
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_('Authentication Required'))
+        dialog.set_body(_('Enter your password to save changes to system configuration.'))
+
+        # Create password entry
+        password_entry = Gtk.PasswordEntry()
+        password_entry.set_show_peek_icon(True)
+        password_entry.set_hexpand(True)
+        dialog.set_extra_child(password_entry)
+
+        dialog.add_response('cancel', _('Cancel'))
+        dialog.add_response('add', _('Add'))
+        dialog.set_response_appearance('add', Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response('add')
+        dialog.set_close_response('cancel')
+
+        # Store reference for callback
+        self._password_entry = password_entry
+
+        dialog.connect('response', self._on_password_response)
+        dialog.present(self.get_root())
+
+    def _on_password_response(self, dialog, response):
+        if response != 'add':
+            return
+
+        password = self._password_entry.get_text()
+
+        remote_share = RemoteShare(
+            path=self.entry_mount_path.get_text(),
+            remote_path=self.entry_device.get_text(),
+        )
+        remote_share.set_options(self._build_options())
+
+        try:
+            remote_domain = RemoteDomain(SystemApi(), NixFileApi())
+            remote_domain.add_item(remote_share, password)
+            self.navigation_view.pop()
+        except PermissionError as e:
+            error_dialog = Adw.AlertDialog()
+            error_dialog.set_heading(_('Error'))
+            error_dialog.set_body(str(e))
+            error_dialog.add_response('ok', _('OK'))
+            error_dialog.present(self.get_root())
+
+    def _build_options(self) -> list:
+        """Build the options list from form values."""
+        options = []
+
+        # Credentials
+        creds = self.entry_credentials.get_text()
+        if creds:
+            options.append(f'credentials={creds}')
+
+        # Mount behavior
+        if self.combo_mount_behavior.get_selected() == 1:  # Mount on access
+            options.append('noauto')
+            options.append('x-systemd.automount')
+        elif self.combo_mount_behavior.get_selected() == 0:  # Auto mount at boot
+            options.append('x-systemd.automount')
+
+        idle_timeout = self.entry_idle_timeout.get_text()
+        if idle_timeout:
+            options.append(f'x-systemd.idle-timeout={idle_timeout}')
+
+        device_timeout = self.entry_device_timeout.get_text()
+        if device_timeout:
+            options.append(f'x-systemd.device-timeout={device_timeout}')
+
+        mount_timeout = self.entry_mount_timeout.get_text()
+        if mount_timeout:
+            options.append(f'x-systemd.mount-timeout={mount_timeout}')
+
+        # UID/GID
+        uid = self.entry_uid.get_text()
+        if uid:
+            options.append(f'uid={uid}')
+
+        gid = self.entry_gid.get_text()
+        if gid:
+            options.append(f'gid={gid}')
+
+        return options

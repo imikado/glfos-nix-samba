@@ -37,8 +37,10 @@ class RemoteDomain():
 
         return remote_list
     
-    def add_item(self):
-        pass
+    def add_item(self, remote_share: RemoteShare, password: str):
+        current_list = self.get_list()
+        current_list.append(remote_share)
+        self.save_list(current_list, password)
 
     def edit_item(self, path_to_update: str, remote_share_to_update: RemoteShare, password: str):
         new_remote_list = []
@@ -51,11 +53,15 @@ class RemoteDomain():
         self.save_list(new_remote_list, password)
 
     def save_list(self, remote_list: list, password: str):
-        nix_dict: dict = self._nix_file_api.parse_config_file(self._nix_file)
+        # Read original file content
+        original_content = self._system_api.read_file(self._nix_file)
 
-        for remote_list_loop in remote_list:
-            nix_dict['fileSystems'][remote_list_loop.path] = remote_list_loop.get_nixcontent()
+        # Build fileSystems dict from remote_list
+        file_systems = {}
+        for remote in remote_list:
+            file_systems[remote.path] = remote.get_nixcontent()
 
-        nix_content = self._nix_file_api.convert_dict_to_string(nix_dict)
+        # Update only fileSystems section
+        new_content = self._nix_file_api.update_file_systems(original_content, file_systems)
 
-        self._system_api.write_file_sudo(self._nix_file, nix_content, password) 
+        self._system_api.write_file_sudo(self._nix_file, new_content, password) 
