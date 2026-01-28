@@ -107,17 +107,10 @@ class NixFileApi(NixFileApiContract):
 
   
 
-        services={
-            "samba":{
-                "enabled":True,
-                "securityType" : "user",
-                "openFirewall":True
-            }
-        }
-
+        
 
         # Build the module body with fileSystems entries
-        body = self._to_nix_string({"fileSystems": file_systems,"services":services}, indent=0)
+        body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
 
         # Wrap in NixOS module function
         raw_nix = f'''{{
