@@ -16,3 +16,8 @@ class NixFileApiContract:
     def update_file_systems(self, original_content: str, file_systems: dict) -> str:
         """Update only the fileSystems section in a NixOS config file."""
         pass
+
+    @abstractmethod
+    def generate_samba_module(self, file_systems: dict) -> str:
+        """Generate a complete samba.nix module and format it with nixfmt."""
+        pass

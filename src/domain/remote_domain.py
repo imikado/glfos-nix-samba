@@ -5,7 +5,7 @@ from domain.entity.remote_share import RemoteShare
 
 class RemoteDomain():
 
-    _nix_file:str='/etc/nixos/hardware-configuration.nix'
+    _nix_file:str='/etc/nixos/customConfig/samba.nix'
 
     _system_api:SystemApiContract
     _nix_file_api:NixFileApiContract
@@ -20,6 +20,7 @@ class RemoteDomain():
     def get_list(self):
 
         nix_dict:dict = self._nix_file_api.parse_config_file(self._nix_file)
+
 
         if nix_dict['fileSystems'] is None:
             return[]
@@ -53,15 +54,12 @@ class RemoteDomain():
         self.save_list(new_remote_list, password)
 
     def save_list(self, remote_list: list, password: str):
-        # Read original file content
-        original_content = self._system_api.read_file(self._nix_file)
-
         # Build fileSystems dict from remote_list
         file_systems = {}
         for remote in remote_list:
             file_systems[remote.path] = remote.get_nixcontent()
 
-        # Update only fileSystems section
-        new_content = self._nix_file_api.update_file_systems(original_content, file_systems)
+        # Generate formatted samba.nix module using nix tooling
+        new_content = self._nix_file_api.generate_samba_module(file_systems)
 
         self._system_api.write_file_sudo(self._nix_file, new_content, password) 

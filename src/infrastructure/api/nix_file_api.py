@@ -4,24 +4,27 @@ import re
 from typing import Any
 
 from domain.contract.nix_file_api_contract import NixFileApiContract
+from infrastructure.api.system_api import SystemApi
 
 
 class NixFileApi(NixFileApiContract):
 
     def parse_config_file(self, path: str) -> dict:
-        """
-        Parse a NixOS module file (a function) by calling it with mock arguments.
-        """
-        # Create a Nix expression that imports and calls the module function
+        """Parse the samba.nix config file managed by this application."""
+        system_api = SystemApi()
+        if not system_api.file_exists(path):
+            return {"fileSystems":{}}
+
+        # Since samba.nix is a NixOS module function ({ config, lib, pkgs, ... }: { ... })
+        # but doesn't use any of those args, we pass empty mock values.
+        # This avoids importing nixpkgs which is very slow.
         nix_expr = f'''
         let
           moduleFn = import {path};
-          # Call the module with empty/mock arguments
           result = moduleFn {{
             config = {{}};
-            lib = import <nixpkgs/lib>;
-            pkgs = import <nixpkgs> {{}};
-            modulesPath = "<nixpkgs/nixos/modules>";
+            lib = {{}};
+            pkgs = {{}};
           }};
         in result
         '''
@@ -32,10 +35,9 @@ class NixFileApi(NixFileApiContract):
                 text=True,
                 check=True
             )
-            print(result.stdout)
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            raise NixParseError(f"Failed to parse NixOS module: {e.stderr}")
+            raise NixParseError(f"Failed to parse samba config: {e.stderr}")
         except json.JSONDecodeError as e:
             raise NixParseError(f"Failed to decode Nix output as JSON: {e}")
 
@@ -167,6 +169,40 @@ class NixFileApi(NixFileApiContract):
 
         lines.append('  };')
         return '\n'.join(lines)
+
+
+    def generate_samba_module(self, file_systems: dict) -> str:
+        """
+        Generate a complete samba.nix NixOS module and format it with nixfmt.
+        """
+        # Build the module body with fileSystems entries
+        body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
+
+        # Wrap in NixOS module function
+        raw_nix = f'''{{
+  lib,
+  config,
+  pkgs,
+  ...
+}}:
+{body}
+'''
+        # Format with nixfmt
+        try:
+            result = subprocess.run(
+                ['nixfmt'],
+                input=raw_nix,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return result.stdout
+        except FileNotFoundError:
+            # nixfmt not installed, return unformatted
+            return raw_nix
+        except subprocess.CalledProcessError:
+            # formatting failed, return unformatted
+            return raw_nix
 
 
 class NixParseError(Exception):

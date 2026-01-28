@@ -15,3 +15,11 @@ class SystemApiContract:
     def write_file_sudo(path: str, content: str, password: str):
         """Write file with elevated privileges using sudo."""
         pass
+
+    @abstractmethod
+    def file_exists(self,path:str)->bool:
+        pass
+
+    @abstractmethod
+    def create_dir(self,path:str):
+        pass
