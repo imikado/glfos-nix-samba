@@ -93,90 +93,31 @@ class NixFileApi(NixFileApiContract):
         escaped = key.replace('\\', '\\\\').replace('"', '\\"')
         return f'"{escaped}"'
 
-    def update_file_systems(self, original_content: str, file_systems: dict) -> str:
-        """
-        Update only the fileSystems section in a NixOS config file.
-        Removes existing CIFS fileSystems entries and adds new ones.
-        """
-        lines = original_content.split('\n')
-        result_lines = []
-
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-
-            # Check if this line starts a fileSystems entry with cifs
-            if 'fileSystems.' in line and '=' in line:
-                # Look ahead to check if it's a cifs entry
-                is_cifs = False
-                temp_lines = []
-                temp_i = i
-                temp_brace_count = 0
-
-                while temp_i < len(lines):
-                    temp_line = lines[temp_i]
-                    temp_lines.append(temp_line)
-                    temp_brace_count += temp_line.count('{') - temp_line.count('}')
-
-                    if 'fsType' in temp_line and 'cifs' in temp_line:
-                        is_cifs = True
-
-                    if temp_brace_count <= 0 and temp_i > i:
-                        break
-                    temp_i += 1
-
-                if is_cifs:
-                    # Skip this entire fileSystems entry
-                    i = temp_i + 1
-                    continue
-
-            result_lines.append(line)
-            i += 1
-
-        # Find the position to insert new fileSystems entries (before the closing brace)
-        # Look for the last '}' that closes the main module
-        insert_position = len(result_lines) - 1
-        for j in range(len(result_lines) - 1, -1, -1):
-            if result_lines[j].strip() == '}':
-                insert_position = j
-                break
-
-        # Generate new fileSystems entries
-        new_entries = []
-        for path, config in file_systems.items():
-            entry = self._generate_file_system_entry(path, config)
-            new_entries.append(entry)
-
-        # Insert new entries before the closing brace
-        for entry in new_entries:
-            result_lines.insert(insert_position, entry)
-
-        return '\n'.join(result_lines)
-
-    def _generate_file_system_entry(self, path: str, config: dict) -> str:
-        """Generate a single fileSystems entry."""
-        lines = [f'  fileSystems."{path}" = {{']
-
-        if 'device' in config:
-            lines.append(f'    device = "{config["device"]}";')
-
-        if 'fsType' in config:
-            lines.append(f'    fsType = "{config["fsType"]}";')
-
-        if 'options' in config and config['options']:
-            options_str = ' '.join(f'"{opt}"' for opt in config['options'])
-            lines.append(f'    options = [ {options_str} ];')
-
-        lines.append('  };')
-        return '\n'.join(lines)
-
 
     def generate_samba_module(self, file_systems: dict) -> str:
+
+
+
+
+
         """
         Generate a complete samba.nix NixOS module and format it with nixfmt.
         """
+
+
+  
+
+        services={
+            "samba":{
+                "enabled":True,
+                "securityType" : "user",
+                "openFirewall":True
+            }
+        }
+
+
         # Build the module body with fileSystems entries
-        body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
+        body = self._to_nix_string({"fileSystems": file_systems,"services":services}, indent=0)
 
         # Wrap in NixOS module function
         raw_nix = f'''{{
