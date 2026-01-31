@@ -190,6 +190,9 @@ class RemoteAddPage(Adw.NavigationPage):
 
         try:
             self._remote_domain.add_item(remote_share)
+
+            self._show_notification(_('Save in memory, don\'t forget to press the top save button'))
+
             self._navigation_view.pop()
         except PermissionError as e:
             error_dialog = Adw.AlertDialog()
