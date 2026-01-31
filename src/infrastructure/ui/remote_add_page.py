@@ -11,10 +11,18 @@ from gi.repository import Gtk, Adw
 
 
 class RemoteAddPage(Adw.NavigationPage):
-    def __init__(self, navigation_view, *args, **kwargs):
+
+    _remote_domain:RemoteDomain
+    _navigation_view:Adw.NavigationView
+
+
+    def __init__(self, remote_domain:RemoteDomain,navigation_view:Adw.NavigationView, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.navigation_view = navigation_view
+        self._navigation_view=navigation_view
+
+
+        self._remote_domain = remote_domain
         self.set_title(_('Add Remote Share'))
 
         # Create toolbar view with header bar
@@ -130,34 +138,6 @@ class RemoteAddPage(Adw.NavigationPage):
 
     def on_add_clicked(self, _button):
         # Show password dialog
-        dialog = Adw.AlertDialog()
-        dialog.set_heading(_('Authentication Required'))
-        dialog.set_body(_('Enter your password to save changes to system configuration.'))
-
-        # Create password entry
-        password_entry = Gtk.PasswordEntry()
-        password_entry.set_show_peek_icon(True)
-        password_entry.set_hexpand(True)
-        dialog.set_extra_child(password_entry)
-
-        dialog.add_response('cancel', _('Cancel'))
-        dialog.add_response('add', _('Add'))
-        dialog.set_response_appearance('add', Adw.ResponseAppearance.SUGGESTED)
-        dialog.set_default_response('add')
-        dialog.set_close_response('cancel')
-
-        # Store reference for callback
-        self._password_entry = password_entry
-
-        dialog.connect('response', self._on_password_response)
-        dialog.present(self.get_root())
-
-    def _on_password_response(self, dialog, response):
-        if response != 'add':
-            return
-
-        password = self._password_entry.get_text()
-
         remote_share = RemoteShare(
             path=self.entry_mount_path.get_text(),
             remote_path=self.entry_device.get_text(),
@@ -165,15 +145,16 @@ class RemoteAddPage(Adw.NavigationPage):
         remote_share.set_options(self._build_options())
 
         try:
-            remote_domain = RemoteDomain(SystemApi(), NixFileApi())
-            remote_domain.add_item(remote_share, password)
-            self.navigation_view.pop()
+            self._remote_domain.add_item(remote_share)
+            self._navigation_view.pop()
         except PermissionError as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_('Error'))
             error_dialog.set_body(str(e))
             error_dialog.add_response('ok', _('OK'))
             error_dialog.present(self.get_root())
+
+    
 
     def _build_options(self) -> list:
         """Build the options list from form values."""

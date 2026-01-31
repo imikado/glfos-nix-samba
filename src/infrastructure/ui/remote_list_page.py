@@ -12,14 +12,20 @@ from infrastructure.ui.remote_edit_page import RemoteEditPage
 
 
 class RemoteListPage(Adw.NavigationPage):
-    def __init__(self, navigation_view, *args, **kwargs):
+
+    _remote_domain:RemoteDomain
+    _navigation_view:Adw.NavigationView
+
+    
+    def __init__(self, remote_domain:RemoteDomain, navigation_view:Adw.NavigationView, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.navigation_view = navigation_view
+        self._navigation_view = navigation_view
         self.set_title(_('Remote Shares'))
 
-        remote_domain = RemoteDomain(SystemApi(), NixFileApi())
-        remote_list = remote_domain.get_list()
+        self._remote_domain=remote_domain
+
+        remote_list = self._remote_domain.get_list()
 
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
@@ -55,5 +61,5 @@ class RemoteListPage(Adw.NavigationPage):
         self.set_child(toolbar_view)
 
     def on_edit_clicked(self, _button, remote):
-        page = RemoteEditPage(self.navigation_view, remote)
-        self.navigation_view.push(page)
+        page = RemoteEditPage(self._remote_domain,self._navigation_view, remote)
+        self._navigation_view.push(page)

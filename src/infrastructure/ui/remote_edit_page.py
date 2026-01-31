@@ -1,8 +1,6 @@
 from domain.entity.remote_share import RemoteShare
 from domain.remote_domain import RemoteDomain
 import gi
-from infrastructure.api.nix_file_api import NixFileApi
-from infrastructure.api.system_api import SystemApi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -11,10 +9,16 @@ from gi.repository import Gtk, Adw
 
 
 class RemoteEditPage(Adw.NavigationPage):
-    def __init__(self, navigation_view, remote: RemoteShare, *args, **kwargs):
+
+    _remote_domain:RemoteDomain
+    _navigation_view:Adw.NavigationView
+
+    def __init__(self, remote_domain:RemoteDomain, navigation_view:Adw.NavigationView, remote: RemoteShare, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.navigation_view = navigation_view
+        self._navigation_view=navigation_view
+
+        self._remote_domain = remote_domain
         self.remote = remote
         self.set_title(_('Edit Remote Share'))
 
@@ -155,35 +159,6 @@ class RemoteEditPage(Adw.NavigationPage):
         return False
 
     def on_save_clicked(self, _button):
-        # Show password dialog
-        dialog = Adw.AlertDialog()
-        dialog.set_heading(_('Authentication Required'))
-        dialog.set_body(_('Enter your password to save changes to system configuration.'))
-
-        # Create password entry
-        password_entry = Gtk.PasswordEntry()
-        password_entry.set_show_peek_icon(True)
-        password_entry.set_hexpand(True)
-        dialog.set_extra_child(password_entry)
-
-        dialog.add_response('cancel', _('Cancel'))
-        dialog.add_response('save', _('Save'))
-        dialog.set_response_appearance('save', Adw.ResponseAppearance.SUGGESTED)
-        dialog.set_default_response('save')
-        dialog.set_close_response('cancel')
-
-        # Store reference for callback
-        self._password_entry = password_entry
-
-        dialog.connect('response', self._on_password_response)
-        dialog.present(self.get_root())
-
-    def _on_password_response(self, dialog, response):
-        if response != 'save':
-            return
-
-        password = self._password_entry.get_text()
-
         remote_share_to_update = RemoteShare(
             path=self.entry_mount_path.get_text(),
             remote_path=self.entry_device.get_text(),
@@ -191,15 +166,16 @@ class RemoteEditPage(Adw.NavigationPage):
         remote_share_to_update.set_options(self._build_options())
 
         try:
-            remote_domain = RemoteDomain(SystemApi(), NixFileApi())
-            remote_domain.edit_item(self.remote.path, remote_share_to_update, password)
-            self.navigation_view.pop()
+            self._remote_domain.edit_item(self.remote.path, remote_share_to_update)
+            self._navigation_view.pop()
         except PermissionError as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_('Error'))
             error_dialog.set_body(str(e))
             error_dialog.add_response('ok', _('OK'))
             error_dialog.present(self.get_root())
+
+    
 
     def _build_options(self) -> list:
         """Build the options list from form values."""

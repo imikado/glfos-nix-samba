@@ -1,4 +1,7 @@
+from domain.remote_domain import RemoteDomain
 import gi
+from infrastructure.api.samba_file_api import SambaFileApi
+from infrastructure.api.system_api import SystemApi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -10,8 +13,13 @@ from infrastructure.ui.remote_add_page import RemoteAddPage
 
 
 class MainWindow(Adw.ApplicationWindow):
+
+    _remote_domain:RemoteDomain=None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self._remote_domain=RemoteDomain(SystemApi(),SambaFileApi())
 
         self.set_title("Nix Samba")
         self.set_default_size(800, 600)
@@ -63,12 +71,15 @@ class MainWindow(Adw.ApplicationWindow):
         return toolbar_view
 
     def on_list_remote_clicked(self, _button):
-        page = RemoteListPage(self.navigation_view)
+        page = RemoteListPage(self._remote_domain,self.navigation_view)
         self.navigation_view.push(page)
 
     def on_add_remote_clicked(self, _button):
-        page = RemoteAddPage(self.navigation_view)
+        page = RemoteAddPage(self._remote_domain,self.navigation_view)
         self.navigation_view.push(page)
+
+    def debug(text:str):
+        print(text)
 
 
 class AppWindow(Adw.Application):
