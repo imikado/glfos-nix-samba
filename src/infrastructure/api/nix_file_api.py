@@ -116,11 +116,14 @@ class NixFileApi(NixFileApiContract):
         """
 
  
-        
-        environment={'systemPackages':[ 'pkgs.cifs-utils' ]}
-
         # Build the module body with fileSystems entries
-        body = self._to_nix_string({"fileSystems": file_systems,"environment":environment}, indent=0)
+        body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
+        
+        service='environment.systemPackages = [ pkgs.cifs-utils ];'
+
+        body='{'+"\n"+service+"\n"+body[1:]
+
+
 
         # Wrap in NixOS module function
         raw_nix = f'''{{
