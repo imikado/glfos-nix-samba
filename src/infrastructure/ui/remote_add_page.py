@@ -96,7 +96,7 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('UID (user id)'))
         self.entry_uid = Gtk.Entry()
         self.entry_uid.set_placeholder_text('1000')
-        self.entry_uid.set_text('1000')
+        #self.entry_uid.set_text('1000')
         self.entry_uid.set_width_chars(field_width)
         self.entry_uid.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_uid)
@@ -106,7 +106,7 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('GID (Group id)'))
         self.entry_gid = Gtk.Entry()
         self.entry_gid.set_placeholder_text('100')
-        self.entry_gid.set_text('100')
+        #self.entry_gid.set_text('100')
         self.entry_gid.set_width_chars(field_width)
         self.entry_gid.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_gid)
@@ -285,8 +285,8 @@ class RemoteAddPage(Adw.NavigationPage):
 
         # Mount behavior
         if self.combo_mount_behavior.get_selected() == 1:  # Mount on access
-            options.append('noauto')
             options.append('x-systemd.automount')
+            options.append('noauto')
         elif self.combo_mount_behavior.get_selected() == 0:  # Auto mount at boot
             options.append('x-systemd.automount')
 
