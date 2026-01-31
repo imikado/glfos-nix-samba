@@ -173,7 +173,7 @@ class RemoteEditPage(Adw.NavigationPage):
         button_group = Adw.PreferencesGroup()
 
         button_save = Adw.ButtonRow()
-        button_save.set_title(_('Save changes'))
+        button_save.set_title(_('Update share'))
         button_save.set_start_icon_name('document-save-symbolic')
         button_save.connect('activated', self.on_save_clicked)
         button_group.add(button_save)

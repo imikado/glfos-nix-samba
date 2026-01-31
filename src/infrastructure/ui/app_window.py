@@ -49,12 +49,11 @@ class MainWindow(Adw.ApplicationWindow):
         header_bar = Adw.HeaderBar()
 
         # Save button in header bar
-        save_button=Adw.ButtonRow()
-        save_button.set_start_icon_name('media-floppy-symbolic')
-        save_button.set_tooltip_text(_('Save configuration'))
-        save_button.set_title('Save on disk')
-        save_button.connect('activated', self.on_save_clicked)
-
+        save_button = Gtk.Button()
+        save_button.set_icon_name('media-floppy-symbolic')
+        save_button.set_label(_('Save on disk'))
+        save_button.set_tooltip_text(_('Save on disk'))
+        save_button.connect('clicked', self.on_save_clicked)
         save_button.add_css_class('destructive-action')
         save_button.set_sensitive(False)
 

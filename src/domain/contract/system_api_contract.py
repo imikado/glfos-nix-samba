@@ -23,3 +23,7 @@ class SystemApiContract:
     @abstractmethod
     def create_dir(self,path:str):
         pass
+
+    @abstractmethod
+    def nix_rebuild_sudo(self,password:str):
+        pass

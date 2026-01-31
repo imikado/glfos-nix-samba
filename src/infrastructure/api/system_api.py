@@ -58,3 +58,8 @@ class SystemApi(SystemApiContract):
     
     def create_dir(self,path:str):
         os.mkdir(path, mode=0o777,)
+
+    def nix_rebuild_sudo(self,password:str):
+        self._password=password
+        self.sudo_execute(['sudo', '-S', 'nixos-rebuild','switch'])
+        pass
