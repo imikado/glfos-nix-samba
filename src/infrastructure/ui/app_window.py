@@ -98,11 +98,11 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def on_list_remote_clicked(self, _button):
-        page = RemoteListPage(self._remote_domain,self.navigation_view)
+        page = RemoteListPage(self._remote_domain,self.navigation_view,self.show_notification)
         self.navigation_view.push(page)
 
     def on_add_remote_clicked(self, _button):
-        page = RemoteAddPage(self._remote_domain,self.navigation_view)
+        page = RemoteAddPage(self._remote_domain,self.navigation_view,self.show_notification)
         self.navigation_view.push(page)
 
     def on_save_clicked(self, _button):
@@ -136,15 +136,20 @@ class MainWindow(Adw.ApplicationWindow):
             self._remote_domain.save(password)
             self.save_button.set_sensitive(False)
 
-            toast = Adw.Toast.new(_('Configuration saved'))
-            toast.set_timeout(3)
-            self._toast_overlay.add_toast(toast)
+            self.show_notification(_('Configuration saved'))
+
+            
         except PermissionError as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_('Error'))
             error_dialog.set_body(str(e))
             error_dialog.add_response('ok', _('OK'))
             error_dialog.present(self)
+
+    def show_notification(self,text:str):
+        toast = Adw.Toast.new(text)
+        toast.set_timeout(3)
+        self._toast_overlay.add_toast(toast)
 
 
 class AppWindow(Adw.Application):

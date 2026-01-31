@@ -17,10 +17,12 @@ class RemoteListPage(Adw.NavigationPage):
     _navigation_view:Adw.NavigationView
 
     
-    def __init__(self, remote_domain:RemoteDomain, navigation_view:Adw.NavigationView, *args, **kwargs):
+    def __init__(self, remote_domain:RemoteDomain, navigation_view:Adw.NavigationView,show_notification, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._navigation_view = navigation_view
+        self._navigation_view=navigation_view
+
+        self._show_notification=show_notification
         self.set_title(_('Remote Shares'))
 
         self._remote_domain=remote_domain
@@ -81,7 +83,7 @@ class RemoteListPage(Adw.NavigationPage):
 
 
     def on_edit_clicked(self, _button, remote):
-        page = RemoteEditPage(self._remote_domain,self._navigation_view, remote)
+        page = RemoteEditPage(self._remote_domain,self._navigation_view, remote,self._show_notification)
         self._navigation_view.push(page)
 
     def on_delete_clicked(self, _button, remote):

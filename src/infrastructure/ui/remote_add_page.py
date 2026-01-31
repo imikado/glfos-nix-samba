@@ -1,3 +1,5 @@
+import re
+
 from domain.entity.remote_share import RemoteShare
 from domain.remote_domain import RemoteDomain
 import gi
@@ -16,11 +18,12 @@ class RemoteAddPage(Adw.NavigationPage):
     _navigation_view:Adw.NavigationView
 
 
-    def __init__(self, remote_domain:RemoteDomain,navigation_view:Adw.NavigationView, *args, **kwargs):
+    def __init__(self, remote_domain:RemoteDomain,navigation_view:Adw.NavigationView, show_notification, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._navigation_view=navigation_view
 
+        self._show_notification=show_notification
 
         self._remote_domain = remote_domain
         self.set_title(_('Add Remote Share'))
@@ -137,7 +140,9 @@ class RemoteAddPage(Adw.NavigationPage):
         self.set_child(toolbar_view)
 
     def on_add_clicked(self, _button):
-        # Show password dialog
+        if not self._validate():
+            return
+
         remote_share = RemoteShare(
             path=self.entry_mount_path.get_text(),
             remote_path=self.entry_device.get_text(),
@@ -153,6 +158,77 @@ class RemoteAddPage(Adw.NavigationPage):
             error_dialog.set_body(str(e))
             error_dialog.add_response('ok', _('OK'))
             error_dialog.present(self.get_root())
+
+    def _set_row_error(self, row, has_error):
+        if has_error:
+            row.add_css_class('error')
+        else:
+            row.remove_css_class('error')
+
+    def _validate(self) -> bool:
+        valid = True
+
+        # Mount path: required, must start with /
+        mount_path = self.entry_mount_path.get_text().strip()
+        mount_error = not mount_path or not mount_path.startswith('/')
+        self._set_row_error(self.entry_mount_path, mount_error)
+        if mount_error:
+            valid = False
+
+        # Remote address: required, must match //host/share
+        device = self.entry_device.get_text().strip()
+        device_error = not device or not re.match(r'^//[^/]+/.+$', device)
+        self._set_row_error(self.entry_device, device_error)
+        if device_error:
+            valid = False
+
+        # Filesystem type: required
+        fstype = self.entry_fstype.get_text().strip()
+        fstype_error = not fstype
+        self._set_row_error(self.entry_fstype, fstype_error)
+        if fstype_error:
+            valid = False
+
+        # UID: must be a number
+        uid = self.entry_uid.get_text().strip()
+        uid_error = uid and not uid.isdigit()
+        self._set_row_error(self.entry_uid, uid_error)
+        if uid_error:
+            valid = False
+
+        # GID: must be a number
+        gid = self.entry_gid.get_text().strip()
+        gid_error = gid and not gid.isdigit()
+        self._set_row_error(self.entry_gid, gid_error)
+        if gid_error:
+            valid = False
+
+        # Idle timeout: must be a number
+        idle = self.entry_idle_timeout.get_text().strip()
+        idle_error = idle and not idle.isdigit()
+        self._set_row_error(self.entry_idle_timeout, idle_error)
+        if idle_error:
+            valid = False
+
+        # Device timeout: must match pattern like 10s, 30s
+        dev_timeout = self.entry_device_timeout.get_text().strip()
+        dev_timeout_error = dev_timeout and not re.match(r'^\d+[smh]?$', dev_timeout)
+        self._set_row_error(self.entry_device_timeout, dev_timeout_error)
+        if dev_timeout_error:
+            valid = False
+
+        # Mount timeout: must match pattern like 10s, 30s
+        mnt_timeout = self.entry_mount_timeout.get_text().strip()
+        mnt_timeout_error = mnt_timeout and not re.match(r'^\d+[smh]?$', mnt_timeout)
+        self._set_row_error(self.entry_mount_timeout, mnt_timeout_error)
+        if mnt_timeout_error:
+            valid = False
+
+        if not valid:
+            self._show_notification(_('There are error during validation'))
+            
+
+        return valid
 
     
 
