@@ -11,6 +11,7 @@ class RemoteDomain():
     _system_api:SystemApiContract
     _samba_file_api:SambaFileApiContract
     _remote_share_repository:RemoteShareRepository
+    _need_to_save=False
 
     def __init__(self,system_api:SystemApiContract,samba_file_api:SambaFileApiContract):
         self._system_api=system_api
@@ -18,6 +19,8 @@ class RemoteDomain():
         self._remote_share_repository=RemoteShareRepository()
         pass
 
+    def need_to_save(self)->bool:
+        return self._need_to_save
 
     def get_list(self)->list:
 
@@ -32,14 +35,18 @@ class RemoteDomain():
     def add_item(self, remote_share: RemoteShare):
 
         self._remote_share_repository.add_item(remote_share)
+        self._need_to_save=True
 
     def edit_item(self, path_to_update: str, remote_share_to_update: RemoteShare):
 
         self._remote_share_repository.edit_item(path_to_update,remote_share_to_update)
+        self._need_to_save=True
 
 
     def save(self, password: str):
 
         new_content=self._samba_file_api.convert_remote_list_to_nix_content(self.get_list())
 
-        self._system_api.write_file_sudo(self._nix_file, new_content, password) 
+        self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
+
+        self._need_to_save=False

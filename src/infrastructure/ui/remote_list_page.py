@@ -25,7 +25,13 @@ class RemoteListPage(Adw.NavigationPage):
 
         self._remote_domain=remote_domain
 
+        self._navigation_view.connect('popped', self._on_page_popped)
+
+        self.build()
+
+    def build(self):
         remote_list = self._remote_domain.get_list()
+
 
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
@@ -59,6 +65,11 @@ class RemoteListPage(Adw.NavigationPage):
 
         toolbar_view.set_content(pref_page)
         self.set_child(toolbar_view)
+
+
+    def _on_page_popped(self, _navigation_view, _page):
+        self.build()
+
 
     def on_edit_clicked(self, _button, remote):
         page = RemoteEditPage(self._remote_domain,self._navigation_view, remote)

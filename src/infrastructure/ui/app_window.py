@@ -32,6 +32,9 @@ class MainWindow(Adw.ApplicationWindow):
         home_page = self._create_home_page()
         self.navigation_view.push(home_page)
 
+        self.navigation_view.connect('popped', self._on_page_popped)
+
+
     def _create_home_page(self):
         page = Adw.NavigationPage.new(self._create_home_content(), _('Nix Samba'))
         return page
@@ -40,6 +43,19 @@ class MainWindow(Adw.ApplicationWindow):
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
         header_bar = Adw.HeaderBar()
+
+        # Save button in header bar
+        save_button:Gtk.Button = Gtk.Button()
+        save_button.set_icon_name('media-floppy-symbolic')
+        save_button.set_tooltip_text(_('Save configuration'))
+        save_button.connect('clicked', self.on_save_clicked)
+
+        save_button.set_sensitive(False)
+
+        self.save_button=save_button
+
+        header_bar.pack_end(save_button)
+
         toolbar_view.add_top_bar(header_bar)
 
         # Create preferences page
@@ -68,7 +84,14 @@ class MainWindow(Adw.ApplicationWindow):
         pref_page_remote.add(pref_group_remote)
         toolbar_view.set_content(pref_page_remote)
 
+
+
         return toolbar_view
+    
+    def _on_page_popped(self, _navigation_view, _page):
+        self.save_button.set_sensitive(self._remote_domain.need_to_save())
+
+
 
     def on_list_remote_clicked(self, _button):
         page = RemoteListPage(self._remote_domain,self.navigation_view)
@@ -78,8 +101,41 @@ class MainWindow(Adw.ApplicationWindow):
         page = RemoteAddPage(self._remote_domain,self.navigation_view)
         self.navigation_view.push(page)
 
-    def debug(text:str):
-        print(text)
+    def on_save_clicked(self, _button):
+        # Show password dialog
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_('Authentication Required'))
+        dialog.set_body(_('Enter your password to save changes to system configuration.'))
+
+        password_entry = Gtk.PasswordEntry()
+        password_entry.set_show_peek_icon(True)
+        password_entry.set_hexpand(True)
+        dialog.set_extra_child(password_entry)
+
+        dialog.add_response('cancel', _('Cancel'))
+        dialog.add_response('save', _('Save'))
+        dialog.set_response_appearance('save', Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response('save')
+        dialog.set_close_response('cancel')
+
+        self._password_entry = password_entry
+        dialog.connect('response', self._on_save_password_response)
+        dialog.present(self)
+
+    def _on_save_password_response(self, dialog, response):
+        if response != 'save':
+            return
+
+        password = self._password_entry.get_text()
+
+        try:
+            self._remote_domain.save(password)
+        except PermissionError as e:
+            error_dialog = Adw.AlertDialog()
+            error_dialog.set_heading(_('Error'))
+            error_dialog.set_body(str(e))
+            error_dialog.add_response('ok', _('OK'))
+            error_dialog.present(self)
 
 
 class AppWindow(Adw.Application):

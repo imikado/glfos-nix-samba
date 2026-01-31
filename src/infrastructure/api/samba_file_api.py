@@ -4,7 +4,7 @@ from infrastructure.api.nix_file_api import NixFileApi
 
 class SambaFileApi(SambaFileApiContract):
 
-    _nix_file:str='/etc/nixos/customConfig/samba.nix'
+    _nix_file_path:str='/etc/nixos/customConfig/samba.nix'
 
     _nix_file_api:NixFileApi
 
@@ -13,7 +13,7 @@ class SambaFileApi(SambaFileApiContract):
         pass
 
     def get_nix_dict(self)->dict:
-        nix_dict:dict = self._nix_file_api.parse_config_file(self._nix_file)
+        nix_dict:dict = self._nix_file_api.parse_config_file(self._nix_file_path)
 
         if nix_dict['fileSystems'] is None:
             return {}
@@ -28,3 +28,6 @@ class SambaFileApi(SambaFileApiContract):
         new_content = self._nix_file_api.generate_samba_module(file_systems)
 
         return new_content
+    
+    def get_nix_file_path(self)->str:
+        return self._nix_file_path
