@@ -45,18 +45,21 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_mount_path = Adw.EntryRow()
         self.entry_mount_path.set_title(_('Mount path'))
         self.entry_mount_path.set_tooltip_text(_('Example /media/myshare'))
+        self.entry_mount_path.get_delegate().set_placeholder_text('/media/myshare')
         self.entry_mount_path.set_text(remote.path or '')
         basic_group.add(self.entry_mount_path)
 
         self.entry_device = Adw.EntryRow()
         self.entry_device.set_title(_('Remote address'))
         self.entry_device.set_tooltip_text(_('Example //192.168.1.100/Share'))
+        self.entry_device.get_delegate().set_placeholder_text('//192.168.1.100/Share')
         self.entry_device.set_text(remote.remote_path or '')
         basic_group.add(self.entry_device)
 
         self.entry_fstype = Adw.EntryRow()
         self.entry_fstype.set_title(_('Filesystem type'))
         self.entry_fstype.set_tooltip_text(_('Example cifs'))
+        self.entry_fstype.get_delegate().set_placeholder_text('cifs')
         self.entry_fstype.set_text(remote.fs_type or 'cifs')
         basic_group.add(self.entry_fstype)
 
@@ -71,6 +74,7 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_credentials = Adw.EntryRow()
         self.entry_credentials.set_title(_('Credentials file'))
         self.entry_credentials.set_tooltip_text(_('Example /etc/nixos/smb-credentials'))
+        self.entry_credentials.get_delegate().set_placeholder_text('/etc/nixos/smb-credentials')
         self.entry_credentials.set_text(self._get_option_value('credentials') or '')
         creds_group.add(self.entry_credentials)
 
@@ -78,6 +82,7 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_uid = Adw.EntryRow()
         self.entry_uid.set_title(_('UID'))
         self.entry_uid.set_tooltip_text(_('Example 1000'))
+        self.entry_uid.get_delegate().set_placeholder_text('1000')
         self.entry_uid.set_text(self._get_option_value('uid') or '1000')
         creds_group.add(self.entry_uid)
 
@@ -85,6 +90,7 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_gid = Adw.EntryRow()
         self.entry_gid.set_title(_('GID'))
         self.entry_gid.set_tooltip_text(_('Example 100'))
+        self.entry_gid.get_delegate().set_placeholder_text('100')
         self.entry_gid.set_text(self._get_option_value('gid') or '100')
         creds_group.add(self.entry_gid)
 
@@ -115,6 +121,7 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_idle_timeout = Adw.EntryRow()
         self.entry_idle_timeout.set_title(_('Idle timeout (seconds)'))
         self.entry_idle_timeout.set_tooltip_text(_('Example 300'))
+        self.entry_idle_timeout.get_delegate().set_placeholder_text('300')
         self.entry_idle_timeout.set_text(self._get_option_value('x-systemd.idle-timeout') or '300')
         systemd_group.add(self.entry_idle_timeout)
 
@@ -122,6 +129,7 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_device_timeout = Adw.EntryRow()
         self.entry_device_timeout.set_title(_('Device timeout'))
         self.entry_device_timeout.set_tooltip_text(_('Example 10s, 30s, 1m'))
+        self.entry_device_timeout.get_delegate().set_placeholder_text('10s')
         self.entry_device_timeout.set_text(self._get_option_value('x-systemd.device-timeout') or '10s')
         systemd_group.add(self.entry_device_timeout)
 
@@ -129,6 +137,7 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_mount_timeout = Adw.EntryRow()
         self.entry_mount_timeout.set_title(_('Mount timeout'))
         self.entry_mount_timeout.set_tooltip_text(_('Example 10s, 30s, 1m'))
+        self.entry_mount_timeout.get_delegate().set_placeholder_text('10s')
         self.entry_mount_timeout.set_text(self._get_option_value('x-systemd.mount-timeout') or '10s')
         systemd_group.add(self.entry_mount_timeout)
 
