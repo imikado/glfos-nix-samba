@@ -24,9 +24,13 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_title("Nix Samba")
         self.set_default_size(800, 600)
 
+        # Create toast overlay for notifications
+        self._toast_overlay = Adw.ToastOverlay()
+        self.set_content(self._toast_overlay)
+
         # Create navigation view for in-window navigation
         self.navigation_view = Adw.NavigationView()
-        self.set_content(self.navigation_view)
+        self._toast_overlay.set_child(self.navigation_view)
 
         # Create and push the home page
         home_page = self._create_home_page()
@@ -130,6 +134,11 @@ class MainWindow(Adw.ApplicationWindow):
 
         try:
             self._remote_domain.save(password)
+            self.save_button.set_sensitive(False)
+
+            toast = Adw.Toast.new(_('Configuration saved'))
+            toast.set_timeout(3)
+            self._toast_overlay.add_toast(toast)
         except PermissionError as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_('Error'))
