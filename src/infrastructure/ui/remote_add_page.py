@@ -81,18 +81,18 @@ class RemoteAddPage(Adw.NavigationPage):
 
         # UID
         self.entry_uid = Adw.EntryRow()
-        self.entry_uid.set_title(_('UID'))
-        self.entry_uid.set_tooltip_text(_('Example 1000'))
+        self.entry_uid.set_title(_('UID (user id)'))
+        self.entry_uid.set_tooltip_text(_('Example 1000, is your user id'))
         self.entry_uid.get_delegate().set_placeholder_text('1000')
         self.entry_uid.set_text('1000')
         creds_group.add(self.entry_uid)
 
         # GID
         self.entry_gid = Adw.EntryRow()
-        self.entry_gid.set_title(_('GID'))
-        self.entry_gid.set_tooltip_text(_('Example 100'))
-        self.entry_gid.get_delegate().set_placeholder_text('100')
-        self.entry_gid.set_text('100')
+        self.entry_gid.set_title(_('GID (Group id)'))
+        self.entry_gid.set_tooltip_text(_('Example 1000 is your group id'))
+        self.entry_gid.get_delegate().set_placeholder_text('1000')
+        self.entry_gid.set_text('1000')
         creds_group.add(self.entry_gid)
 
         pref_page.add(creds_group)
