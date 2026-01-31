@@ -119,9 +119,9 @@ class NixFileApi(NixFileApiContract):
         # Build the module body with fileSystems entries
         body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
         
-        service='environment.systemPackages = [ pkgs.cifs-utils ];'
+        #service='environment.systemPackages = [ pkgs.cifs-utils ];'
 
-        body='{'+"\n"+service+"\n"+body[1:]
+        #body='{'+"\n"+service+"\n"+body[1:]
 
 
 
