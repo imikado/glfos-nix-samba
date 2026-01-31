@@ -51,6 +51,7 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('Mount path'))
         self.entry_mount_path = Gtk.Entry()
         self.entry_mount_path.set_placeholder_text('/media/myshare')
+        self.entry_mount_path.set_text('/media/')
         self.entry_mount_path.set_width_chars(field_width)
         self.entry_mount_path.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_mount_path)
