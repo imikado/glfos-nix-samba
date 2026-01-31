@@ -42,6 +42,10 @@ class RemoteDomain():
         self._remote_share_repository.edit_item(path_to_update,remote_share_to_update)
         self._need_to_save=True
 
+    def delete_item(self, path_to_delete: str):
+        self._remote_share_repository.delete_item(path_to_delete)
+        self._need_to_save=True
+
 
     def save(self, password: str):
 

@@ -59,6 +59,15 @@ class RemoteListPage(Adw.NavigationPage):
             edit_button.connect('clicked', self.on_edit_clicked, remote_loop)
             row.add_suffix(edit_button)
 
+            # Add delete button
+            delete_button = Gtk.Button()
+            delete_button.set_icon_name('user-trash-symbolic')
+            delete_button.set_valign(Gtk.Align.CENTER)
+            delete_button.add_css_class('flat')
+            delete_button.add_css_class('destructive-action')
+            delete_button.connect('clicked', self.on_delete_clicked, remote_loop)
+            row.add_suffix(delete_button)
+
             pref_group.add(row)
 
         pref_page.add(pref_group)
@@ -74,3 +83,24 @@ class RemoteListPage(Adw.NavigationPage):
     def on_edit_clicked(self, _button, remote):
         page = RemoteEditPage(self._remote_domain,self._navigation_view, remote)
         self._navigation_view.push(page)
+
+    def on_delete_clicked(self, _button, remote):
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_('Delete Share'))
+        dialog.set_body(_('Are you sure you want to delete the share "%s"?') % remote.path)
+
+        dialog.add_response('cancel', _('Cancel'))
+        dialog.add_response('delete', _('Delete'))
+        dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_default_response('cancel')
+        dialog.set_close_response('cancel')
+
+        dialog.connect('response', self._on_delete_response, remote)
+        dialog.present(self.get_root())
+
+    def _on_delete_response(self, _dialog, response, remote):
+        if response != 'delete':
+            return
+
+        self._remote_domain.delete_item(remote.path)
+        self.build()

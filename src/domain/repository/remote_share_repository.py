@@ -23,7 +23,14 @@ class RemoteShareRepository:
                 remote_share_list.append(remote_share_loop)
 
         self._remote_share_list=remote_share_list
-    
+
+    def delete_item(self, path_to_delete: str):
+        remote_share_list:list=[]
+        for remote_share_loop in self._remote_share_list:
+            if remote_share_loop.path != path_to_delete:
+                remote_share_list.append(remote_share_loop)
+
+        self._remote_share_list=remote_share_list    
 
     def load_from_dict(self,nix_dict:dict):
         
