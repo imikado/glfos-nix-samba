@@ -1,9 +1,11 @@
+import datetime
 import subprocess
 import json
 import re
 from typing import Any
 
 from domain.contract.nix_file_api_contract import NixFileApiContract
+#from infrastructure.api.samba_file_api import SambaFileApi
 from infrastructure.api.system_api import SystemApi
 
 
@@ -37,7 +39,16 @@ class NixFileApi(NixFileApiContract):
             )
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            raise NixParseError(f"Failed to parse samba config: {e.stderr}")
+            today = datetime.date.today()
+
+            tmp_backup_file_api_path='/tmp/samba.nix.backup'+today.strftime('%Y-%m-%d')
+
+            subprocess.run(["cp", path,tmp_backup_file_api_path]) 
+
+            print('ERROR when try to decode '+path+' create new one and copy this version to '+tmp_backup_file_api_path)
+
+            return {"fileSystems":{}}
+            #raise NixParseError(f"Failed to parse samba config: {e.stderr}")
         except json.JSONDecodeError as e:
             raise NixParseError(f"Failed to decode Nix output as JSON: {e}")
 

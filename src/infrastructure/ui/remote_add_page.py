@@ -51,7 +51,7 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('Mount path'))
         self.entry_mount_path = Gtk.Entry()
         self.entry_mount_path.set_placeholder_text('/media/myshare')
-        self.entry_mount_path.set_text('/media/')
+        #self.entry_mount_path.set_text('/media/')
         self.entry_mount_path.set_width_chars(field_width)
         self.entry_mount_path.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_mount_path)
@@ -128,7 +128,7 @@ class RemoteAddPage(Adw.NavigationPage):
             _('Mount on access')
         ])
         self.combo_mount_behavior.set_model(mount_options)
-        self.combo_mount_behavior.set_selected(0)
+        self.combo_mount_behavior.set_selected(1)
         systemd_group.add(self.combo_mount_behavior)
 
         row = Adw.ActionRow()
