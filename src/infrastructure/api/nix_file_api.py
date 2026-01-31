@@ -115,13 +115,12 @@ class NixFileApi(NixFileApiContract):
         Generate a complete samba.nix NixOS module and format it with nixfmt.
         """
 
-
-  
-
+ 
         
+        environment={'systemPackages':[ 'pkgs.cifs-utils' ]}
 
         # Build the module body with fileSystems entries
-        body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
+        body = self._to_nix_string({"fileSystems": file_systems,"environment":environment}, indent=0)
 
         # Wrap in NixOS module function
         raw_nix = f'''{{
