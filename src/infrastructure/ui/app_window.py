@@ -1,7 +1,9 @@
+from domain.credentials_file_domain import CredentialsFileDomain
 from domain.remote_domain import RemoteDomain
 import gi
 from infrastructure.api.samba_file_api import SambaFileApi
 from infrastructure.api.system_api import SystemApi
+from infrastructure.ui.create_creds_file_page import CreateCredsFilePage
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -86,6 +88,14 @@ class MainWindow(Adw.ApplicationWindow):
         button_remote_add.connect('activated', self.on_add_remote_clicked)
         pref_group_remote.add(button_remote_add)
 
+        # Add create credentials button
+        button_create_creds_file = Adw.ButtonRow()
+        button_create_creds_file.set_title(_('Create credentials file'))
+        button_create_creds_file.set_start_icon_name('document-save-symbolic')
+        button_create_creds_file.connect('activated', self.on_create_creds_file)
+        pref_group_remote.add(button_create_creds_file)
+
+
         pref_page_remote.add(pref_group_remote)
         toolbar_view.set_content(pref_page_remote)
 
@@ -105,6 +115,13 @@ class MainWindow(Adw.ApplicationWindow):
     def on_add_remote_clicked(self, _button):
         page = RemoteAddPage(self._remote_domain,self.navigation_view,self.show_notification)
         self.navigation_view.push(page)
+
+    def on_create_creds_file(self,_button):
+
+        credentials_file_domain=CredentialsFileDomain(SystemApi())
+        page= CreateCredsFilePage(credentials_file_domain,self.navigation_view,self.show_notification)
+        self.navigation_view.push(page)
+
 
     def on_save_clicked(self, _button):
         # Show password dialog

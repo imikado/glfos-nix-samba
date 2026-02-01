@@ -3,8 +3,7 @@ import re
 from domain.entity.remote_share import RemoteShare
 from domain.remote_domain import RemoteDomain
 import gi
-from infrastructure.api.nix_file_api import NixFileApi
-from infrastructure.api.system_api import SystemApi
+
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
