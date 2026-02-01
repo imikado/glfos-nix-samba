@@ -89,6 +89,11 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_credentials.set_width_chars(field_width)
         self.entry_credentials.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_credentials)
+        browse_button = Gtk.Button(icon_name='document-open-symbolic')
+        browse_button.set_valign(Gtk.Align.CENTER)
+        browse_button.set_tooltip_text(_('Browse for credentials file'))
+        browse_button.connect('clicked', self._on_browse_credentials)
+        row.add_suffix(browse_button)
         creds_group.add(row)
 
         row = Adw.ActionRow()
@@ -201,6 +206,19 @@ class RemoteEditPage(Adw.NavigationPage):
             if opt == option_name or opt.startswith(f'{option_name}='):
                 return True
         return False
+
+    def _on_browse_credentials(self, _button):
+        dialog = Gtk.FileDialog()
+        dialog.set_title(_('Select credentials file'))
+        dialog.open(self.get_root(), None, self._on_credentials_file_selected)
+
+    def _on_credentials_file_selected(self, dialog, result):
+        try:
+            file = dialog.open_finish(result)
+            if file:
+                self.entry_credentials.set_text(file.get_path())
+        except Exception:
+            pass
 
     def on_save_clicked(self, _button):
         if not self._validate():
