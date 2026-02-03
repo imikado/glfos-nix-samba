@@ -119,7 +119,7 @@ class RemoteEditPage(Adw.NavigationPage):
 
         # GID dropdown with system groups
         self._groups = [(g.gr_name, g.gr_gid) for g in grp.getgrall() if g.gr_gid < 65534]
-        self._groups.sort(key=lambda x: x[0])
+        self._groups.sort(key=lambda x: x[1])
         group_strings = [f'{name} ({gid})' for name, gid in self._groups]
 
         self.combo_gid = Adw.ComboRow()
