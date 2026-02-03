@@ -177,6 +177,8 @@ class MainWindow(Adw.ApplicationWindow):
 
             rebuild_bash_path=system_api.write_rebuild_bash(password)
 
+            print(rebuild_bash_path+' created')
+
             # Open terminal to run nixos-rebuild switch
             import subprocess
             import shutil
