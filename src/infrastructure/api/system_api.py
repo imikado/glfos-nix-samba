@@ -63,3 +63,52 @@ class SystemApi(SystemApiContract):
         self._password=password
         self.sudo_execute(['sudo', '-S', 'nixos-rebuild','switch'])
         pass
+
+    def write_rebuild_bash(self,password:str):
+        self._password=password
+
+        rebuld_bash_content="""#!/usr/bin/env bash
+
+echo "======================================"
+echo "  NIX REBUILD with samba setup"
+echo "======================================"
+echo ""
+
+
+echo "nixos-rebuild..."
+echo ""
+
+# Detect flake configuration name for --flake flag
+FLAKE_ATTR=""
+if [ -f /etc/nixos/flake.nix ]; then
+    FLAKE_ATTR=$(grep -oP 'nixosConfigurations\\.\\s*"?\\K[^"= ]+' /etc/nixos/flake.nix | head -1)
+fi
+
+if [ -n "$FLAKE_ATTR" ]; then
+    echo "Configuration flake detectee : $FLAKE_ATTR"
+    sudo nixos-rebuild switch --flake "/etc/nixos#$FLAKE_ATTR"
+else
+    sudo nixos-rebuild switch
+fi
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+    echo ""
+    echo "======================================"
+    echo "  REBUILD successfully"
+    echo "======================================"
+else
+    echo ""
+    echo "======================================"
+    echo "  Error during REBUILD"
+    echo "======================================"
+fi
+
+echo ""
+echo "You can close this terminal window."
+"""
+
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.sh') as tmp:
+                tmp.write(rebuld_bash_content)
+                self.sudo_execute(['sudo', '-S', 'chmod','+x',tmp.name])
+                return tmp.name
