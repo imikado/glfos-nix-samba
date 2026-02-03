@@ -111,7 +111,7 @@ class RemoteAddPage(Adw.NavigationPage):
         creds_group.add(self.combo_uid)
 
         # GID dropdown with system groups
-        self._groups = [(g.gr_name, g.gr_gid) for g in grp.getgrall() if g.gr_gid >= 1000 and g.gr_gid < 65534]
+        self._groups = [(g.gr_name, g.gr_gid) for g in grp.getgrall() if g.gr_gid < 65534]
         self._groups.sort(key=lambda x: x[0])
         group_strings = [f'{name} ({gid})' for name, gid in self._groups]
 
