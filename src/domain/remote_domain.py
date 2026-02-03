@@ -53,6 +53,5 @@ class RemoteDomain():
 
         self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
 
-        self._system_api.nix_rebuild_sudo(password)
 
         self._need_to_save=False

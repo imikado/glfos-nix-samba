@@ -16,13 +16,14 @@ class RemoteListPage(Adw.NavigationPage):
     _remote_domain:RemoteDomain
     _navigation_view:Adw.NavigationView
 
-    
-    def __init__(self, remote_domain:RemoteDomain, navigation_view:Adw.NavigationView,show_notification, *args, **kwargs):
+
+    def __init__(self, remote_domain:RemoteDomain, navigation_view:Adw.NavigationView,show_notification, on_save_clicked, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._navigation_view=navigation_view
 
         self._show_notification=show_notification
+        self._on_save_clicked=on_save_clicked
         self.set_title(_('Remote Shares'))
 
         self._remote_domain=remote_domain
@@ -38,6 +39,18 @@ class RemoteListPage(Adw.NavigationPage):
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
         header_bar = Adw.HeaderBar()
+
+        # Save button in header bar
+        save_button = Gtk.Button()
+        save_button.set_icon_name('media-floppy-symbolic')
+        save_button.set_label(_('Save on disk'))
+        save_button.set_tooltip_text(_('Save on disk'))
+        save_button.connect('clicked', self._on_save_clicked)
+        save_button.add_css_class('destructive-action')
+        save_button.set_sensitive(self._remote_domain.need_to_save())
+        self.save_button = save_button
+        header_bar.pack_end(save_button)
+
         toolbar_view.add_top_bar(header_bar)
 
         # Create preferences page for listing shares

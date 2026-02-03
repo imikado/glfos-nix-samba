@@ -40,6 +40,9 @@ class MainWindow(Adw.ApplicationWindow):
 
         self.navigation_view.connect('popped', self._on_page_popped)
 
+        # Handle close request to prompt for unsaved changes
+        self.connect('close-request', self._on_close_request)
+
 
     def _create_home_page(self):
         page = Adw.NavigationPage.new(self._create_home_content(), _('Nix Samba'))
@@ -106,10 +109,27 @@ class MainWindow(Adw.ApplicationWindow):
     def _on_page_popped(self, _navigation_view, _page):
         self.save_button.set_sensitive(self._remote_domain.need_to_save())
 
+    def _on_close_request(self, _window):
+        if self._remote_domain.need_to_save():
+            dialog = Adw.AlertDialog()
+            dialog.set_heading(_('Unsaved Changes'))
+            dialog.set_body(_('You have modifications not saved. Are you sure you want to quit without saving?'))
+            dialog.add_response('cancel', _('Cancel'))
+            dialog.add_response('quit', _('Quit without saving'))
+            dialog.set_response_appearance('quit', Adw.ResponseAppearance.DESTRUCTIVE)
+            dialog.set_default_response('cancel')
+            dialog.set_close_response('cancel')
+            dialog.connect('response', self._on_close_dialog_response)
+            dialog.present(self)
+            return True  # Prevent window from closing
+        return False  # Allow window to close
 
+    def _on_close_dialog_response(self, dialog, response):
+        if response == 'quit':
+            self.destroy()
 
     def on_list_remote_clicked(self, _button):
-        page = RemoteListPage(self._remote_domain,self.navigation_view,self.show_notification)
+        page = RemoteListPage(self._remote_domain,self.navigation_view,self.show_notification,self.on_save_clicked)
         self.navigation_view.push(page)
 
     def on_add_remote_clicked(self, _button):
@@ -152,11 +172,30 @@ class MainWindow(Adw.ApplicationWindow):
 
         try:
             self._remote_domain.save(password)
+
+            # Open terminal to run nixos-rebuild switch
+            import subprocess
+            import shutil
+            cmd = 'sudo nixos-rebuild switch; echo "Press Enter to close..."; read'
+
+            # Try different terminal emulators
+            if shutil.which('gnome-terminal'):
+                subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', cmd])
+            elif shutil.which('konsole'):
+                subprocess.Popen(['konsole', '-e', 'bash', '-c', cmd])
+            elif shutil.which('xfce4-terminal'):
+                subprocess.Popen(['xfce4-terminal', '-e', f'bash -c "{cmd}"'])
+            elif shutil.which('xterm'):
+                subprocess.Popen(['xterm', '-e', 'bash', '-c', cmd])
+            else:
+                # Fallback: run in background without terminal
+                subprocess.Popen(['bash', '-c', 'sudo nixos-rebuild switch'])
+
             self.save_button.set_sensitive(False)
 
-            self.show_notification(_('Configuration saved'))
+            self.show_notification(_('Configuration saved - rebuilding in terminal'))
 
-            
+
         except PermissionError as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_('Error'))
