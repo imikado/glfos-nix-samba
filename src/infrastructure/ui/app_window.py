@@ -180,7 +180,7 @@ class MainWindow(Adw.ApplicationWindow):
             # Open terminal to run nixos-rebuild switch
             import subprocess
             import shutil
-            cmd = 'sudo '+rebuild_bash_path+'; echo "Press Enter to close..."; read'
+            cmd = rebuild_bash_path+'; echo "Press Enter to close..."; read'
 
             # Try different terminal emulators
             if shutil.which('gnome-terminal'):
@@ -193,7 +193,7 @@ class MainWindow(Adw.ApplicationWindow):
                 subprocess.Popen(['xterm', '-e', 'bash', '-c', cmd])
             else:
                 # Fallback: run in background without terminal
-                subprocess.Popen(['bash', '-c', 'sudo',rebuild_bash_path])
+                subprocess.Popen(['bash', '-c', rebuild_bash_path])
 
             self.save_button.set_sensitive(False)
 
