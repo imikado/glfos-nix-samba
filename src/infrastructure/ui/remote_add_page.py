@@ -1,4 +1,6 @@
 import re
+import pwd
+import grp
 
 from domain.entity.remote_share import RemoteShare
 from domain.remote_domain import RemoteDomain
@@ -96,25 +98,29 @@ class RemoteAddPage(Adw.NavigationPage):
         row.add_suffix(browse_button)
         creds_group.add(row)
 
-        row = Adw.ActionRow()
-        row.set_title(_('UID (user id)'))
-        self.entry_uid = Gtk.Entry()
-        self.entry_uid.set_placeholder_text('1000')
-        #self.entry_uid.set_text('1000')
-        self.entry_uid.set_width_chars(field_width)
-        self.entry_uid.set_valign(Gtk.Align.CENTER)
-        row.add_suffix(self.entry_uid)
-        creds_group.add(row)
+        # UID dropdown with system users
+        self._users = [(p.pw_name, p.pw_uid) for p in pwd.getpwall() if p.pw_uid >= 1000 and p.pw_uid < 65534]
+        self._users.sort(key=lambda x: x[0])
+        user_strings = [f'{name} ({uid})' for name, uid in self._users]
 
-        row = Adw.ActionRow()
-        row.set_title(_('GID (Group id)'))
-        self.entry_gid = Gtk.Entry()
-        self.entry_gid.set_placeholder_text('100')
-        #self.entry_gid.set_text('100')
-        self.entry_gid.set_width_chars(field_width)
-        self.entry_gid.set_valign(Gtk.Align.CENTER)
-        row.add_suffix(self.entry_gid)
-        creds_group.add(row)
+        self.combo_uid = Adw.ComboRow()
+        self.combo_uid.set_title(_('User (UID)'))
+        self.combo_uid.set_model(Gtk.StringList.new(user_strings))
+        if self._users:
+            self.combo_uid.set_selected(0)
+        creds_group.add(self.combo_uid)
+
+        # GID dropdown with system groups
+        self._groups = [(g.gr_name, g.gr_gid) for g in grp.getgrall() if g.gr_gid >= 1000 and g.gr_gid < 65534]
+        self._groups.sort(key=lambda x: x[0])
+        group_strings = [f'{name} ({gid})' for name, gid in self._groups]
+
+        self.combo_gid = Adw.ComboRow()
+        self.combo_gid.set_title(_('Group (GID)'))
+        self.combo_gid.set_model(Gtk.StringList.new(group_strings))
+        if self._groups:
+            self.combo_gid.set_selected(0)
+        creds_group.add(self.combo_gid)
 
         pref_page.add(creds_group)
 
@@ -248,19 +254,7 @@ class RemoteAddPage(Adw.NavigationPage):
         if fstype_error:
             valid = False
 
-        # UID: must be a number
-        uid = self.entry_uid.get_text().strip()
-        uid_error = uid and not uid.isdigit()
-        self._set_row_error(self.entry_uid, uid_error)
-        if uid_error:
-            valid = False
-
-        # GID: must be a number
-        gid = self.entry_gid.get_text().strip()
-        gid_error = gid and not gid.isdigit()
-        self._set_row_error(self.entry_gid, gid_error)
-        if gid_error:
-            valid = False
+        # UID/GID are now dropdowns, no validation needed
 
         # Idle timeout: must be a number
         idle = self.entry_idle_timeout.get_text().strip()
@@ -319,13 +313,15 @@ class RemoteAddPage(Adw.NavigationPage):
         if mount_timeout:
             options.append(f'x-systemd.mount-timeout={mount_timeout}')
 
-        # UID/GID
-        uid = self.entry_uid.get_text()
-        if uid:
+        # UID/GID from combo boxes
+        uid_idx = self.combo_uid.get_selected()
+        if uid_idx != Gtk.INVALID_LIST_POSITION and uid_idx < len(self._users):
+            uid = self._users[uid_idx][1]
             options.append(f'uid={uid}')
 
-        gid = self.entry_gid.get_text()
-        if gid:
+        gid_idx = self.combo_gid.get_selected()
+        if gid_idx != Gtk.INVALID_LIST_POSITION and gid_idx < len(self._groups):
+            gid = self._groups[gid_idx][1]
             options.append(f'gid={gid}')
 
         return options
