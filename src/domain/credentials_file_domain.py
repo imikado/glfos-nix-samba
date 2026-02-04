@@ -13,4 +13,6 @@ class CredentialsFileDomain:
         content='username='+username+'\n'
         content+='password='+password+''
         self._system_api.write_file(path,content)
+
+        self._system_api.chown_smb_creds_file(path)
         pass

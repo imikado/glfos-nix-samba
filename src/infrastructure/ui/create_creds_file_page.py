@@ -45,7 +45,7 @@ class CreateCredsFilePage(Adw.NavigationPage):
         row = Adw.ActionRow()
         row.set_title(_('File path'))
         self.entry_path = Gtk.Entry()
-        self.entry_path.set_placeholder_text('/home/yourUser/smb-credentials')
+        self.entry_path.set_placeholder_text('/home/yourUser/.smb-credentials')
         self.entry_path.set_width_chars(field_width)
         self.entry_path.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_path)

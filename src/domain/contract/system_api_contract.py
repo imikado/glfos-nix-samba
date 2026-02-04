@@ -25,5 +25,9 @@ class SystemApiContract:
         pass
 
     @abstractmethod
+    def chown_smb_creds_file(self,path:str):
+        pass
+
+    @abstractmethod
     def nix_rebuild_sudo(self,password:str):
         pass

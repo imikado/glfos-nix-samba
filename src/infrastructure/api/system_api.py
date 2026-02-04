@@ -64,6 +64,9 @@ class SystemApi(SystemApiContract):
         self.sudo_execute(['sudo', '-S', 'nixos-rebuild','switch'])
         pass
 
+    def chown_smb_creds_file(self,path:str):
+        subprocess.Popen(['chmod','600',path])
+
     def write_rebuild_bash(self,password:str):
         self._password=password
 
