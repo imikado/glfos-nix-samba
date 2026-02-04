@@ -184,13 +184,23 @@ class MainWindow(Adw.ApplicationWindow):
             import shutil
             cmd = rebuild_bash_path+'; echo "Press Enter to close..."; read'
 
-            # Try different terminal emulators
-            if shutil.which('gnome-terminal'):
+            # Try different terminal emulators (including NixOS common ones)
+            if shutil.which('kgx'):  # GNOME Console
+                subprocess.Popen(['kgx', '--', 'bash', '-c', cmd])
+            elif shutil.which('gnome-terminal'):
                 subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', cmd])
             elif shutil.which('konsole'):
                 subprocess.Popen(['konsole', '-e', 'bash', '-c', cmd])
+            elif shutil.which('foot'):  # Common on NixOS/Sway
+                subprocess.Popen(['foot', 'bash', '-c', cmd])
+            elif shutil.which('alacritty'):
+                subprocess.Popen(['alacritty', '-e', 'bash', '-c', cmd])
+            elif shutil.which('kitty'):
+                subprocess.Popen(['kitty', 'bash', '-c', cmd])
             elif shutil.which('xfce4-terminal'):
                 subprocess.Popen(['xfce4-terminal', '-e', f'bash -c "{cmd}"'])
+            elif shutil.which('tilix'):
+                subprocess.Popen(['tilix', '-e', f'bash -c "{cmd}"'])
             elif shutil.which('xterm'):
                 subprocess.Popen(['xterm', '-e', 'bash', '-c', cmd])
             else:
