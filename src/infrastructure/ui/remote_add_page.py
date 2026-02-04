@@ -6,11 +6,10 @@ from domain.entity.remote_share import RemoteShare
 from domain.remote_domain import RemoteDomain
 import gi
 
-
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, Gio
 
 
 class RemoteAddPage(Adw.NavigationPage):
@@ -189,6 +188,7 @@ class RemoteAddPage(Adw.NavigationPage):
         self.set_child(toolbar_view)
 
     def _on_browse_credentials(self, _button):
+        self.set_show_hidden(True)
         dialog = Gtk.FileDialog()
         dialog.set_title(_('Select credentials file'))
         dialog.open(self.get_root(), None, self._on_credentials_file_selected)
@@ -200,6 +200,12 @@ class RemoteAddPage(Adw.NavigationPage):
                 self.entry_credentials.set_text(file.get_path())
         except Exception:
             pass
+
+    def set_show_hidden(self, visible: bool):
+        settings = Gio.Settings.new("org.gtk.gtk4.Settings.FileChooser")
+        settings.set_boolean("show-hidden", visible)
+        settings.sync()
+    
 
     def on_add_clicked(self, _button):
         if not self._validate():

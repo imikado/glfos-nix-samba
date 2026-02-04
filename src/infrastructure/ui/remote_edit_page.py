@@ -9,7 +9,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, Gio
 
 
 class RemoteEditPage(Adw.NavigationPage):
@@ -227,7 +227,13 @@ class RemoteEditPage(Adw.NavigationPage):
                 return True
         return False
 
+    def set_show_hidden(self, visible: bool):
+        settings = Gio.Settings.new("org.gtk.gtk4.Settings.FileChooser")
+        settings.set_boolean("show-hidden", visible)
+        settings.sync()
+
     def _on_browse_credentials(self, _button):
+        self.set_show_hidden(True)
         dialog = Gtk.FileDialog()
         dialog.set_title(_('Select credentials file'))
         dialog.open(self.get_root(), None, self._on_credentials_file_selected)
