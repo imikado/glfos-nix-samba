@@ -1,5 +1,8 @@
+import os
+
 from domain.credentials_file_domain import CredentialsFileDomain
 from domain.remote_domain import RemoteDomain
+from domain.requirements_domain import RequirementsDomain
 import gi
 from infrastructure.api.samba_file_api import SambaFileApi
 from infrastructure.api.system_api import SystemApi
@@ -43,6 +46,89 @@ class MainWindow(Adw.ApplicationWindow):
         # Handle close request to prompt for unsaved changes
         self.connect('close-request', self._on_close_request)
 
+        # Check NixOS configuration on startup
+        self._check_nixos_config()
+
+
+    def _check_nixos_config(self):
+
+        requirements_domain=RequirementsDomain(SystemApi())
+
+        
+        missing_items = []
+
+        try:
+            if not os.path.exists(requirements_domain.get_config_file_path()):
+                missing_items.append(_('Configuration file not found: ') + requirements_domain.get_config_file_path())
+            else:
+                with open(requirements_domain.get_config_file_path(), 'r') as f:
+                    default_ini_content = f.read()
+
+                if not requirements_domain.is_requirements_valid(default_ini_content):
+                    # Store for use in response handler
+                    self._requirements_domain = requirements_domain
+                    self._show_fix_requirements_dialog()
+
+                
+
+        except PermissionError:
+            missing_items.append(_('Cannot read configuration file (permission denied)'))
+        except Exception as e:
+            missing_items.append(_('Error reading configuration: ') + str(e))
+
+        if missing_items:
+            self._show_config_warning(missing_items)
+
+    def _show_config_warning(self, missing_items):
+        """Show warning dialog about missing NixOS configuration."""
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_('NixOS Configuration Warning'))
+
+        body = _('The following items are missing from your NixOS configuration:') + '\n\n'
+        for item in missing_items:
+            body += f'• {item}\n'
+        body += '\n' + _('Please add them to /etc/nixos/customConfig/default.nix')
+
+        dialog.set_body(body)
+        dialog.add_response('ok', _('OK'))
+        dialog.present(self)
+
+    def _show_fix_requirements_dialog(self):
+        """Show dialog to ask password for fixing NixOS requirements."""
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_('Fix NixOS Configuration'))
+        dialog.set_body(_('The NixOS configuration is missing required settings (samba.nix and samba_setup.nix import). Enter your password to fix it automatically.'))
+
+        password_entry = Gtk.PasswordEntry()
+        password_entry.set_show_peek_icon(True)
+        password_entry.set_hexpand(True)
+        dialog.set_extra_child(password_entry)
+
+        dialog.add_response('cancel', _('Cancel'))
+        dialog.add_response('fix', _('Fix Configuration'))
+        dialog.set_response_appearance('fix', Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response('fix')
+        dialog.set_close_response('cancel')
+
+        self._fix_password_entry = password_entry
+        dialog.connect('response', self._on_fix_requirements_response)
+        dialog.present(self)
+
+    def _on_fix_requirements_response(self, dialog, response):
+        if response != 'fix':
+            return
+
+        password = self._fix_password_entry.get_text()
+
+        try:
+            self._requirements_domain.fix_requirements(password)
+            self.show_notification(_('NixOS configuration fixed successfully'))
+        except Exception as e:
+            error_dialog = Adw.AlertDialog()
+            error_dialog.set_heading(_('Error'))
+            error_dialog.set_body(str(e))
+            error_dialog.add_response('ok', _('OK'))
+            error_dialog.present(self)
 
     def _create_home_page(self):
         page = Adw.NavigationPage.new(self._create_home_content(), _('Nix Samba'))
