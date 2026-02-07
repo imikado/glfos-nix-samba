@@ -53,36 +53,45 @@ class RequirementsDomain:
             new_content=self.get_content_with_missing_imports(self._default_nix_content,self._need_fix_missing_list)
             print('nee missing import')
 
-        print(new_content)
-        exit()
-
         self._system_api.write_file_sudo(self._config_file_path,new_content,password)
 
     def get_content_with_missing_import_block(self,content:str):
         new_content=''
-        if content[-1]=='}':
-            new_content=content[::-1]
-            new_content+="""
+        import_block="""
 imports=[
-    ./samba.nix
-    ./samba-setup.nix
+    %s
+    %s
 ];
-"""
+
+}
+""" %(self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP)
+
+        if content[-1]=='}':
+            new_content=content[:-1]
+            new_content+="\n"+import_block
+
+        elif content[-2]=='}':
+            new_content=content[:-2]
+            new_content+="\n"+import_block
         else:
-            print('Error: unable to find end }')
+            print('Error: unable to find end }, last character:'+content[-1])
 
         return new_content
 
     def get_content_with_missing_imports(self,content:str,missing_import_list:list):
         new_content=''
         start_import=False
-        for line in content.split("\n"):
-            if re.search('imports',line) and re.search('=',line):
+
+        lineList=content.split("\n")
+        for lineLoop in lineList:
+
+            if re.search('imports',lineLoop) and re.search('=',lineLoop):
                 start_import=True
 
-            if start_import and re.search('];',line):
-                line="\n".join(missing_import_list)+"\n"+line
+            if start_import and re.search('];',lineLoop):
+                new_content+="\n".join(missing_import_list)+"\n"
+                start_import=False
 
-            new_content+=line+"\"n"
+            new_content+=lineLoop+"\n"
 
         return new_content

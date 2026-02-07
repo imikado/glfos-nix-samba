@@ -65,7 +65,9 @@ class MainWindow(Adw.ApplicationWindow):
                     default_ini_content = f.read()
 
                 if not requirements_domain.is_requirements_valid(default_ini_content):
-                    # Store for use in response handler
+                    print('not valid')
+                    print(default_ini_content)
+
                     self._requirements_domain = requirements_domain
                     self._show_fix_requirements_dialog()
 
