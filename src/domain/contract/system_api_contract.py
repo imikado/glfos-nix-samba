@@ -12,6 +12,10 @@ class SystemApiContract:
         pass
 
     @abstractmethod
+    def backup_file_sudo(self,path:str,password:str):
+        pass
+
+    @abstractmethod
     def write_file_sudo(path: str, content: str, password: str):
         """Write file with elevated privileges using sudo."""
         pass

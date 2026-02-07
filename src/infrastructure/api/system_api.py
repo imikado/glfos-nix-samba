@@ -2,6 +2,7 @@ from genericpath import exists
 import subprocess
 import tempfile
 import os
+import datetime
 
 from domain.contract.system_api_contract import SystemApiContract
 
@@ -15,6 +16,16 @@ class SystemApi(SystemApiContract):
 
     def write_file(self, path: str, content: str):
         open(path, 'w').write(content)
+
+    def backup_file_sudo(self,path:str,password:str):
+        self._password=password
+
+
+        datetime_now = datetime.datetime.now()
+
+        backup_file_path=path+'.nix-samba.back'+datetime_now.strftime('%Y%m%d')
+
+        self.sudo_execute(['sudo','-S','cp',path,backup_file_path])
 
     def write_file_sudo(self, path: str, content: str, password: str):
 
