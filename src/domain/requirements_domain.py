@@ -15,6 +15,7 @@ class RequirementsDomain:
     IMPORT_SAMBA_SETUP='./samba_setup.nix'
 
     _config_file_path:str='/etc/nixos/customConfig/default.nix'
+    _config_setup_file_path:str='/etc/nixos/customConfig/samba_setup.nix'
 
     def __init__(self,system_api:SystemApiContract):
         self._system_api=system_api
@@ -47,11 +48,31 @@ class RequirementsDomain:
     def fix_requirements(self,password:str):
         if self._need_fix_all_imports:
             new_content=self.get_content_with_missing_import_block(self._default_nix_content)
-            print('need import block')
-
+            
         if len(self._need_fix_missing_list)>0:
             new_content=self.get_content_with_missing_imports(self._default_nix_content,self._need_fix_missing_list)
-            print('nee missing import')
+            
+            if self.IMPORT_SAMBA_SETUP in self._need_fix_missing_list:
+                if not self._system_api.file_exists(self._config_setup_file_path):
+
+                    samba_setup_content="""{ pkgs, ... }:
+{
+
+
+  # This adds the necessary mount helper for SMB/CIFS
+  environment.systemPackages = [ pkgs.cifs-utils ];
+
+  # This is the "magic" line that fixes the setuid error
+  security.wrappers."mount.cifs" = {
+    setuid = true;
+    owner = "root";
+    group = "root";
+    source = "${pkgs.cifs-utils}/bin/mount.cifs";
+  };
+}
+"""
+                    self._system_api.write_file_sudo(self._config_setup_file_path,samba_setup_content,password)
+
 
         self._system_api.write_file_sudo(self._config_file_path,new_content,password)
 
@@ -72,6 +93,9 @@ imports=[
 
         elif content[-2]=='}':
             new_content=content[:-2]
+            new_content+="\n"+import_block
+        elif content[-3]=='}':
+            new_content=content[:-3]
             new_content+="\n"+import_block
         else:
             print('Error: unable to find end }, last character:'+content[-1])

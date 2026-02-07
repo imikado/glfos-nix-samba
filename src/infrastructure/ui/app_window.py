@@ -65,8 +65,6 @@ class MainWindow(Adw.ApplicationWindow):
                     default_ini_content = f.read()
 
                 if not requirements_domain.is_requirements_valid(default_ini_content):
-                    print('not valid')
-                    print(default_ini_content)
 
                     self._requirements_domain = requirements_domain
                     self._show_fix_requirements_dialog()
@@ -125,6 +123,10 @@ class MainWindow(Adw.ApplicationWindow):
         try:
             self._requirements_domain.fix_requirements(password)
             self.show_notification(_('NixOS configuration fixed successfully'))
+        except PermissionError:
+            # Bad password - show dialog again
+            self.show_notification(_('Incorrect password, please try again'))
+            self._show_fix_requirements_dialog()
         except Exception as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_('Error'))
