@@ -46,16 +46,24 @@ class RequirementsDomain:
 
 
     def fix_requirements(self,password:str):
+
+        need_to_create_samba_setup_file=False
+
         if self._need_fix_all_imports:
             new_content=self.get_content_with_missing_import_block(self._default_nix_content)
+
+            need_to_create_samba_setup_file=True
+
             
         if len(self._need_fix_missing_list)>0:
             new_content=self.get_content_with_missing_imports(self._default_nix_content,self._need_fix_missing_list)
             
             if self.IMPORT_SAMBA_SETUP in self._need_fix_missing_list:
-                if not self._system_api.file_exists(self._config_setup_file_path):
+                need_to_create_samba_setup_file=True
 
-                    samba_setup_content="""{ pkgs, ... }:
+        if need_to_create_samba_setup_file==True and not self._system_api.file_exists(self._config_setup_file_path):
+
+            samba_setup_content="""{ pkgs, ... }:
 {
 
 
@@ -71,7 +79,7 @@ class RequirementsDomain:
   };
 }
 """
-                    self._system_api.write_file_sudo(self._config_setup_file_path,samba_setup_content,password)
+            self._system_api.write_file_sudo(self._config_setup_file_path,samba_setup_content,password)
 
         self._system_api.backup_file_sudo(self._config_file_path,password)
 
