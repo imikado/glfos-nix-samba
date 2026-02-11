@@ -47,6 +47,16 @@ class RemoteEditPage(Adw.NavigationPage):
         basic_group.set_description(_('Mount point and remote share configuration'))
 
         row = Adw.ActionRow()
+        row.set_title(_('Label'))
+        self.entry_label = Gtk.Entry()
+        self.entry_label.set_placeholder_text(_('My Share'))
+        self.entry_label.set_text(remote.label or '')
+        self.entry_label.set_width_chars(field_width)
+        self.entry_label.set_valign(Gtk.Align.CENTER)
+        row.add_suffix(self.entry_label)
+        basic_group.add(row)
+
+        row = Adw.ActionRow()
         row.set_title(_('Mount path'))
         self.entry_mount_path = Gtk.Entry()
         self.entry_mount_path.set_placeholder_text('/media/myshare')
@@ -253,6 +263,7 @@ class RemoteEditPage(Adw.NavigationPage):
         remote_share_to_update = RemoteShare(
             path=self.entry_mount_path.get_text(),
             remote_path=self.entry_device.get_text(),
+            label=self.entry_label.get_text(),
         )
         remote_share_to_update.set_options(self._build_options())
 
@@ -277,6 +288,13 @@ class RemoteEditPage(Adw.NavigationPage):
 
     def _validate(self) -> bool:
         valid = True
+
+        # Label: required
+        label = self.entry_label.get_text().strip()
+        label_error = not label
+        self._set_row_error(self.entry_label, label_error)
+        if label_error:
+            valid = False
 
         # Mount path: required, must start with /
         mount_path = self.entry_mount_path.get_text().strip()

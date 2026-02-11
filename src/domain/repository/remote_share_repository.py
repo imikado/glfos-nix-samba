@@ -44,7 +44,7 @@ class RemoteShareRepository:
             file_system_loop = nix_dict['fileSystems'][file_system_loop_key]
             
             if file_system_loop['fsType']=='cifs':
-                new_remote_share=RemoteShare(file_system_loop_key,file_system_loop['device'])
+                new_remote_share=RemoteShare(file_system_loop_key,file_system_loop['device'],file_system_loop_key)
                 new_remote_share.set_options(file_system_loop['options'])
                 remote_list.append(new_remote_share)
 

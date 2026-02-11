@@ -107,14 +107,32 @@ class NixFileApi(NixFileApiContract):
 
     def generate_samba_module(self, file_systems: dict) -> str:
 
+        bookmark_list=[]
+
         body=''
-        for shareKey,shareValue in file_systems.items():
+        for share_key,share_value in file_systems.items():
             body+="\n"
-            body+='fileSystems."'+shareKey+'"='+self._to_nix_string(shareValue, indent=0)
+            body+='fileSystems."'+share_key+'"='+self._to_nix_string(share_value, indent=0)
             body+=";"
 
+            bookmark_list.append('file://'+share_key+' '+share_value['label'])
+
+        bookmark_obj={
+            'enable':True,
+            'gtk3.bookmarks':bookmark_list
+        }
+
+        bottom=self._to_nix_string(bookmark_obj)
 
         """
+gtk = {
+    enable = true;
+    gtk3.bookmarks = [
+      "file:///media/partageAb Partage AB"
+      "file:///media/photos Photos"
+    ];
+  };
+
         Generate a complete samba.nix NixOS module and format it with nixfmt.
         """
 
@@ -137,6 +155,8 @@ class NixFileApi(NixFileApiContract):
 }}:
 {{
 {body}
+
+{bottom}
 }}
 '''
         # Format with nixfmt

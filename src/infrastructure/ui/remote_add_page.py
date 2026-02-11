@@ -48,6 +48,15 @@ class RemoteAddPage(Adw.NavigationPage):
         basic_group.set_description(_('Mount point and remote share configuration'))
 
         row = Adw.ActionRow()
+        row.set_title(_('Label'))
+        self.entry_label = Gtk.Entry()
+        self.entry_label.set_placeholder_text(_('My Share'))
+        self.entry_label.set_width_chars(field_width)
+        self.entry_label.set_valign(Gtk.Align.CENTER)
+        row.add_suffix(self.entry_label)
+        basic_group.add(row)
+
+        row = Adw.ActionRow()
         row.set_title(_('Mount path'))
         self.entry_mount_path = Gtk.Entry()
         self.entry_mount_path.set_placeholder_text('/media/myshare')
@@ -214,6 +223,7 @@ class RemoteAddPage(Adw.NavigationPage):
         remote_share = RemoteShare(
             path=self.entry_mount_path.get_text(),
             remote_path=self.entry_device.get_text(),
+            label=self.entry_label.get_text(),
         )
         remote_share.set_options(self._build_options())
 
@@ -238,6 +248,13 @@ class RemoteAddPage(Adw.NavigationPage):
 
     def _validate(self) -> bool:
         valid = True
+
+        # Label: required
+        label = self.entry_label.get_text().strip()
+        label_error = not label
+        self._set_row_error(self.entry_label, label_error)
+        if label_error:
+            valid = False
 
         # Mount path: required, must start with /
         mount_path = self.entry_mount_path.get_text().strip()
@@ -303,7 +320,7 @@ class RemoteAddPage(Adw.NavigationPage):
         # Mount behavior
         if self.combo_mount_behavior.get_selected() == 1:  # Mount on access
             options.append('x-systemd.automount')
-            options.append('noauto')
+            #options.append('noauto')
         elif self.combo_mount_behavior.get_selected() == 0:  # Auto mount at boot
             options.append('x-systemd.automount')
 
@@ -318,6 +335,7 @@ class RemoteAddPage(Adw.NavigationPage):
         mount_timeout = self.entry_mount_timeout.get_text()
         if mount_timeout:
             options.append(f'x-systemd.mount-timeout={mount_timeout}')
+
 
         # UID/GID from combo boxes
         uid_idx = self.combo_uid.get_selected()
