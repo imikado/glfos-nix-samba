@@ -41,9 +41,11 @@ class RemoteShareRepository:
 
         gtk_bookmark_list=[]
 
-        if nix_dict['gtk'] is not None:
-            if nix_dict['gtk']['gtk3.bookmarks'] is not None:
-                gtk_bookmark_list=nix_dict['gtk']['gtk3.bookmarks']
+        gtk = nix_dict.get('gtk')
+        if gtk is not None:
+            bookmarks = gtk.get('gtk3.bookmarks')
+            if bookmarks is not None:
+                gtk_bookmark_list=bookmarks
 
         for file_system_loop_key in nix_dict['fileSystems']:
             
