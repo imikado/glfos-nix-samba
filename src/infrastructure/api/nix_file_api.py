@@ -111,18 +111,22 @@ class NixFileApi(NixFileApiContract):
 
         body=''
         for share_key,share_value in file_systems.items():
+            # Extract label before generating nix (label is not a NixOS property)
+            label = share_value.pop('label', share_key)
+
             body+="\n"
             body+='fileSystems."'+share_key+'"='+self._to_nix_string(share_value, indent=0)
             body+=";"
 
-            bookmark_list.append('file://'+share_key+' '+share_value['label'])
+            bookmark_list.append('file://'+share_key+' '+label)
 
         bookmark_obj={
             'enable':True,
             'gtk3.bookmarks':bookmark_list
         }
 
-        bottom=self._to_nix_string(bookmark_obj)
+        bottom='gtk='+self._to_nix_string(bookmark_obj)
+        bottom+=';'
 
         """
 gtk = {

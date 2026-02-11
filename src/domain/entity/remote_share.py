@@ -27,5 +27,6 @@ class RemoteShare:
         nix_dict['device']=self.remote_path
         nix_dict['fsType']='cifs'
         nix_dict['options']=self.options
+        nix_dict['label']=self.label
 
         return nix_dict
