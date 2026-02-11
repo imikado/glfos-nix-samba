@@ -39,13 +39,27 @@ class RemoteShareRepository:
         
         remote_list=[]
 
+        gtk_bookmark_list=[]
+
+        if nix_dict['gtk'] is not None:
+            if nix_dict['gtk']['gtk3.bookmarks'] is not None:
+                gtk_bookmark_list=nix_dict['gtk']['gtk3.bookmarks']
+
         for file_system_loop_key in nix_dict['fileSystems']:
             
             file_system_loop = nix_dict['fileSystems'][file_system_loop_key]
             
             if file_system_loop['fsType']=='cifs':
-                new_remote_share=RemoteShare(file_system_loop_key,file_system_loop['device'],file_system_loop_key)
+                new_remote_share=RemoteShare(file_system_loop_key,file_system_loop['device'],self.find_label_from_bookmark_list(file_system_loop_key,gtk_bookmark_list))
                 new_remote_share.set_options(file_system_loop['options'])
                 remote_list.append(new_remote_share)
 
         self._remote_share_list=remote_list
+
+    def find_label_from_bookmark_list(self,share:str,gtk_bookmark_list:list)->str:
+        for bookmark_loop in gtk_bookmark_list:
+            if share in bookmark_loop:
+                url_loop, label_loop = bookmark_loop.split(' ', 1)
+                return label_loop
+
+        return share
