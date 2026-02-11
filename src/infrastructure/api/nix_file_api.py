@@ -107,8 +107,11 @@ class NixFileApi(NixFileApiContract):
 
     def generate_samba_module(self, file_systems: dict) -> str:
 
-
-
+        body=''
+        for shareKey,shareValue in file_systems.items():
+            body+="\n"
+            body+='fileSystems."'+shareKey+'"='+self._to_nix_string(shareValue, indent=0)
+            body+=";"
 
 
         """
@@ -117,7 +120,7 @@ class NixFileApi(NixFileApiContract):
 
  
         # Build the module body with fileSystems entries
-        body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
+        #body = self._to_nix_string({"fileSystems": file_systems}, indent=0)
         
         #service='environment.systemPackages = [ pkgs.cifs-utils ];'
 
@@ -132,7 +135,9 @@ class NixFileApi(NixFileApiContract):
   pkgs,
   ...
 }}:
+{{
 {body}
+}}
 '''
         # Format with nixfmt
         try:
