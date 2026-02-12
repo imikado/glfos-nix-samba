@@ -61,13 +61,21 @@ class RemoteDomain():
 
         self._need_to_save=False
 
-    def get_gtk_bookmark_list(self,current_bookmark_list:list,new_bookmark_list:list)->list:
+    def get_gtk_bookmark_list(self,current_bookmark_list:list,remote_share_list:list)->list:
+        # Build set of mount paths to identify samba bookmarks
+        mount_paths = set()
+        for remote in remote_share_list:
+            mount_paths.add('file://' + remote.path)
+
+        # Keep existing bookmarks that are not samba mount points
         target_bookmark_list=[]
         for current_bookmark_loop in current_bookmark_list:
-            if ' ' not in current_bookmark_loop:
+            bookmark_url = current_bookmark_loop.split(' ', 1)[0] if ' ' in current_bookmark_loop else current_bookmark_loop
+            if bookmark_url not in mount_paths:
                 target_bookmark_list.append(current_bookmark_loop)
-        
-        for new_bookmark_loop in new_bookmark_list:
-            target_bookmark_list.append(new_bookmark_loop)
+
+        # Add samba bookmarks
+        for remote in remote_share_list:
+            target_bookmark_list.append('file://' + remote.path + ' ' + remote.label)
 
         return target_bookmark_list
