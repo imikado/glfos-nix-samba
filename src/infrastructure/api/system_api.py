@@ -78,6 +78,23 @@ class SystemApi(SystemApiContract):
     def chown_smb_creds_file(self,path:str):
         subprocess.Popen(['chmod','600',path])
 
+    def get_gtk_bookmark_list(self)->list:
+        bookmarks_path = os.path.join(os.path.expanduser('~'), '.config', 'gtk-3.0', 'bookmarks')
+        if not os.path.isfile(bookmarks_path):
+            return []
+        with open(bookmarks_path, 'r') as f:
+            return [line.rstrip('\n') for line in f if line.strip()]
+
+    def write_gtk_bookmark_list(self,bookmark_list:list):
+        bookmarks_path = os.path.join(os.path.expanduser('~'), '.config', 'gtk-3.0', 'bookmarks')
+        current_list = self.get_gtk_bookmark_list()
+        if current_list == bookmark_list:
+            return
+        os.makedirs(os.path.dirname(bookmarks_path), exist_ok=True)
+        with open(bookmarks_path, 'w') as f:
+            for bookmark in bookmark_list:
+                f.write(bookmark + '\n')
+
     def write_rebuild_bash(self,password:str):
         self._password=password
 

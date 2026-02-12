@@ -27,7 +27,8 @@ class RemoteDomain():
         if not self._loaded:
 
             nix_dict=self._samba_file_api.get_nix_dict()
-            self._remote_share_repository.load_from_dict(nix_dict)
+            bookmark_list=self._system_api.get_gtk_bookmark_list()
+            self._remote_share_repository.load_from_dict_and_bookmark_list(nix_dict,bookmark_list)
             self._loaded=True
 
         return self._remote_share_repository.get_list()
@@ -53,5 +54,20 @@ class RemoteDomain():
 
         self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
 
+        gtk_bookmark_list=self._system_api.get_gtk_bookmark_list()
+        new_gtk_bookmark_list=self.get_gtk_bookmark_list(gtk_bookmark_list,self.get_list())
+
+        self._system_api.write_gtk_bookmark_list(new_gtk_bookmark_list)
 
         self._need_to_save=False
+
+    def get_gtk_bookmark_list(self,current_bookmark_list:list,new_bookmark_list:list)->list:
+        target_bookmark_list=[]
+        for current_bookmark_loop in current_bookmark_list:
+            if ' ' not in current_bookmark_loop:
+                target_bookmark_list.append(current_bookmark_loop)
+        
+        for new_bookmark_loop in new_bookmark_list:
+            target_bookmark_list.append(new_bookmark_loop)
+
+        return target_bookmark_list

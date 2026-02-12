@@ -32,20 +32,12 @@ class RemoteShareRepository:
 
         self._remote_share_list=remote_share_list    
 
-    def load_from_dict(self,nix_dict:dict):
+    def load_from_dict_and_bookmark_list(self,nix_dict:dict,gtk_bookmark_list:list):
         
         if nix_dict['fileSystems'] is None:
             return[]
         
         remote_list=[]
-
-        gtk_bookmark_list=[]
-
-        gtk = nix_dict.get('gtk')
-        if gtk is not None:
-            bookmarks = gtk.get('gtk3.bookmarks')
-            if bookmarks is not None:
-                gtk_bookmark_list=bookmarks
 
         for file_system_loop_key in nix_dict['fileSystems']:
             

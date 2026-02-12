@@ -33,5 +33,13 @@ class SystemApiContract:
         pass
 
     @abstractmethod
+    def get_gtk_bookmark_list(self)->list:
+        pass
+
+    @abstractmethod
+    def write_gtk_bookmark_list(self,bookmark_list:list):
+        pass
+
+    @abstractmethod
     def nix_rebuild_sudo(self,password:str):
         pass
