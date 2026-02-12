@@ -120,13 +120,7 @@ class NixFileApi(NixFileApiContract):
 
             bookmark_list.append('file://'+share_key+' '+label)
 
-        bookmark_obj={
-            'enable':True,
-            'gtk3.bookmarks':bookmark_list
-        }
-
-        bottom='gtk='+self._to_nix_string(bookmark_obj)
-        bottom+=';'
+        
 
         """
 gtk = {
@@ -159,8 +153,6 @@ gtk = {
 }}:
 {{
 {body}
-
-{bottom}
 }}
 '''
         # Format with nixfmt
