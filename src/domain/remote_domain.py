@@ -48,11 +48,12 @@ class RemoteDomain():
         self._need_to_save=True
 
 
-    def save(self, password: str):
+    def save(self):
 
         new_content=self._samba_file_api.convert_remote_list_to_nix_content(self.get_list())
 
-        self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
+        #self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
+        tmp_samba_nix_path=self._system_api.write_file_tmp( new_content) 
 
         gtk_bookmark_list=self._system_api.get_gtk_bookmark_list()
         new_gtk_bookmark_list=self.get_gtk_bookmark_list(gtk_bookmark_list,self.get_list())
@@ -60,6 +61,8 @@ class RemoteDomain():
         self._system_api.write_gtk_bookmark_list(new_gtk_bookmark_list)
 
         self._need_to_save=False
+        
+        return tmp_samba_nix_path
 
     def get_gtk_bookmark_list(self,current_bookmark_list:list,remote_share_list:list)->list:
         # Build set of mount paths to identify samba bookmarks

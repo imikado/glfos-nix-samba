@@ -27,6 +27,13 @@ class SystemApi(SystemApiContract):
 
         self.sudo_execute(['sudo','-S','cp',path,backup_file_path])
 
+    def write_file_tmp(self, content: str)->str:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.nix') as tmp:
+            tmp.write(content)
+            tmp_path = tmp.name
+
+        return tmp_path
+
     def write_file_sudo(self, path: str, content: str, password: str):
 
         self._password=password
@@ -49,6 +56,9 @@ class SystemApi(SystemApiContract):
             # Clean up temp file
             os.unlink(tmp_path)
 
+    def execute(self,params:list):
+        subprocess.Popen(params)
+    
     def sudo_execute(self,params:list):
         process = subprocess.Popen(
                 params,
@@ -95,10 +105,16 @@ class SystemApi(SystemApiContract):
             for bookmark in bookmark_list:
                 f.write(bookmark + '\n')
 
-    def write_rebuild_bash(self,password:str):
-        self._password=password
+    def write_rebuild_bash(self,tmp_samba_nix_path:str):
 
         rebuld_bash_content="""#!/usr/bin/env bash
+echo "======================================"
+echo "  save samba.nix"
+echo "======================================"
+echo ""
+
+sudo mv """+tmp_samba_nix_path+""" /etc/nixos/customConfig/samba.nix
+        
 
 echo "======================================"
 echo "  NIX REBUILD with samba setup"
@@ -141,5 +157,5 @@ echo "You can close this terminal window."
 
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.sh') as tmp:
                 tmp.write(rebuld_bash_content)
-                self.sudo_execute(['sudo', '-S', 'chmod','+x',tmp.name])
+                self.execute(['chmod','+x',tmp.name])
                 return tmp.name

@@ -234,6 +234,9 @@ class MainWindow(Adw.ApplicationWindow):
 
 
     def on_save_clicked(self, _button):
+
+        return self.save_and_rebuild()
+
         # Show password dialog
         dialog = Adw.AlertDialog()
         dialog.set_heading(_('Authentication Required'))
@@ -261,11 +264,11 @@ class MainWindow(Adw.ApplicationWindow):
         password = self._password_entry.get_text()
 
         try:
-            self._remote_domain.save(password)
+            tmp_samba_nix_path=self._remote_domain.save(password)
 
             system_api=SystemApi()
 
-            rebuild_bash_path=system_api.write_rebuild_bash(password)
+            rebuild_bash_path=system_api.write_rebuild_bash(tmp_samba_nix_path,password)
 
             print(rebuild_bash_path+' created')
 
@@ -308,6 +311,50 @@ class MainWindow(Adw.ApplicationWindow):
             error_dialog.set_body(str(e))
             error_dialog.add_response('ok', _('OK'))
             error_dialog.present(self)
+    
+    def save_and_rebuild(self):
+        tmp_samba_nix_path=self._remote_domain.save()
+
+        self.save_button.set_sensitive(False)
+
+
+        system_api=SystemApi()
+
+        rebuild_bash_path=system_api.write_rebuild_bash(tmp_samba_nix_path)
+
+        print(rebuild_bash_path+' created')
+
+        # Open terminal to run nixos-rebuild switch
+        import subprocess
+        import shutil
+        cmd = rebuild_bash_path+'; echo "Press Enter to close..."; read'
+
+        # Try different terminal emulators (including NixOS common ones)
+        if shutil.which('kgx'):  # GNOME Console
+            subprocess.Popen(['kgx', '--', 'bash', '-c', cmd])
+        elif shutil.which('gnome-terminal'):
+            subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', cmd])
+        elif shutil.which('konsole'):
+            subprocess.Popen(['konsole', '-e', 'bash', '-c', cmd])
+        elif shutil.which('foot'):  # Common on NixOS/Sway
+            subprocess.Popen(['foot', 'bash', '-c', cmd])
+        elif shutil.which('alacritty'):
+            subprocess.Popen(['alacritty', '-e', 'bash', '-c', cmd])
+        elif shutil.which('kitty'):
+            subprocess.Popen(['kitty', 'bash', '-c', cmd])
+        elif shutil.which('xfce4-terminal'):
+            subprocess.Popen(['xfce4-terminal', '-e', f'bash -c "{cmd}"'])
+        elif shutil.which('tilix'):
+            subprocess.Popen(['tilix', '-e', f'bash -c "{cmd}"'])
+        elif shutil.which('xterm'):
+            subprocess.Popen(['xterm', '-e', 'bash', '-c', cmd])
+        else:
+            # Fallback: run in background without terminal
+            subprocess.Popen(['bash', '-c', rebuild_bash_path])
+
+
+        self.show_notification(_('Configuration saved - rebuilding in terminal'))
+
 
     def show_notification(self,text:str):
         toast = Adw.Toast.new(text)

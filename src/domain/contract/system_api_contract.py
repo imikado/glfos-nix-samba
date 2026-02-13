@@ -12,6 +12,10 @@ class SystemApiContract:
         pass
 
     @abstractmethod
+    def write_file_tmp(self, content: str)->str:
+        pass
+
+    @abstractmethod
     def backup_file_sudo(self,path:str,password:str):
         pass
 
