@@ -62,8 +62,8 @@ class RemoteListPage(Adw.NavigationPage):
 
         for remote_loop in remote_list:
             row = Adw.ActionRow()
-            row.set_title(remote_loop.path)
-            row.set_subtitle(remote_loop.remote_path)
+            row.set_title(remote_loop.label)
+            row.set_subtitle(remote_loop.remote_path+' : '+remote_loop.path)
             row.set_icon_name('folder-remote-symbolic')
 
             # Add edit button

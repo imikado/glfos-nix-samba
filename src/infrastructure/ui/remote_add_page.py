@@ -48,7 +48,7 @@ class RemoteAddPage(Adw.NavigationPage):
         basic_group.set_description(_('Mount point and remote share configuration'))
 
         row = Adw.ActionRow()
-        row.set_title(_('Label'))
+        row.set_title(_('Bookmark'))
         self.entry_label = Gtk.Entry()
         self.entry_label.set_placeholder_text(_('My Share'))
         self.entry_label.set_width_chars(field_width)
