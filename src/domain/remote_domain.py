@@ -61,20 +61,14 @@ class RemoteDomain():
         self._system_api.write_gtk_bookmark_list(new_gtk_bookmark_list)
 
         self._need_to_save=False
-        
+
         return tmp_samba_nix_path
 
     def get_gtk_bookmark_list(self,current_bookmark_list:list,remote_share_list:list)->list:
-        # Build set of mount paths to identify samba bookmarks
-        mount_paths = set()
-        for remote in remote_share_list:
-            mount_paths.add('file://' + remote.path)
-
-        # Keep existing bookmarks that are not samba mount points
+        
         target_bookmark_list=[]
         for current_bookmark_loop in current_bookmark_list:
-            bookmark_url = current_bookmark_loop.split(' ', 1)[0] if ' ' in current_bookmark_loop else current_bookmark_loop
-            if bookmark_url not in mount_paths:
+            if not self.is_in_bookmark_list( current_bookmark_loop,remote_share_list):
                 target_bookmark_list.append(current_bookmark_loop)
 
         # Add samba bookmarks
@@ -82,3 +76,10 @@ class RemoteDomain():
             target_bookmark_list.append('file://' + remote.path + ' ' + remote.label)
 
         return target_bookmark_list
+    
+    def is_in_bookmark_list(self,share:str,bookmark_list:list)->bool:
+        for bookmark_loop in bookmark_list:
+            if(share == bookmark_loop.path):
+                return True
+            
+        return False
