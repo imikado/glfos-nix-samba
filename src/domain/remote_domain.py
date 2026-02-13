@@ -77,9 +77,9 @@ class RemoteDomain():
 
         return target_bookmark_list
     
-    def is_in_bookmark_list(self,share:str,bookmark_list:list)->bool:
+    def is_in_bookmark_list(self,bookmark_line:str,bookmark_list:list)->bool:
         for bookmark_loop in bookmark_list:
-            if(share == bookmark_loop.path):
+            if(bookmark_loop.path in bookmark_line):
                 return True
             
         return False
