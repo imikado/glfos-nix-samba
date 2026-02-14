@@ -15,9 +15,9 @@ class SambaFileApi(SambaFileApiContract):
     def get_nix_dict(self)->dict:
         nix_dict:dict = self._nix_file_api.parse_config_file(self._nix_file_path)
 
-        if nix_dict['fileSystems'] is None:
+        if nix_dict.get('fileSystems') is None:
             return {}
-        
+
         return nix_dict
 
     def convert_remote_list_to_nix_content(self,remote_file_list:list)->str:

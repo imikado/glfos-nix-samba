@@ -34,7 +34,7 @@ class RemoteShareRepository:
 
     def load_from_dict_and_bookmark_list(self,nix_dict:dict,gtk_bookmark_list:list):
         
-        if nix_dict['fileSystems'] is None:
+        if nix_dict.get('fileSystems') is None:
             return[]
         
         remote_list=[]
