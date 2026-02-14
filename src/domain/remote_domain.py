@@ -12,6 +12,7 @@ class RemoteDomain():
     _samba_file_api:SambaFileApiContract
     _remote_share_repository:RemoteShareRepository
     _need_to_save=False
+    _delete_remote_list:list=[]
 
     def __init__(self,system_api:SystemApiContract,samba_file_api:SambaFileApiContract):
         self._system_api=system_api
@@ -45,6 +46,7 @@ class RemoteDomain():
 
     def delete_item(self, path_to_delete: str):
         self._remote_share_repository.delete_item(path_to_delete)
+        self._delete_remote_list.append(path_to_delete)
         self._need_to_save=True
 
 
@@ -68,7 +70,7 @@ class RemoteDomain():
         
         target_bookmark_list=[]
         for current_bookmark_loop in current_bookmark_list:
-            if not self.is_in_bookmark_list( current_bookmark_loop,remote_share_list):
+            if not self.is_in_bookmark_list( current_bookmark_loop,remote_share_list) and not self.is_deleted(current_bookmark_loop):
                 target_bookmark_list.append(current_bookmark_loop)
 
         # Add samba bookmarks
@@ -76,6 +78,12 @@ class RemoteDomain():
             target_bookmark_list.append('file://' + remote.path + ' ' + remote.label)
 
         return target_bookmark_list
+    
+    def is_deleted(self,bookmark_line:str):
+        for path_deleted_loop in self._delete_remote_list:
+            if path_deleted_loop in bookmark_line:
+                return True
+        return False
     
     def is_in_bookmark_list(self,bookmark_line:str,bookmark_list:list)->bool:
         for bookmark_loop in bookmark_list:
