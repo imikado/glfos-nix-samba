@@ -4,12 +4,29 @@ from infrastructure.ui.app_window import AppWindow
 
 import gettext
 import os
+import subprocess
+
+
+def _compile_mo_if_needed(localedir: str, appname: str):
+    """Compile .po to .mo if .mo is missing or older than .po."""
+    for lang_dir in os.listdir(localedir):
+        lc_dir = os.path.join(localedir, lang_dir, 'LC_MESSAGES')
+        po_file = os.path.join(lc_dir, appname + '.po')
+        mo_file = os.path.join(lc_dir, appname + '.mo')
+        if os.path.isfile(po_file):
+            if not os.path.isfile(mo_file) or os.path.getmtime(po_file) > os.path.getmtime(mo_file):
+                try:
+                    subprocess.run(['msgfmt', po_file, '-o', mo_file], check=True, capture_output=True)
+                except Exception:
+                    pass
 
 
 def main():
     appname = 'nix-samba'
     # Use absolute path relative to this file, regardless of working directory
     localedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'infrastructure', 'locales')
+
+    _compile_mo_if_needed(localedir, appname)
 
     # Detect OS language from environment variables (GNOME/NixOS sets LANG or LANGUAGE)
     lang = 'en'
@@ -18,10 +35,6 @@ def main():
         if val:
             lang = val.split(':')[0].split('_')[0].split('.')[0]
             break
-
-    print(f"[i18n] localedir={localedir}")
-    print(f"[i18n] detected lang={lang}")
-    print(f"[i18n] LANG={os.environ.get('LANG','')}, LANGUAGE={os.environ.get('LANGUAGE','')}")
 
     translation = gettext.translation(appname, localedir, fallback=True, languages=[lang, 'en'])
     translation.install()
