@@ -19,6 +19,10 @@ def main():
             lang = val.split(':')[0].split('_')[0].split('.')[0]
             break
 
+    print(f"[i18n] localedir={localedir}")
+    print(f"[i18n] detected lang={lang}")
+    print(f"[i18n] LANG={os.environ.get('LANG','')}, LANGUAGE={os.environ.get('LANGUAGE','')}")
+
     translation = gettext.translation(appname, localedir, fallback=True, languages=[lang, 'en'])
     translation.install()
 
