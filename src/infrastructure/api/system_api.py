@@ -110,19 +110,21 @@ class SystemApi(SystemApiContract):
         # KDE-specific env vars
         if os.environ.get('KDE_FULL_SESSION') or os.environ.get('KDE_SESSION_VERSION'):
             return 'kde'
-        # Fallback: check running processes
-        try:
-            result = subprocess.run(['pgrep', '-x', 'plasmashell'], capture_output=True)
-            if result.returncode == 0:
-                return 'kde'
-        except Exception:
-            pass
-        try:
-            result = subprocess.run(['pgrep', '-x', 'gnome-shell'], capture_output=True)
-            if result.returncode == 0:
-                return 'gnome'
-        except Exception:
-            pass
+        # Fallback: check KDE/GNOME specific config files
+        home = os.path.expanduser('~')
+        kde_markers = [
+            os.path.join(home, '.local', 'share', 'user-places.xbel'),
+            os.path.join(home, '.config', 'plasma-org.kde.plasma.desktop-appletsrc'),
+            os.path.join(home, '.config', 'kwinrc'),
+        ]
+        if any(os.path.isfile(p) for p in kde_markers):
+            return 'kde'
+        gnome_markers = [
+            os.path.join(home, '.config', 'gnome-shell'),
+            os.path.join(home, '.local', 'share', 'gnome-shell'),
+        ]
+        if any(os.path.exists(p) for p in gnome_markers):
+            return 'gnome'
         return 'unknown'
 
     def get_gtk_bookmark_list(self)->list:
