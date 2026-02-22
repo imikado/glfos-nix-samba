@@ -110,6 +110,19 @@ class SystemApi(SystemApiContract):
         # KDE-specific env vars
         if os.environ.get('KDE_FULL_SESSION') or os.environ.get('KDE_SESSION_VERSION'):
             return 'kde'
+        # Fallback: check running processes
+        try:
+            result = subprocess.run(['pgrep', '-x', 'plasmashell'], capture_output=True)
+            if result.returncode == 0:
+                return 'kde'
+        except Exception:
+            pass
+        try:
+            result = subprocess.run(['pgrep', '-x', 'gnome-shell'], capture_output=True)
+            if result.returncode == 0:
+                return 'gnome'
+        except Exception:
+            pass
         return 'unknown'
 
     def get_gtk_bookmark_list(self)->list:
