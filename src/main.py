@@ -8,7 +8,8 @@ import os
 
 def main():
     appname = 'nix-samba'
-    localedir = './infrastructure/locales'
+    # Use absolute path relative to this file, regardless of working directory
+    localedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'infrastructure', 'locales')
 
     # Detect OS language from environment variables (GNOME/NixOS sets LANG or LANGUAGE)
     lang = 'en'
