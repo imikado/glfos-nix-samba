@@ -3,16 +3,20 @@
 from infrastructure.ui.app_window import AppWindow
 
 import gettext
-import locale
+import os
 
 
 def main():
     appname = 'nix-samba'
     localedir = './infrastructure/locales'
 
-    # Detect OS language (e.g. 'fr_FR.UTF-8' -> 'fr')
-    lang_code, _ = locale.getlocale()
-    lang = lang_code.split('_')[0] if lang_code else 'en'
+    # Detect OS language from environment variables (GNOME/NixOS sets LANG or LANGUAGE)
+    lang = 'en'
+    for var in ('LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG'):
+        val = os.environ.get(var, '')
+        if val:
+            lang = val.split(':')[0].split('_')[0].split('.')[0]
+            break
 
     translation = gettext.translation(appname, localedir, fallback=True, languages=[lang, 'en'])
     translation.install()
