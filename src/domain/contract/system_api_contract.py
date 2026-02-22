@@ -37,11 +37,27 @@ class SystemApiContract:
         pass
 
     @abstractmethod
+    def is_current_desktop_kde(self)->bool:
+        pass
+
+    @abstractmethod
+    def get_current_desktop(self)->str:
+        pass
+
+    @abstractmethod
     def get_gtk_bookmark_list(self)->list:
         pass
 
     @abstractmethod
     def write_gtk_bookmark_list(self,bookmark_list:list):
+        pass
+
+    @abstractmethod
+    def get_kde_bookmark_list(self)->list:
+        pass
+
+    @abstractmethod
+    def write_kde_bookmark_list(self,bookmark_list:list):
         pass
 
     @abstractmethod

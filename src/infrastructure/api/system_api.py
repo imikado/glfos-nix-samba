@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 import os
 import datetime
+import xml.etree.ElementTree as ET
 
 from domain.contract.system_api_contract import SystemApiContract
 
@@ -88,6 +89,26 @@ class SystemApi(SystemApiContract):
     def chown_smb_creds_file(self,path:str):
         subprocess.Popen(['chmod','600',path])
 
+    def is_current_desktop_kde(self)->bool:
+        if self.get_current_desktop() =='kde':
+            return True
+        return False
+
+    def get_current_desktop(self)->str:
+        """Return detected desktop environment: 'gnome', 'kde', or 'unknown'."""
+        xdg = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
+        if 'gnome' in xdg:
+            return 'gnome'
+        if 'kde' in xdg:
+            return 'kde'
+        # Fallback: check DESKTOP_SESSION
+        session = os.environ.get('DESKTOP_SESSION', '').lower()
+        if 'gnome' in session:
+            return 'gnome'
+        if 'kde' in session or 'plasma' in session:
+            return 'kde'
+        return 'unknown'
+
     def get_gtk_bookmark_list(self)->list:
         bookmarks_path = os.path.join(os.path.expanduser('~'), '.config', 'gtk-3.0', 'bookmarks')
         if not os.path.isfile(bookmarks_path):
@@ -104,6 +125,67 @@ class SystemApi(SystemApiContract):
         with open(bookmarks_path, 'w') as f:
             for bookmark in bookmark_list:
                 f.write(bookmark + '\n')
+
+    def get_kde_bookmark_list(self)->list:
+        """Read ~/.local/share/user-places.xbel and return file:// entries as 'url label' strings."""
+        xbel_path = os.path.join(os.path.expanduser('~'), '.local', 'share', 'user-places.xbel')
+        if not os.path.isfile(xbel_path):
+            return []
+        try:
+            tree = ET.parse(xbel_path)
+            root = tree.getroot()
+            bookmark_list = []
+            for bookmark in root.findall('bookmark'):
+                href = bookmark.get('href', '')
+                if href.startswith('file://'):
+                    title_elem = bookmark.find('title')
+                    label = title_elem.text if title_elem is not None and title_elem.text else href
+                    bookmark_list.append(href + ' ' + label)
+            return bookmark_list
+        except Exception:
+            return []
+
+    def write_kde_bookmark_list(self,bookmark_list:list):
+        """Write file:// entries to ~/.local/share/user-places.xbel preserving non-file:// entries."""
+        xbel_path = os.path.join(os.path.expanduser('~'), '.local', 'share', 'user-places.xbel')
+
+        # Parse new bookmark urls for quick lookup
+        new_urls = set()
+        new_entries = {}  # url -> label
+        for entry in bookmark_list:
+            parts = entry.split(' ', 1)
+            url = parts[0]
+            label = parts[1] if len(parts) > 1 else url
+            new_urls.add(url)
+            new_entries[url] = label
+
+        if os.path.isfile(xbel_path):
+            ET.register_namespace('bookmark', 'http://www.freedesktop.org/standards/desktop-bookmarks')
+            ET.register_namespace('kdeprops', 'http://www.kde.org/standards/kdeprops')
+            tree = ET.parse(xbel_path)
+            root = tree.getroot()
+            # Remove existing file:// bookmarks that are in the new list
+            for bookmark in list(root.findall('bookmark')):
+                if bookmark.get('href', '') in new_urls:
+                    root.remove(bookmark)
+        else:
+            root = ET.Element('xbel')
+            root.set('xmlns:bookmark', 'http://www.freedesktop.org/standards/desktop-bookmarks')
+            root.set('xmlns:kdeprops', 'http://www.kde.org/standards/kdeprops')
+            root.set('version', '1.0')
+            tree = ET.ElementTree(root)
+
+        # Append updated samba bookmarks
+        for url, label in new_entries.items():
+            bookmark_elem = ET.SubElement(root, 'bookmark')
+            bookmark_elem.set('href', url)
+            title_elem = ET.SubElement(bookmark_elem, 'title')
+            title_elem.text = label
+
+        os.makedirs(os.path.dirname(xbel_path), exist_ok=True)
+        tree.write(xbel_path, encoding='unicode', xml_declaration=True)
+
+
 
     def write_rebuild_bash(self,tmp_samba_nix_path:str):
 

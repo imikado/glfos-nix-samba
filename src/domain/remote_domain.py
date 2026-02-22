@@ -28,7 +28,11 @@ class RemoteDomain():
         if not self._loaded:
 
             nix_dict=self._samba_file_api.get_nix_dict()
-            bookmark_list=self._system_api.get_gtk_bookmark_list()
+            bookmark_list=[]
+            if self._system_api.is_current_desktop_kde():
+                bookmark_list=self._system_api.get_kde_bookmark_list()                
+            else:
+                bookmark_list=self._system_api.get_gtk_bookmark_list()
             self._remote_share_repository.load_from_dict_and_bookmark_list(nix_dict,bookmark_list)
             self._loaded=True
 
@@ -57,14 +61,29 @@ class RemoteDomain():
         #self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
         tmp_samba_nix_path=self._system_api.write_file_tmp( new_content) 
 
-        gtk_bookmark_list=self._system_api.get_gtk_bookmark_list()
-        new_gtk_bookmark_list=self.get_gtk_bookmark_list(gtk_bookmark_list,self.get_list())
-
-        self._system_api.write_gtk_bookmark_list(new_gtk_bookmark_list)
+        if self._system_api.is_current_desktop_kde():
+            kde_bookmark_list=self._system_api.get_kde_bookmark_list()
+            new_kde_bookmark_list=self.get_kde_bookmark_list(kde_bookmark_list,self.get_list())
+            self._system_api.write_kde_bookmark_list(new_kde_bookmark_list)
+        else:
+            gtk_bookmark_list=self._system_api.get_gtk_bookmark_list()
+            new_gtk_bookmark_list=self.get_gtk_bookmark_list(gtk_bookmark_list,self.get_list())
+            self._system_api.write_gtk_bookmark_list(new_gtk_bookmark_list)
 
         self._need_to_save=False
 
         return tmp_samba_nix_path
+    
+    def get_kde_bookmark_list(self,current_bookmark_list:list,remote_share_list:list)->list:
+        target_bookmark_list=[]
+        for current_bookmark_loop in current_bookmark_list:
+            if not self.is_in_bookmark_list(current_bookmark_loop,remote_share_list) and not self.is_deleted(current_bookmark_loop):
+                target_bookmark_list.append(current_bookmark_loop)
+
+        for remote in remote_share_list:
+            target_bookmark_list.append('file://' + remote.path + ' ' + remote.label)
+
+        return target_bookmark_list
 
     def get_gtk_bookmark_list(self,current_bookmark_list:list,remote_share_list:list)->list:
         
