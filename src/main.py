@@ -3,19 +3,19 @@
 from infrastructure.ui.app_window import AppWindow
 
 import gettext
-
+import locale
 
 
 def main():
-    # Set the local directory
     appname = 'nix-samba'
     localedir = './infrastructure/locales'
 
-    # Set up Gettext
-    en_i18n = gettext.translation(appname, localedir, fallback=True, languages=['en','fr'])
+    # Detect OS language (e.g. 'fr_FR.UTF-8' -> 'fr')
+    lang_code, _ = locale.getlocale()
+    lang = lang_code.split('_')[0] if lang_code else 'en'
 
-    # Create the "magic" function
-    en_i18n.install()
+    translation = gettext.translation(appname, localedir, fallback=True, languages=[lang, 'en'])
+    translation.install()
 
 
     app = AppWindow()
