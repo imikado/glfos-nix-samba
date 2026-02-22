@@ -126,8 +126,17 @@ class SystemApi(SystemApiContract):
             for bookmark in bookmark_list:
                 f.write(bookmark + '\n')
 
+    def _kde_is_system_item(self, bookmark_elem) -> bool:
+        """Return True if this XBEL bookmark has <isSystemItem>true</isSystemItem>."""
+        for metadata in bookmark_elem.findall('.//metadata'):
+            if metadata.get('owner') == 'http://www.kde.org':
+                is_system = metadata.find('isSystemItem')
+                if is_system is not None and is_system.text == 'true':
+                    return True
+        return False
+
     def get_kde_bookmark_list(self)->list:
-        """Read ~/.local/share/user-places.xbel and return file:// entries as 'url label' strings."""
+        """Read user-added (non-system) file:// bookmarks from ~/.local/share/user-places.xbel."""
         xbel_path = os.path.join(os.path.expanduser('~'), '.local', 'share', 'user-places.xbel')
         if not os.path.isfile(xbel_path):
             return []
@@ -137,7 +146,7 @@ class SystemApi(SystemApiContract):
             bookmark_list = []
             for bookmark in root.findall('bookmark'):
                 href = bookmark.get('href', '')
-                if href.startswith('file://'):
+                if href.startswith('file://') and not self._kde_is_system_item(bookmark):
                     title_elem = bookmark.find('title')
                     label = title_elem.text if title_elem is not None and title_elem.text else href
                     bookmark_list.append(href + ' ' + label)
@@ -146,41 +155,42 @@ class SystemApi(SystemApiContract):
             return []
 
     def write_kde_bookmark_list(self,bookmark_list:list):
-        """Write file:// entries to ~/.local/share/user-places.xbel preserving non-file:// entries."""
+        """Replace non-system bookmarks in user-places.xbel with bookmark_list. System items are preserved."""
         xbel_path = os.path.join(os.path.expanduser('~'), '.local', 'share', 'user-places.xbel')
 
-        # Parse new bookmark urls for quick lookup
-        new_urls = set()
-        new_entries = {}  # url -> label
-        for entry in bookmark_list:
-            parts = entry.split(' ', 1)
-            url = parts[0]
-            label = parts[1] if len(parts) > 1 else url
-            new_urls.add(url)
-            new_entries[url] = label
+        # Register namespaces to avoid ns0: rewriting by ElementTree
+        ET.register_namespace('bookmark', 'http://www.freedesktop.org/standards/desktop-bookmarks')
+        ET.register_namespace('kdepriv', 'http://www.kde.org/kdepriv')
+        ET.register_namespace('mime', 'http://www.freedesktop.org/standards/shared-mime-info')
 
         if os.path.isfile(xbel_path):
-            ET.register_namespace('bookmark', 'http://www.freedesktop.org/standards/desktop-bookmarks')
-            ET.register_namespace('kdeprops', 'http://www.kde.org/standards/kdeprops')
             tree = ET.parse(xbel_path)
             root = tree.getroot()
-            # Remove existing file:// bookmarks that are in the new list
+            # Remove all non-system bookmarks (we will re-add the merged list)
             for bookmark in list(root.findall('bookmark')):
-                if bookmark.get('href', '') in new_urls:
+                if not self._kde_is_system_item(bookmark):
                     root.remove(bookmark)
         else:
             root = ET.Element('xbel')
             root.set('xmlns:bookmark', 'http://www.freedesktop.org/standards/desktop-bookmarks')
-            root.set('xmlns:kdeprops', 'http://www.kde.org/standards/kdeprops')
+            root.set('xmlns:kdepriv', 'http://www.kde.org/kdepriv')
             root.set('version', '1.0')
             tree = ET.ElementTree(root)
 
-        # Append updated samba bookmarks
-        for url, label in new_entries.items():
+        # Append bookmarks with folder-network icon
+        for entry in bookmark_list:
+            parts = entry.split(' ', 1)
+            url = parts[0]
+            label = parts[1] if len(parts) > 1 else url
             bookmark_elem = ET.SubElement(root, 'bookmark')
             bookmark_elem.set('href', url)
             title_elem = ET.SubElement(bookmark_elem, 'title')
             title_elem.text = label
+            info_elem = ET.SubElement(bookmark_elem, 'info')
+            fd_meta = ET.SubElement(info_elem, 'metadata')
+            fd_meta.set('owner', 'http://freedesktop.org')
+            icon_elem = ET.SubElement(fd_meta, '{http://www.freedesktop.org/standards/desktop-bookmarks}icon')
+            icon_elem.set('name', 'folder-network')
 
         os.makedirs(os.path.dirname(xbel_path), exist_ok=True)
         tree.write(xbel_path, encoding='unicode', xml_declaration=True)
