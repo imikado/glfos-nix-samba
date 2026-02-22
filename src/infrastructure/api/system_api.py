@@ -99,13 +99,16 @@ class SystemApi(SystemApiContract):
         xdg = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
         if 'gnome' in xdg:
             return 'gnome'
-        if 'kde' in xdg:
+        if 'kde' in xdg or 'plasma' in xdg:
             return 'kde'
         # Fallback: check DESKTOP_SESSION
         session = os.environ.get('DESKTOP_SESSION', '').lower()
         if 'gnome' in session:
             return 'gnome'
         if 'kde' in session or 'plasma' in session:
+            return 'kde'
+        # KDE-specific env vars
+        if os.environ.get('KDE_FULL_SESSION') or os.environ.get('KDE_SESSION_VERSION'):
             return 'kde'
         return 'unknown'
 
