@@ -6,6 +6,8 @@ import gettext
 import os
 import subprocess
 
+import locale
+
 
 def _compile_mo_if_needed(localedir: str, appname: str):
     """Compile .po to .mo if .mo is missing or older than .po."""
@@ -28,13 +30,18 @@ def main():
 
     _compile_mo_if_needed(localedir, appname)
 
+
+    locale_list=locale.getlocale()
+
     # Detect OS language from environment variables (GNOME/NixOS sets LANG or LANGUAGE)
     lang = 'en'
-    for var in ('LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG'):
-        val = os.environ.get(var, '')
-        if val:
-            lang = val.split(':')[0].split('_')[0].split('.')[0]
-            break
+    lang = locale_list[0].split('_')[0]
+
+    #for var in ('LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG'):
+    #    val = os.environ.get(var, '')
+    #    if val:
+    #        lang = val.split(':')[0].split('_')[0].split('.')[0]
+    #        break
     
     print('language chosen: '+lang)
 
