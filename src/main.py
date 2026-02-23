@@ -35,6 +35,8 @@ def main():
         if val:
             lang = val.split(':')[0].split('_')[0].split('.')[0]
             break
+    
+    print('language chosen: '+lang)
 
     translation = gettext.translation(appname, localedir, fallback=True, languages=[lang, 'en'])
     translation.install()
