@@ -1,2 +1,5 @@
-#!/bin/sh
-exec '@PYTHON@' '@pkgdatadir@/main.py' "$@"
+#!@PYTHON@
+import sys
+sys.path.insert(0, '@pkgdatadir@')
+from main import main
+main()
