@@ -6,6 +6,7 @@ project(
 )
 
 python = import('python').find_installation('python3')
+gnome = import('gnome')
 
 pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
 
@@ -25,3 +26,8 @@ configure_file(
 
 subdir('data')
 subdir('src')
+
+gnome.post_install(
+  gtk_update_icon_cache: true,
+  update_desktop_database: true,
+)
