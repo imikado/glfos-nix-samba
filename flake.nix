@@ -22,6 +22,10 @@
             pkgs.gtk4
             pkgs.libadwaita
             pkgs.gobject-introspection
+
+            pkgs.meson
+            pkgs.ninja
+            pkgs.gettext
           ];
 
           shellHook = ''

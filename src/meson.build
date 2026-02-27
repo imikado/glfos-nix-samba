@@ -10,10 +10,6 @@ install_subdir(
   ],
 )
 
-# Install pre-compiled .mo translation files
-foreach lang : ['en', 'fr']
-  install_data(
-    'infrastructure/locales' / lang / 'LC_MESSAGES' / 'nix-samba.mo',
-    install_dir: pkgdatadir / 'infrastructure' / 'locales' / lang / 'LC_MESSAGES',
-  )
-endforeach
+# Compile .po → .mo at build time (each in its own subdir to avoid naming conflicts)
+subdir('infrastructure/locales/en/LC_MESSAGES')
+subdir('infrastructure/locales/fr/LC_MESSAGES')
