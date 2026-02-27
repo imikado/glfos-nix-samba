@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Nix Samba
+GenericName=Samba
+X-GNOME-FullName=Nix Samba
+Comment=Manage samba shares
+Exec=pkexec /run/current-system/sw/bin/nix-samba
+Icon=nix-samba
+Terminal=false
+Type=Application
+Categories=GNOME;System;Filesystem;
+Keywords=Disk;
+StartupNotify=true
+StartupWMClass=org.dupot.glfosnixsamba
