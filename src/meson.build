@@ -1,24 +1,19 @@
 # Install all Python sources to pkgdatadir (preserving directory structure)
-# .mo files are excluded here — they are compiled fresh by the targets below
+# .mo files are excluded here and installed separately below to avoid conflicts
 install_subdir(
   '.',
   install_dir: pkgdatadir,
+  exclude_directories: ['__pycache__'],
   exclude_files: [
     'infrastructure/locales/en/LC_MESSAGES/nix-samba.mo',
     'infrastructure/locales/fr/LC_MESSAGES/nix-samba.mo',
   ],
-  exclude_directories: ['__pycache__'],
 )
 
-# Compile .po → .mo at build time and install alongside the Python sources
+# Install pre-compiled .mo translation files
 foreach lang : ['en', 'fr']
-  custom_target(
-    'mo-' + lang,
-    input: files('infrastructure/locales' / lang / 'LC_MESSAGES' / 'nix-samba.po'),
-    output: 'nix-samba.mo',
-    command: ['msgfmt', '-o', '@OUTPUT@', '@INPUT@'],
-    install: true,
+  install_data(
+    'infrastructure/locales' / lang / 'LC_MESSAGES' / 'nix-samba.mo',
     install_dir: pkgdatadir / 'infrastructure' / 'locales' / lang / 'LC_MESSAGES',
-    build_by_default: true,
   )
 endforeach
