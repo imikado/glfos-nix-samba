@@ -15,11 +15,10 @@ foreach lang : ['en', 'fr']
   custom_target(
     'mo-' + lang,
     input: files('infrastructure/locales' / lang / 'LC_MESSAGES' / 'nix-samba.po'),
-    output: lang + '-nix-samba.mo',
+    output: 'nix-samba.mo',
     command: ['msgfmt', '-o', '@OUTPUT@', '@INPUT@'],
     install: true,
     install_dir: pkgdatadir / 'infrastructure' / 'locales' / lang / 'LC_MESSAGES',
-    install_rename: 'nix-samba.mo',
     build_by_default: true,
   )
 endforeach
