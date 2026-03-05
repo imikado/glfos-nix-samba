@@ -49,8 +49,7 @@ msgid ""
 "The NixOS configuration is missing required settings (samba.nix and "
 "samba_setup.nix import). Enter your password to fix it automatically."
 msgstr ""
-"The NixOS configuration is missing required settings (samba.nix and "
-"samba_setup.nix import). Enter your password to fix it automatically."
+"The NixOS configuration need to be updated for this application. Enter your password to update it automatically."
 
 #: infrastructure/ui/app_window.py:107
 msgid "Cancel"

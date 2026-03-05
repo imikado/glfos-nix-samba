@@ -43,15 +43,14 @@ msgstr "OK"
 
 #: infrastructure/ui/app_window.py:99
 msgid "Fix NixOS Configuration"
-msgstr "Corriger la configuration NixOS"
+msgstr "Mettre à jour la configuration NixOS"
 
 #: infrastructure/ui/app_window.py:100
 msgid ""
 "The NixOS configuration is missing required settings (samba.nix and "
 "samba_setup.nix import). Enter your password to fix it automatically."
 msgstr ""
-"La configuration NixOS ne contient pas les paramètres requis (import de "
-"samba.nix et samba_setup.nix). Entrez votre mot de passe pour corriger "
+"La configuration NixOS doit être mise à jour pour cette application. Entrez votre mot de passe le faire "
 "automatiquement."
 
 #: infrastructure/ui/app_window.py:107
