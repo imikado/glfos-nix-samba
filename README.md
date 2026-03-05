@@ -30,4 +30,10 @@ then
 
 ```bash
 ./runWithDocker.sh
-````
+```
+
+# To generate sha256 for glf-os
+
+```bash
+./getGlfSha256.sh X.Y.Z
+```
