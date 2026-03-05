@@ -90,7 +90,7 @@ class RequirementsDomain:
   };
 }
 """
-            self._system_api.write_file_sudo(self._config_setup_file_path,samba_setup_content,password)
+            self._system_api.write_file_sudo(self._config_samba_setup_file_path,samba_setup_content,password)
 
         self._system_api.backup_file_sudo(self._config_file_path,password)
 

@@ -31,7 +31,7 @@ msgstr "Avertissement de configuration NixOS"
 
 #: infrastructure/ui/app_window.py:87
 msgid "The following items are missing from your NixOS configuration:"
-msgstr "Les éléments suivants sont manquants dans votre configuration NixOS :"
+msgstr "Votre configuration a besoin d'être mise à jour pour cette application :"
 
 #: infrastructure/ui/app_window.py:90
 msgid "Please add them to /etc/nixos/customConfig/default.nix"
@@ -60,11 +60,11 @@ msgstr "Annuler"
 
 #: infrastructure/ui/app_window.py:108
 msgid "Fix Configuration"
-msgstr "Corriger la configuration"
+msgstr "Mettre à jour la configuration"
 
 #: infrastructure/ui/app_window.py:125
 msgid "NixOS configuration fixed successfully"
-msgstr "Configuration NixOS corrigée avec succès"
+msgstr "Configuration NixOS mise à jour avec succès"
 
 #: infrastructure/ui/app_window.py:128
 msgid "Incorrect password, please try again"

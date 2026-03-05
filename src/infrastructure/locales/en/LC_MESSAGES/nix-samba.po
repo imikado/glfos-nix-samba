@@ -30,7 +30,7 @@ msgstr "NixOS Configuration Warning"
 
 #: infrastructure/ui/app_window.py:87
 msgid "The following items are missing from your NixOS configuration:"
-msgstr "The following items are missing from your NixOS configuration:"
+msgstr "Your NixOS configuration need to be updated:"
 
 #: infrastructure/ui/app_window.py:90
 msgid "Please add them to /etc/nixos/customConfig/default.nix"
@@ -42,7 +42,7 @@ msgstr "OK"
 
 #: infrastructure/ui/app_window.py:99
 msgid "Fix NixOS Configuration"
-msgstr "Fix NixOS Configuration"
+msgstr "Update NixOS Configuration"
 
 #: infrastructure/ui/app_window.py:100
 msgid ""
