@@ -15,7 +15,9 @@ class RequirementsDomain:
     IMPORT_SAMBA_SETUP='./samba_setup.nix'
 
     _config_file_path:str='/etc/nixos/customConfig/default.nix'
-    _config_setup_file_path:str='/etc/nixos/customConfig/samba_setup.nix'
+    _config_samba_setup_file_path:str='/etc/nixos/customConfig/samba_setup.nix'
+    _config_samba_file_path:str='/etc/nixos/customConfig/samba.nix'
+    
 
     def __init__(self,system_api:SystemApiContract):
         self._system_api=system_api
@@ -48,11 +50,13 @@ class RequirementsDomain:
     def fix_requirements(self,password:str):
 
         need_to_create_samba_setup_file=False
+        need_to_create_samba=False
 
         if self._need_fix_all_imports:
             new_content=self.get_content_with_missing_import_block(self._default_nix_content)
 
             need_to_create_samba_setup_file=True
+            need_to_create_samba=True
 
             
         if len(self._need_fix_missing_list)>0:
@@ -60,8 +64,15 @@ class RequirementsDomain:
             
             if self.IMPORT_SAMBA_SETUP in self._need_fix_missing_list:
                 need_to_create_samba_setup_file=True
+                need_to_create_samba=True
 
-        if need_to_create_samba_setup_file==True and not self._system_api.file_exists(self._config_setup_file_path):
+        if need_to_create_samba==True and not self._system_api.file_exists(self._config_samba_file_path):
+            samba_content="""{}"""
+
+            self._system_api.write_file_sudo(self._config_samba_file_path,samba_content,password)
+
+
+        if need_to_create_samba_setup_file==True and not self._system_api.file_exists(self._config_samba_setup_file_path):
 
             samba_setup_content="""{ pkgs, ... }:
 {
