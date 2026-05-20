@@ -74,19 +74,17 @@ class RequirementsDomain:
 
         if need_to_create_samba_setup_file==True and not self._system_api.file_exists(self._config_samba_setup_file_path):
 
-            samba_setup_content="""{ pkgs, ... }:
+            samba_setup_content="""{ pkgs, lib, ... }:
 {
 
-
-  # This adds the necessary mount helper for SMB/CIFS
   environment.systemPackages = [ pkgs.cifs-utils ];
 
-  # This is the "magic" line that fixes the setuid error
+  # lib.getBin: cifs-utils est multi-output, mount.cifs vit dans `bin`.
   security.wrappers."mount.cifs" = {
     setuid = true;
     owner = "root";
     group = "root";
-    source = "${pkgs.cifs-utils}/bin/mount.cifs";
+    source = "${lib.getBin pkgs.cifs-utils}/bin/mount.cifs";
   };
 }
 """
