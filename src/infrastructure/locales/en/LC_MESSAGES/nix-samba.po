@@ -5,105 +5,139 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nix-samba\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-22 16:04+0100\n"
+"POT-Creation-Date: 2026-06-13 20:55+0200\n"
 "PO-Revision-Date: 2026-02-22 16:04+0100\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: infrastructure/ui/app_window.py:62
+#: infrastructure/ui/app_window.py:59
 msgid "Configuration file not found: "
 msgstr "Configuration file not found: "
 
-#: infrastructure/ui/app_window.py:75
+#: infrastructure/ui/app_window.py:77
 msgid "Cannot read configuration file (permission denied)"
 msgstr "Cannot read configuration file (permission denied)"
 
-#: infrastructure/ui/app_window.py:77
+#: infrastructure/ui/app_window.py:80
 msgid "Error reading configuration: "
 msgstr "Error reading configuration: "
 
-#: infrastructure/ui/app_window.py:85
+#: infrastructure/ui/app_window.py:88
 msgid "NixOS Configuration Warning"
 msgstr "NixOS Configuration Warning"
 
-#: infrastructure/ui/app_window.py:87
+#: infrastructure/ui/app_window.py:91
 msgid "The following items are missing from your NixOS configuration:"
 msgstr "Your NixOS configuration need to be updated:"
 
-#: infrastructure/ui/app_window.py:90
+#: infrastructure/ui/app_window.py:95
 msgid "Please add them to /etc/nixos/customConfig/default.nix"
 msgstr "Please add them to /etc/nixos/customConfig/default.nix"
 
-#: infrastructure/ui/app_window.py:93
+#: infrastructure/ui/app_window.py:98 infrastructure/ui/app_window.py:143
+#: infrastructure/ui/app_window.py:188 infrastructure/ui/app_window.py:361
+#: infrastructure/ui/create_creds_file_page.py:113
+#: infrastructure/ui/remote_add_page.py:240
+#: infrastructure/ui/remote_edit_page.py:280
 msgid "OK"
 msgstr "OK"
 
-#: infrastructure/ui/app_window.py:99
+#: infrastructure/ui/app_window.py:104
 msgid "Fix NixOS Configuration"
 msgstr "Update NixOS Configuration"
 
-#: infrastructure/ui/app_window.py:100
+#: infrastructure/ui/app_window.py:107
 msgid ""
 "The NixOS configuration is missing required settings (samba.nix and "
 "samba_setup.nix import). Enter your password to fix it automatically."
 msgstr ""
-"The NixOS configuration need to be updated for this application. Enter your password to update it automatically."
+"The NixOS configuration need to be updated for this application. Enter your "
+"password to update it automatically."
 
-#: infrastructure/ui/app_window.py:107
+#: infrastructure/ui/app_window.py:116 infrastructure/ui/app_window.py:161
+#: infrastructure/ui/app_window.py:262
+#: infrastructure/ui/remote_list_page.py:107
 msgid "Cancel"
 msgstr "Cancel"
 
-#: infrastructure/ui/app_window.py:108
+#: infrastructure/ui/app_window.py:117
 msgid "Fix Configuration"
 msgstr "Fix Configuration"
 
-#: infrastructure/ui/app_window.py:125
+#: infrastructure/ui/app_window.py:134
 msgid "NixOS configuration fixed successfully"
 msgstr "NixOS configuration fixed successfully"
 
-#: infrastructure/ui/app_window.py:128
+#: infrastructure/ui/app_window.py:137 infrastructure/ui/app_window.py:182
 msgid "Incorrect password, please try again"
 msgstr "Incorrect password, please try again"
 
-#: infrastructure/ui/app_window.py:132
+#: infrastructure/ui/app_window.py:141 infrastructure/ui/app_window.py:186
+#: infrastructure/ui/app_window.py:359
+#: infrastructure/ui/create_creds_file_page.py:111
+#: infrastructure/ui/remote_add_page.py:238
+#: infrastructure/ui/remote_edit_page.py:278
 msgid "Error"
 msgstr "Error"
 
-#: infrastructure/ui/app_window.py:138
+#: infrastructure/ui/app_window.py:149
+msgid "Update NixOS Configuration"
+msgstr "Update NixOS Configuration"
+
+#: infrastructure/ui/app_window.py:152
+msgid ""
+"No remote share is configured. Enter your password to remove the unused "
+"samba.nix and samba_setup.nix imports."
+msgstr ""
+"No remote share is configured. Enter your password to remove the unused "
+"samba.nix and samba_setup.nix imports."
+
+#: infrastructure/ui/app_window.py:162
+msgid "Update Configuration"
+msgstr "Update Configuration"
+
+#: infrastructure/ui/app_window.py:179
+msgid "NixOS configuration updated successfully"
+msgstr "NixOS configuration updated successfully"
+
+#: infrastructure/ui/app_window.py:192
 msgid "Nix Samba"
 msgstr "Nix Samba"
 
-#: infrastructure/ui/app_window.py:149
+#: infrastructure/ui/app_window.py:203 infrastructure/ui/app_window.py:204
+#: infrastructure/ui/remote_list_page.py:46
+#: infrastructure/ui/remote_list_page.py:47
 msgid "Save on disk"
 msgstr "Save on disk"
 
-#: infrastructure/ui/app_window.py:163
+#: infrastructure/ui/app_window.py:217 infrastructure/ui/app_window.py:221
 msgid "Remote share"
 msgstr "Remote share"
 
-#: infrastructure/ui/app_window.py:168
+#: infrastructure/ui/app_window.py:222
 msgid "Mange your remote samba shares"
 msgstr "Manage your remote samba shares"
 
-#: infrastructure/ui/app_window.py:172
+#: infrastructure/ui/app_window.py:226
 msgid "List remote shares"
 msgstr "List remote shares"
 
-#: infrastructure/ui/app_window.py:179
+#: infrastructure/ui/app_window.py:233
 msgid "Add remote share"
 msgstr "Add remote share"
 
-#: infrastructure/ui/app_window.py:186
+#: infrastructure/ui/app_window.py:240
+#: infrastructure/ui/create_creds_file_page.py:24
 msgid "Create credentials file"
 msgstr "Create credentials file"
 
-#: infrastructure/ui/app_window.py:205
+#: infrastructure/ui/app_window.py:256
 msgid "Unsaved Changes"
 msgstr "Unsaved Changes"
 
-#: infrastructure/ui/app_window.py:206
+#: infrastructure/ui/app_window.py:259
 msgid ""
 "You have modifications not saved. Are you sure you want to quit without "
 "saving?"
@@ -111,23 +145,11 @@ msgstr ""
 "You have modifications not saved. Are you sure you want to quit without "
 "saving?"
 
-#: infrastructure/ui/app_window.py:208
+#: infrastructure/ui/app_window.py:263
 msgid "Quit without saving"
 msgstr "Quit without saving"
 
-#: infrastructure/ui/app_window.py:242
-msgid "Authentication Required"
-msgstr "Authentication Required"
-
-#: infrastructure/ui/app_window.py:243
-msgid "Enter your password to save changes to system configuration."
-msgstr "Enter your password to save changes to system configuration."
-
-#: infrastructure/ui/app_window.py:251
-msgid "Save"
-msgstr "Save"
-
-#: infrastructure/ui/app_window.py:305
+#: infrastructure/ui/app_window.py:355 infrastructure/ui/app_window.py:404
 msgid "Configuration saved - rebuilding in terminal"
 msgstr "Configuration saved - rebuilding in terminal"
 
@@ -144,6 +166,8 @@ msgid "File path"
 msgstr "File path"
 
 #: infrastructure/ui/create_creds_file_page.py:58
+#: infrastructure/ui/remote_add_page.py:92
+#: infrastructure/ui/remote_edit_page.py:93
 msgid "Credentials"
 msgstr "Credentials"
 
@@ -168,6 +192,8 @@ msgid "Credentials file created"
 msgstr "Credentials file created"
 
 #: infrastructure/ui/create_creds_file_page.py:147
+#: infrastructure/ui/remote_add_page.py:304
+#: infrastructure/ui/remote_edit_page.py:344
 msgid "There are error during validation"
 msgstr "There are errors during validation"
 
@@ -176,86 +202,107 @@ msgid "Add Remote Share"
 msgstr "Add Remote Share"
 
 #: infrastructure/ui/remote_add_page.py:47
+#: infrastructure/ui/remote_edit_page.py:46
 msgid "Basic Settings"
 msgstr "Basic Settings"
 
 #: infrastructure/ui/remote_add_page.py:48
+#: infrastructure/ui/remote_edit_page.py:47
 msgid "Mount point and remote share configuration"
 msgstr "Mount point and remote share configuration"
 
 #: infrastructure/ui/remote_add_page.py:51
+#: infrastructure/ui/remote_edit_page.py:50
 msgid "Bookmark"
 msgstr "Bookmark"
 
 #: infrastructure/ui/remote_add_page.py:53
+#: infrastructure/ui/remote_edit_page.py:52
 msgid "My Share"
 msgstr "My Share"
 
 #: infrastructure/ui/remote_add_page.py:60
+#: infrastructure/ui/remote_edit_page.py:60
 msgid "Mount path"
 msgstr "Mount path"
 
 #: infrastructure/ui/remote_add_page.py:70
+#: infrastructure/ui/remote_edit_page.py:70
 msgid "Remote address"
 msgstr "Remote address"
 
 #: infrastructure/ui/remote_add_page.py:79
+#: infrastructure/ui/remote_edit_page.py:80
 msgid "Filesystem type"
 msgstr "Filesystem type"
 
 #: infrastructure/ui/remote_add_page.py:93
+#: infrastructure/ui/remote_edit_page.py:94
 msgid "Authentication settings"
 msgstr "Authentication settings"
 
 #: infrastructure/ui/remote_add_page.py:96
+#: infrastructure/ui/remote_edit_page.py:97
 msgid "Credentials file"
 msgstr "Credentials file"
 
 #: infrastructure/ui/remote_add_page.py:104
+#: infrastructure/ui/remote_edit_page.py:106
 msgid "Browse for credentials file"
 msgstr "Browse for credentials file"
 
 #: infrastructure/ui/remote_add_page.py:115
+#: infrastructure/ui/remote_edit_page.py:117
 msgid "User (UID)"
 msgstr "User (UID)"
 
 #: infrastructure/ui/remote_add_page.py:127
+#: infrastructure/ui/remote_edit_page.py:136
 msgid "Group (GID)"
 msgstr "Group (GID)"
 
 #: infrastructure/ui/remote_add_page.py:137
+#: infrastructure/ui/remote_edit_page.py:153
 msgid "Systemd Options"
 msgstr "Systemd Options"
 
 #: infrastructure/ui/remote_add_page.py:138
+#: infrastructure/ui/remote_edit_page.py:154
 msgid "Automount and timeout settings"
 msgstr "Automount and timeout settings"
 
 #: infrastructure/ui/remote_add_page.py:142
+#: infrastructure/ui/remote_edit_page.py:158
 msgid "Mount behavior"
 msgstr "Mount behavior"
 
 #: infrastructure/ui/remote_add_page.py:143
+#: infrastructure/ui/remote_edit_page.py:159
 msgid "When to mount the share"
 msgstr "When to mount the share"
 
 #: infrastructure/ui/remote_add_page.py:145
+#: infrastructure/ui/remote_edit_page.py:161
 msgid "Auto mount at boot"
 msgstr "Auto mount at boot"
 
 #: infrastructure/ui/remote_add_page.py:146
+#: infrastructure/ui/remote_edit_page.py:162
 msgid "Mount on access"
 msgstr "Mount on access"
 
 #: infrastructure/ui/remote_add_page.py:153
+#: infrastructure/ui/remote_edit_page.py:174
 msgid "Idle timeout (seconds)"
 msgstr "Idle timeout (seconds)"
 
 #: infrastructure/ui/remote_add_page.py:163
+#: infrastructure/ui/remote_edit_page.py:185
 msgid "Device timeout"
 msgstr "Device timeout"
 
 #: infrastructure/ui/remote_add_page.py:173
+#: infrastructure/ui/remote_edit_page.py:196
 msgid "Mount timeout"
 msgstr "Mount timeout"
 
@@ -264,10 +311,12 @@ msgid "Add share"
 msgstr "Add share"
 
 #: infrastructure/ui/remote_add_page.py:202
+#: infrastructure/ui/remote_edit_page.py:248
 msgid "Select credentials file"
 msgstr "Select credentials file"
 
 #: infrastructure/ui/remote_add_page.py:233
+#: infrastructure/ui/remote_edit_page.py:273
 msgid "Save in memory, don't forget to press the top save button"
 msgstr "Saved in memory, don't forget to press the top save button"
 
@@ -303,3 +352,12 @@ msgstr "Are you sure you want to delete the share \"%s\"?"
 #: infrastructure/ui/remote_list_page.py:108
 msgid "Delete"
 msgstr "Delete"
+
+#~ msgid "Authentication Required"
+#~ msgstr "Authentication Required"
+
+#~ msgid "Enter your password to save changes to system configuration."
+#~ msgstr "Enter your password to save changes to system configuration."
+
+#~ msgid "Save"
+#~ msgstr "Save"

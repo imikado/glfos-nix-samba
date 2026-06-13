@@ -120,6 +120,34 @@ imports=[
 
         return new_content
 
+    def has_samba_imports(self,default_nix_content):
+
+        self._default_nix_content=default_nix_content
+
+        return bool(re.search(r'[./]*samba\.nix', default_nix_content)) \
+            or bool(re.search(r'[./]*samba_setup\.nix', default_nix_content))
+
+    def remove_samba_imports(self,password:str):
+
+        new_content=self.get_content_without_imports(self._default_nix_content,[self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP])
+
+        self._system_api.backup_file_sudo(self._config_file_path,password)
+
+        self._system_api.write_file_sudo(self._config_file_path,new_content,password)
+
+    def get_content_without_imports(self,content:str,import_list:list):
+        new_content=''
+
+        for lineLoop in content.split("\n"):
+            stripped_line=lineLoop.strip().rstrip(',')
+
+            if stripped_line in import_list:
+                continue
+
+            new_content+=lineLoop+"\n"
+
+        return new_content
+
     def get_content_with_missing_imports(self,content:str,missing_import_list:list):
         new_content=''
         start_import=False

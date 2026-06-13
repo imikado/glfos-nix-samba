@@ -46,12 +46,10 @@ class MainWindow(Adw.ApplicationWindow):
         # Handle close request to prompt for unsaved changes
         self.connect("close-request", self._on_close_request)
 
-        # Check NixOS configuration on startup
-        self._check_nixos_config()
-
     def _check_nixos_config(self):
 
         requirements_domain = RequirementsDomain(SystemApi())
+        self._requirements_domain = requirements_domain
 
         missing_items = []
 
@@ -65,10 +63,14 @@ class MainWindow(Adw.ApplicationWindow):
                 with open(requirements_domain.get_config_file_path(), "r") as f:
                     default_ini_content = f.read()
 
-                if not requirements_domain.is_requirements_valid(default_ini_content):
+                has_mounts = len(self._remote_domain.get_list()) > 0
 
-                    self._requirements_domain = requirements_domain
-                    self._show_fix_requirements_dialog()
+                if has_mounts:
+                    if not requirements_domain.is_requirements_valid(default_ini_content):
+                        self._show_fix_requirements_dialog()
+                else:
+                    if requirements_domain.has_samba_imports(default_ini_content):
+                        self._show_remove_imports_dialog()
 
         except PermissionError:
             missing_items.append(
@@ -134,6 +136,51 @@ class MainWindow(Adw.ApplicationWindow):
             # Bad password - show dialog again
             self.show_notification(_("Incorrect password, please try again"))
             self._show_fix_requirements_dialog()
+        except Exception as e:
+            error_dialog = Adw.AlertDialog()
+            error_dialog.set_heading(_("Error"))
+            error_dialog.set_body(str(e))
+            error_dialog.add_response("ok", _("OK"))
+            error_dialog.present(self)
+
+    def _show_remove_imports_dialog(self):
+        """Show dialog to ask password for removing unused samba imports from NixOS configuration."""
+        dialog = Adw.AlertDialog()
+        dialog.set_heading(_("Update NixOS Configuration"))
+        dialog.set_body(
+            _(
+                "No remote share is configured. Enter your password to remove the unused samba.nix and samba_setup.nix imports."
+            )
+        )
+
+        password_entry = Gtk.PasswordEntry()
+        password_entry.set_show_peek_icon(True)
+        password_entry.set_hexpand(True)
+        dialog.set_extra_child(password_entry)
+
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("remove", _("Update Configuration"))
+        dialog.set_response_appearance("remove", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("remove")
+        dialog.set_close_response("cancel")
+
+        self._remove_imports_password_entry = password_entry
+        dialog.connect("response", self._on_remove_imports_response)
+        dialog.present(self)
+
+    def _on_remove_imports_response(self, dialog, response):
+        if response != "remove":
+            return
+
+        password = self._remove_imports_password_entry.get_text()
+
+        try:
+            self._requirements_domain.remove_samba_imports(password)
+            self.show_notification(_("NixOS configuration updated successfully"))
+        except PermissionError:
+            # Bad password - show dialog again
+            self.show_notification(_("Incorrect password, please try again"))
+            self._show_remove_imports_dialog()
         except Exception as e:
             error_dialog = Adw.AlertDialog()
             error_dialog.set_heading(_("Error"))
@@ -251,29 +298,11 @@ class MainWindow(Adw.ApplicationWindow):
 
     def on_save_clicked(self, _button):
 
+        self._check_nixos_config()
+
         return self.save_and_rebuild()
 
-        # Show password dialog
-        dialog = Adw.AlertDialog()
-        dialog.set_heading(_("Authentication Required"))
-        dialog.set_body(
-            _("Enter your password to save changes to system configuration.")
-        )
-
-        password_entry = Gtk.PasswordEntry()
-        password_entry.set_show_peek_icon(True)
-        password_entry.set_hexpand(True)
-        dialog.set_extra_child(password_entry)
-
-        dialog.add_response("cancel", _("Cancel"))
-        dialog.add_response("save", _("Save"))
-        dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
-        dialog.set_default_response("save")
-        dialog.set_close_response("cancel")
-
-        self._password_entry = password_entry
-        dialog.connect("response", self._on_save_password_response)
-        dialog.present(self)
+        
 
     def _on_save_password_response(self, dialog, response):
         if response != "save":
