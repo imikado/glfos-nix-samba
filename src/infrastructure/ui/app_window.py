@@ -67,11 +67,14 @@ class MainWindow(Adw.ApplicationWindow):
 
                 if has_mounts:
                     if not requirements_domain.is_requirements_valid(default_ini_content):
-                        self._show_fix_requirements_dialog()
+                        return self._show_fix_requirements_dialog()
+                        
+                    return self.save_and_rebuild()
                 else:
                     if requirements_domain.has_samba_imports(default_ini_content):
-                        self._show_remove_imports_dialog()
+                        return self._show_remove_imports_dialog()
 
+                    return self.save_and_rebuild()
         except PermissionError:
             missing_items.append(
                 _("Cannot read configuration file (permission denied)")
@@ -132,6 +135,8 @@ class MainWindow(Adw.ApplicationWindow):
         try:
             self._requirements_domain.fix_requirements(password)
             self.show_notification(_("NixOS configuration fixed successfully"))
+
+            return self.save_and_rebuild()
         except PermissionError:
             # Bad password - show dialog again
             self.show_notification(_("Incorrect password, please try again"))
@@ -177,6 +182,8 @@ class MainWindow(Adw.ApplicationWindow):
         try:
             self._requirements_domain.remove_samba_imports(password)
             self.show_notification(_("NixOS configuration updated successfully"))
+
+            return self.save_and_rebuild()
         except PermissionError:
             # Bad password - show dialog again
             self.show_notification(_("Incorrect password, please try again"))
@@ -299,8 +306,6 @@ class MainWindow(Adw.ApplicationWindow):
     def on_save_clicked(self, _button):
 
         self._check_nixos_config()
-
-        return self.save_and_rebuild()
 
         
 
