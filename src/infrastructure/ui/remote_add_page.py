@@ -319,9 +319,10 @@ class RemoteAddPage(Adw.NavigationPage):
 
         # Mount behavior
         if self.combo_mount_behavior.get_selected() == 1:  # Mount on access
+            options.append('noauto')
             options.append('x-systemd.automount')
+        elif self.combo_mount_behavior.get_selected() == 0:  # Mount on boot
             #options.append('noauto')
-        elif self.combo_mount_behavior.get_selected() == 0:  # Auto mount at boot
             options.append('x-systemd.automount')
 
         idle_timeout = self.entry_idle_timeout.get_text()

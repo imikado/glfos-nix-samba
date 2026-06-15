@@ -360,7 +360,7 @@ class RemoteEditPage(Adw.NavigationPage):
         if self.combo_mount_behavior.get_selected() == 1:  # Mount on access
             options.append('noauto')
             options.append('x-systemd.automount')
-        elif self.combo_mount_behavior.get_selected() == 0:  # Mount on access
+        elif self.combo_mount_behavior.get_selected() == 0:  # Mount on boot
             #options.append('noauto')
             options.append('x-systemd.automount')
         
