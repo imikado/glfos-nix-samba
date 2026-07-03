@@ -13,11 +13,13 @@ class RequirementsDomain:
 
     IMPORT_SAMBA='./samba.nix'
     IMPORT_SAMBA_SETUP='./samba_setup.nix'
+    IMPORT_SAMBA_SERVER='./samba-server.nix'
 
     _config_file_path:str='/etc/nixos/customConfig/default.nix'
     _config_samba_setup_file_path:str='/etc/nixos/customConfig/samba_setup.nix'
     _config_samba_file_path:str='/etc/nixos/customConfig/samba.nix'
-    
+    _config_samba_server_file_path:str='/etc/nixos/customConfig/samba-server.nix'
+
 
     def __init__(self,system_api:SystemApiContract):
         self._system_api=system_api
@@ -25,24 +27,28 @@ class RequirementsDomain:
     def get_config_file_path(self):
         return self._config_file_path
 
-    def is_requirements_valid(self,default_nix_content):
-        
+    def is_requirements_valid(self,default_nix_content,needs_remote_mounts=True,needs_local_share=False):
+
         self._default_nix_content=default_nix_content
+        self._need_fix_missing_list=[]
+
+        self._needed_imports=[]
+        if needs_remote_mounts:
+            self._needed_imports+=[self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP]
+        if needs_local_share:
+            self._needed_imports.append(self.IMPORT_SAMBA_SERVER)
 
         _is_valid=True
-        
+
         if not re.search(r'imports', self._default_nix_content):
             self._need_fix_all_imports=True
             return False
 
-        if not re.search(r'[./]*samba\.nix', self._default_nix_content):
-            self._need_fix_missing_list.append(self.IMPORT_SAMBA)
-            _is_valid=False
-
-
-        if not re.search(r'[./]*samba_setup\.nix', self._default_nix_content):
-            self._need_fix_missing_list.append(self.IMPORT_SAMBA_SETUP)
-            _is_valid=False
+        for import_name_loop in self._needed_imports:
+            pattern=re.escape(import_name_loop.lstrip('./'))
+            if not re.search(pattern, self._default_nix_content):
+                self._need_fix_missing_list.append(import_name_loop)
+                _is_valid=False
 
         return _is_valid
 
@@ -51,20 +57,28 @@ class RequirementsDomain:
 
         need_to_create_samba_setup_file=False
         need_to_create_samba=False
+        need_to_create_samba_server=False
 
         if self._need_fix_all_imports:
-            new_content=self.get_content_with_missing_import_block(self._default_nix_content)
+            new_content=self.get_content_with_missing_import_block(self._default_nix_content,self._needed_imports)
 
-            need_to_create_samba_setup_file=True
-            need_to_create_samba=True
+            if self.IMPORT_SAMBA in self._needed_imports:
+                need_to_create_samba=True
+            if self.IMPORT_SAMBA_SETUP in self._needed_imports:
+                need_to_create_samba_setup_file=True
+            if self.IMPORT_SAMBA_SERVER in self._needed_imports:
+                need_to_create_samba_server=True
 
-            
+
         if len(self._need_fix_missing_list)>0:
             new_content=self.get_content_with_missing_imports(self._default_nix_content,self._need_fix_missing_list)
-            
+
+            if self.IMPORT_SAMBA in self._need_fix_missing_list:
+                need_to_create_samba=True
             if self.IMPORT_SAMBA_SETUP in self._need_fix_missing_list:
                 need_to_create_samba_setup_file=True
-                need_to_create_samba=True
+            if self.IMPORT_SAMBA_SERVER in self._need_fix_missing_list:
+                need_to_create_samba_server=True
 
         if need_to_create_samba==True and not self._system_api.file_exists(self._config_samba_file_path):
             samba_content="""{}"""
@@ -90,20 +104,29 @@ class RequirementsDomain:
 """
             self._system_api.write_file_sudo(self._config_samba_setup_file_path,samba_setup_content,password)
 
+        if need_to_create_samba_server==True and not self._system_api.file_exists(self._config_samba_server_file_path):
+
+            samba_server_content="""{ pkgs, lib, ... }:
+{
+  services.samba.enable = true;
+}
+"""
+            self._system_api.write_file_sudo(self._config_samba_server_file_path,samba_server_content,password)
+
         self._system_api.backup_file_sudo(self._config_file_path,password)
 
         self._system_api.write_file_sudo(self._config_file_path,new_content,password)
 
-    def get_content_with_missing_import_block(self,content:str):
+    def get_content_with_missing_import_block(self,content:str,needed_imports:list):
         new_content=''
+        import_lines='\n    '.join(needed_imports)
         import_block="""
 imports=[
-    %s
     %s
 ];
 
 }
-""" %(self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP)
+""" %(import_lines)
 
         if content[-1]=='}':
             new_content=content[:-1]
@@ -125,11 +148,12 @@ imports=[
         self._default_nix_content=default_nix_content
 
         return bool(re.search(r'[./]*samba\.nix', default_nix_content)) \
-            or bool(re.search(r'[./]*samba_setup\.nix', default_nix_content))
+            or bool(re.search(r'[./]*samba_setup\.nix', default_nix_content)) \
+            or bool(re.search(r'[./]*samba-server\.nix', default_nix_content))
 
     def remove_samba_imports(self,password:str):
 
-        new_content=self.get_content_without_imports(self._default_nix_content,[self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP])
+        new_content=self.get_content_without_imports(self._default_nix_content,[self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP,self.IMPORT_SAMBA_SERVER])
 
         self._system_api.backup_file_sudo(self._config_file_path,password)
 

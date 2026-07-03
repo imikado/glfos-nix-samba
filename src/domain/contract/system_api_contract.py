@@ -63,3 +63,19 @@ class SystemApiContract:
     @abstractmethod
     def nix_rebuild_sudo(self,password:str):
         pass
+
+    @abstractmethod
+    def get_desktop_dir(self)->str:
+        pass
+
+    @abstractmethod
+    def has_desktop_shortcut(self,mount_path:str)->bool:
+        pass
+
+    @abstractmethod
+    def create_desktop_shortcut(self,mount_path:str,label:str):
+        pass
+
+    @abstractmethod
+    def remove_desktop_shortcut(self,mount_path:str):
+        pass

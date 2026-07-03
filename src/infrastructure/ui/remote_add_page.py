@@ -85,6 +85,11 @@ class RemoteAddPage(Adw.NavigationPage):
         row.add_suffix(self.entry_fstype)
         basic_group.add(row)
 
+        self.switch_desktop_shortcut = Adw.SwitchRow()
+        self.switch_desktop_shortcut.set_title(_('Show on desktop'))
+        self.switch_desktop_shortcut.set_subtitle(_('Create a shortcut to this share on your desktop'))
+        basic_group.add(self.switch_desktop_shortcut)
+
         pref_page.add(basic_group)
 
         # Credentials group
@@ -226,6 +231,7 @@ class RemoteAddPage(Adw.NavigationPage):
             label=self.entry_label.get_text(),
         )
         remote_share.set_options(self._build_options())
+        remote_share.show_on_desktop = self.switch_desktop_shortcut.get_active()
 
         try:
             self._remote_domain.add_item(remote_share)

@@ -1,12 +1,16 @@
 import os
 
 from domain.credentials_file_domain import CredentialsFileDomain
+from domain.local_share_domain import LocalShareDomain
 from domain.remote_domain import RemoteDomain
 from domain.requirements_domain import RequirementsDomain
 import gi
+from infrastructure.api.local_samba_file_api import LocalSambaFileApi
 from infrastructure.api.samba_file_api import SambaFileApi
 from infrastructure.api.system_api import SystemApi
 from infrastructure.ui.create_creds_file_page import CreateCredsFilePage
+from infrastructure.ui.local_share_list_page import LocalShareListPage
+from infrastructure.ui.local_share_add_page import LocalShareAddPage
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -20,11 +24,13 @@ from infrastructure.ui.remote_add_page import RemoteAddPage
 class MainWindow(Adw.ApplicationWindow):
 
     _remote_domain: RemoteDomain = None
+    _local_share_domain: LocalShareDomain = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._remote_domain = RemoteDomain(SystemApi(), SambaFileApi())
+        self._local_share_domain = LocalShareDomain(SystemApi(), LocalSambaFileApi())
 
         self.set_title("Nix Samba")
         self.set_default_size(800, 600)
@@ -64,11 +70,12 @@ class MainWindow(Adw.ApplicationWindow):
                     default_ini_content = f.read()
 
                 has_mounts = len(self._remote_domain.get_list()) > 0
+                has_local_shares = len(self._local_share_domain.get_list()) > 0
 
-                if has_mounts:
-                    if not requirements_domain.is_requirements_valid(default_ini_content):
+                if has_mounts or has_local_shares:
+                    if not requirements_domain.is_requirements_valid(default_ini_content, has_mounts, has_local_shares):
                         return self._show_fix_requirements_dialog()
-                        
+
                     return self.save_and_rebuild()
                 else:
                     if requirements_domain.has_samba_imports(default_ini_content):
@@ -250,15 +257,37 @@ class MainWindow(Adw.ApplicationWindow):
         pref_group_remote.add(button_create_creds_file)
 
         pref_page_remote.add(pref_group_remote)
+
+        # Local share group
+        pref_group_local = Adw.PreferencesGroup()
+        pref_group_local.set_title(_("Local share"))
+        pref_group_local.set_description(_("Share a local folder on your network via Samba"))
+
+        # List local shares button
+        button_local_list = Adw.ButtonRow()
+        button_local_list.set_title(_("List local shares"))
+        button_local_list.set_start_icon_name("view-list-symbolic")
+        button_local_list.connect("activated", self.on_list_local_share_clicked)
+        pref_group_local.add(button_local_list)
+
+        # Add local share button
+        button_local_add = Adw.ButtonRow()
+        button_local_add.set_title(_("Add local share"))
+        button_local_add.set_start_icon_name("list-add-symbolic")
+        button_local_add.connect("activated", self.on_add_local_share_clicked)
+        pref_group_local.add(button_local_add)
+
+        pref_page_remote.add(pref_group_local)
+
         toolbar_view.set_content(pref_page_remote)
 
         return toolbar_view
 
     def _on_page_popped(self, _navigation_view, _page):
-        self.save_button.set_sensitive(self._remote_domain.need_to_save())
+        self.save_button.set_sensitive(self._remote_domain.need_to_save() or self._local_share_domain.need_to_save())
 
     def _on_close_request(self, _window):
-        if self._remote_domain.need_to_save():
+        if self._remote_domain.need_to_save() or self._local_share_domain.need_to_save():
             dialog = Adw.AlertDialog()
             dialog.set_heading(_("Unsaved Changes"))
             dialog.set_body(
@@ -292,6 +321,21 @@ class MainWindow(Adw.ApplicationWindow):
     def on_add_remote_clicked(self, _button):
         page = RemoteAddPage(
             self._remote_domain, self.navigation_view, self.show_notification
+        )
+        self.navigation_view.push(page)
+
+    def on_list_local_share_clicked(self, _button):
+        page = LocalShareListPage(
+            self._local_share_domain,
+            self.navigation_view,
+            self.show_notification,
+            self.on_save_clicked,
+        )
+        self.navigation_view.push(page)
+
+    def on_add_local_share_clicked(self, _button):
+        page = LocalShareAddPage(
+            self._local_share_domain, self.navigation_view, self.show_notification
         )
         self.navigation_view.push(page)
 
@@ -372,12 +416,13 @@ class MainWindow(Adw.ApplicationWindow):
 
     def save_and_rebuild(self):
         tmp_samba_nix_path = self._remote_domain.save()
+        tmp_samba_server_nix_path = self._local_share_domain.save()
 
         self.save_button.set_sensitive(False)
 
         system_api = SystemApi()
 
-        rebuild_bash_path = system_api.write_rebuild_bash(tmp_samba_nix_path)
+        rebuild_bash_path = system_api.write_rebuild_bash(tmp_samba_nix_path, tmp_samba_server_nix_path)
 
         print(rebuild_bash_path + " created")
 

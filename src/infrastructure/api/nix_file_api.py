@@ -173,6 +173,44 @@ gtk = {
             return raw_nix
 
 
+    def generate_samba_server_module(self, samba_settings: dict) -> str:
+        """
+        Generate a complete samba-server.nix NixOS module (services.samba)
+        and format it with nixfmt.
+        """
+        samba_config = {
+            'enable': True,
+            'openFirewall': False,
+            'settings': samba_settings,
+        }
+
+        body = 'services.samba = ' + self._to_nix_string(samba_config, indent=0) + ';'
+
+        raw_nix = f'''{{
+  lib,
+  config,
+  pkgs,
+  ...
+}}:
+{{
+{body}
+}}
+'''
+        try:
+            result = subprocess.run(
+                ['nixfmt'],
+                input=raw_nix,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return result.stdout
+        except FileNotFoundError:
+            return raw_nix
+        except subprocess.CalledProcessError:
+            return raw_nix
+
+
 class NixParseError(Exception):
     """Exception raised when Nix parsing fails."""
     pass

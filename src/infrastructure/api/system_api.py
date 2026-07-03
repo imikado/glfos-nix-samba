@@ -215,16 +215,70 @@ class SystemApi(SystemApiContract):
 
 
 
-    def write_rebuild_bash(self,tmp_samba_nix_path:str):
+    def get_desktop_dir(self)->str:
+        """Return the user's Desktop directory, honoring xdg-user-dirs if available."""
+        try:
+            result = subprocess.run(['xdg-user-dir', 'DESKTOP'], capture_output=True, text=True, check=True)
+            desktop_dir = result.stdout.strip()
+            if desktop_dir:
+                return desktop_dir
+        except Exception:
+            pass
+        return os.path.join(os.path.expanduser('~'), 'Desktop')
 
-        rebuld_bash_content="""#!/usr/bin/env bash
-echo "======================================"
+    def _desktop_shortcut_path(self,mount_path:str)->str:
+        filename = mount_path.strip('/').replace('/', '-') + '.desktop'
+        return os.path.join(self.get_desktop_dir(), filename)
+
+    def has_desktop_shortcut(self,mount_path:str)->bool:
+        return os.path.isfile(self._desktop_shortcut_path(mount_path))
+
+    def create_desktop_shortcut(self,mount_path:str,label:str):
+        desktop_dir = self.get_desktop_dir()
+        os.makedirs(desktop_dir, exist_ok=True)
+
+        shortcut_path = self._desktop_shortcut_path(mount_path)
+        content = (
+            '[Desktop Entry]\n'
+            'Version=1.0\n'
+            'Type=Link\n'
+            f'Name={label}\n'
+            'Icon=folder-remote\n'
+            f'URL=file://{mount_path}\n'
+        )
+        with open(shortcut_path, 'w') as f:
+            f.write(content)
+        os.chmod(shortcut_path, 0o755)
+        # Mark as trusted so Nautilus/Files runs it without a warning banner.
+        subprocess.run(['gio', 'set', shortcut_path, 'metadata::trusted', 'true'], capture_output=True)
+
+    def remove_desktop_shortcut(self,mount_path:str):
+        shortcut_path = self._desktop_shortcut_path(mount_path)
+        if os.path.isfile(shortcut_path):
+            os.remove(shortcut_path)
+
+    def write_rebuild_bash(self,tmp_samba_nix_path:str,tmp_samba_server_nix_path:str=None):
+
+        save_steps="""echo "======================================"
 echo "  save samba.nix"
 echo "======================================"
 echo ""
 
 sudo mv """+tmp_samba_nix_path+""" /etc/nixos/customConfig/samba.nix
-        
+"""
+
+        if tmp_samba_server_nix_path:
+            save_steps+="""
+echo "======================================"
+echo "  save samba-server.nix"
+echo "======================================"
+echo ""
+
+sudo mv """+tmp_samba_server_nix_path+""" /etc/nixos/customConfig/samba-server.nix
+"""
+
+        rebuld_bash_content="""#!/usr/bin/env bash
+"""+save_steps+"""
 
 echo "======================================"
 echo "  NIX REBUILD with samba setup"

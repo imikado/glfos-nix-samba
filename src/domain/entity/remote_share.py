@@ -5,11 +5,13 @@ class RemoteShare:
     label:str
     fs_type:str='cifs'
     options:list=[]
+    show_on_desktop:bool=False
 
-    def __init__(self,path,remote_path,label):
+    def __init__(self,path,remote_path,label,show_on_desktop=False):
         self.path=path
         self.remote_path=remote_path
         self.label=label
+        self.show_on_desktop=show_on_desktop
         pass
 
     def set_options(self,options:list):

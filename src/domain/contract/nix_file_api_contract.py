@@ -21,3 +21,8 @@ class NixFileApiContract:
     def generate_samba_module(self, file_systems: dict) -> str:
         """Generate a complete samba.nix module and format it with nixfmt."""
         pass
+
+    @abstractmethod
+    def generate_samba_server_module(self, samba_settings: dict) -> str:
+        """Generate a complete samba-server.nix module (services.samba) and format it with nixfmt."""
+        pass

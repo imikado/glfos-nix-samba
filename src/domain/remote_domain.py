@@ -34,6 +34,8 @@ class RemoteDomain():
             else:
                 bookmark_list=self._system_api.get_gtk_bookmark_list()
             self._remote_share_repository.load_from_dict_and_bookmark_list(nix_dict,bookmark_list)
+            for remote in self._remote_share_repository.get_list():
+                remote.show_on_desktop=self._system_api.has_desktop_shortcut(remote.path)
             self._loaded=True
 
         return self._remote_share_repository.get_list()
@@ -70,9 +72,21 @@ class RemoteDomain():
             new_gtk_bookmark_list=self.get_gtk_bookmark_list(gtk_bookmark_list,self.get_list())
             self._system_api.write_gtk_bookmark_list(new_gtk_bookmark_list)
 
+        self.sync_desktop_shortcuts(self.get_list())
+
         self._need_to_save=False
 
         return tmp_samba_nix_path
+
+    def sync_desktop_shortcuts(self,remote_share_list:list):
+        for remote in remote_share_list:
+            if remote.show_on_desktop:
+                self._system_api.create_desktop_shortcut(remote.path,remote.label)
+            else:
+                self._system_api.remove_desktop_shortcut(remote.path)
+
+        for path_deleted_loop in self._delete_remote_list:
+            self._system_api.remove_desktop_shortcut(path_deleted_loop)
     
     def get_kde_bookmark_list(self,current_bookmark_list:list,remote_share_list:list)->list:
         target_bookmark_list=[]
