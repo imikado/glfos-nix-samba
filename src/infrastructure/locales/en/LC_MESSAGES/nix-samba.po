@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nix-samba\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 16:32+0200\n"
+"POT-Creation-Date: 2026-07-03 18:01+0200\n"
 "PO-Revision-Date: 2026-02-22 16:04+0100\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -476,10 +476,8 @@ msgstr "Valid users"
 #: infrastructure/ui/local_share_edit_page.py:102
 msgid ""
 "Space-separated system usernames. Each user needs a Samba password set with "
-"smbpasswd -a <user>"
-msgstr ""
-"Space-separated system usernames. Each user needs a Samba password set with "
-"smbpasswd -a <user>"
+"smbpasswd -a USERNAME"
+msgstr "Space-separated system usernames. Each user needs a Samba password set with smbpasswd -a USERNAME"
 
 #: infrastructure/ui/local_share_add_page.py:112
 #: infrastructure/ui/local_share_edit_page.py:115

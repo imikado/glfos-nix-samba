@@ -99,7 +99,7 @@ class LocalShareEditPage(Adw.NavigationPage):
 
         self.row_valid_users = Adw.ActionRow()
         self.row_valid_users.set_title(_('Valid users'))
-        self.row_valid_users.set_subtitle(_('Space-separated system usernames. Each user needs a Samba password set with smbpasswd -a <user>'))
+        self.row_valid_users.set_subtitle(_('Space-separated system usernames. Each user needs a Samba password set with smbpasswd -a USERNAME'))
         self.entry_valid_users = Gtk.Entry()
         self.entry_valid_users.set_placeholder_text('alice bob')
         self.entry_valid_users.set_text(' '.join(local_share.valid_users or []))
