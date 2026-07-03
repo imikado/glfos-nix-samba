@@ -333,7 +333,11 @@ class MainWindow(Adw.ApplicationWindow):
             cmd = rebuild_bash_path + '; echo "Press Enter to close..."; read'
 
             # Try different terminal emulators (including NixOS common ones)
-            if shutil.which("kgx"):  # GNOME Console
+            if shutil.which("cosmic-term"):  # COSMIC desktop
+                subprocess.Popen(["cosmic-term", "--", "bash", "-c", cmd])
+            elif shutil.which("cosmic-terminal"):  # COSMIC desktop (alternate binary name)
+                subprocess.Popen(["cosmic-terminal", "--", "bash", "-c", cmd])
+            elif shutil.which("kgx"):  # GNOME Console
                 subprocess.Popen(["kgx", "--", "bash", "-c", cmd])
             elif shutil.which("gnome-terminal"):
                 subprocess.Popen(["gnome-terminal", "--", "bash", "-c", cmd])
@@ -384,7 +388,11 @@ class MainWindow(Adw.ApplicationWindow):
         cmd = rebuild_bash_path + '; echo "Press Enter to close..."; read'
 
         # Try different terminal emulators (including NixOS common ones)
-        if shutil.which("kgx"):  # GNOME Console
+        if shutil.which("cosmic-term"):  # COSMIC desktop
+            subprocess.Popen(["cosmic-term", "--", "bash", "-c", cmd])
+        elif shutil.which("cosmic-terminal"):  # COSMIC desktop (alternate binary name)
+            subprocess.Popen(["cosmic-terminal", "--", "bash", "-c", cmd])
+        elif shutil.which("kgx"):  # GNOME Console
             subprocess.Popen(["kgx", "--", "bash", "-c", cmd])
         elif shutil.which("gnome-terminal"):
             subprocess.Popen(["gnome-terminal", "--", "bash", "-c", cmd])
