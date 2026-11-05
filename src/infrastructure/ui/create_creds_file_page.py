@@ -23,7 +23,7 @@ class CreateCredsFilePage(Adw.NavigationPage):
         self._credentials_file_domain = credentials_file_domain
         self.set_title(_('Create credentials file'))
 
-        field_width=40
+        field_width=360  # pixels: fixed so entries with an icon keep the same width
 
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
@@ -46,8 +46,11 @@ class CreateCredsFilePage(Adw.NavigationPage):
         row.set_title(_('File path'))
         self.entry_path = Gtk.Entry()
         self.entry_path.set_placeholder_text('/home/yourUser/.smb-credentials')
-        self.entry_path.set_width_chars(field_width)
+        self.entry_path.set_size_request(field_width, -1)
         self.entry_path.set_valign(Gtk.Align.CENTER)
+        self.entry_path.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'document-open-symbolic')
+        self.entry_path.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Browse for file location'))
+        self.entry_path.connect('icon-press', lambda entry, _icon_pos: self._on_browse_path(entry))
         row.add_suffix(self.entry_path)
         file_group.add(row)
 
@@ -62,7 +65,7 @@ class CreateCredsFilePage(Adw.NavigationPage):
         row.set_title(_('Username'))
         self.entry_username = Gtk.Entry()
         self.entry_username.set_placeholder_text('smbuser')
-        self.entry_username.set_width_chars(field_width)
+        self.entry_username.set_size_request(field_width, -1)
         self.entry_username.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_username)
         creds_group.add(row)
@@ -72,7 +75,7 @@ class CreateCredsFilePage(Adw.NavigationPage):
         self.entry_password = Gtk.Entry()
         self.entry_password.set_placeholder_text('password')
         self.entry_password.set_visibility(False)
-        self.entry_password.set_width_chars(field_width)
+        self.entry_password.set_size_request(field_width, -1)
         self.entry_password.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_password)
         creds_group.add(row)
@@ -93,6 +96,20 @@ class CreateCredsFilePage(Adw.NavigationPage):
         scrolled.set_child(pref_page)
         toolbar_view.set_content(scrolled)
         self.set_child(toolbar_view)
+
+    def _on_browse_path(self, _button):
+        dialog = Gtk.FileDialog()
+        dialog.set_title(_('Choose where to save the credentials file'))
+        dialog.set_initial_name('.smb-credentials')
+        dialog.save(self.get_root(), None, self._on_path_selected)
+
+    def _on_path_selected(self, dialog, result):
+        try:
+            file = dialog.save_finish(result)
+            if file:
+                self.entry_path.set_text(file.get_path())
+        except Exception:
+            pass
 
     def on_save_clicked(self, _button):
         if not self._validate():

@@ -509,3 +509,12 @@ msgstr "List of local folders shared via Samba"
 #: infrastructure/ui/app_window.py:220
 msgid "Version"
 msgstr "Version"
+
+msgid "Select mount folder"
+msgstr "Select mount folder"
+
+msgid "Browse for file location"
+msgstr "Browse for file location"
+
+msgid "Choose where to save the credentials file"
+msgstr "Choose where to save the credentials file"

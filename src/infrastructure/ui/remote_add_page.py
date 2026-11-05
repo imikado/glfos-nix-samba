@@ -28,7 +28,7 @@ class RemoteAddPage(Adw.NavigationPage):
         self._remote_domain = remote_domain
         self.set_title(_('Add Remote Share'))
 
-        field_width=40
+        field_width=360  # pixels: fixed so entries with an icon keep the same width
 
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
@@ -51,7 +51,7 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('Bookmark'))
         self.entry_label = Gtk.Entry()
         self.entry_label.set_placeholder_text(_('My Share'))
-        self.entry_label.set_width_chars(field_width)
+        self.entry_label.set_size_request(field_width, -1)
         self.entry_label.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_label)
         basic_group.add(row)
@@ -61,8 +61,11 @@ class RemoteAddPage(Adw.NavigationPage):
         self.entry_mount_path = Gtk.Entry()
         self.entry_mount_path.set_placeholder_text('/media/myshare')
         #self.entry_mount_path.set_text('/media/')
-        self.entry_mount_path.set_width_chars(field_width)
+        self.entry_mount_path.set_size_request(field_width, -1)
         self.entry_mount_path.set_valign(Gtk.Align.CENTER)
+        self.entry_mount_path.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'folder-open-symbolic')
+        self.entry_mount_path.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Browse for folder'))
+        self.entry_mount_path.connect('icon-press', lambda entry, _icon_pos: self._on_browse_mount_path(entry))
         row.add_suffix(self.entry_mount_path)
         basic_group.add(row)
 
@@ -70,7 +73,7 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('Remote address'))
         self.entry_device = Gtk.Entry()
         self.entry_device.set_placeholder_text('//192.168.1.100/Share')
-        self.entry_device.set_width_chars(field_width)
+        self.entry_device.set_size_request(field_width, -1)
         self.entry_device.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_device)
         basic_group.add(row)
@@ -80,7 +83,7 @@ class RemoteAddPage(Adw.NavigationPage):
         self.entry_fstype = Gtk.Entry()
         self.entry_fstype.set_placeholder_text('cifs')
         self.entry_fstype.set_text('cifs')
-        self.entry_fstype.set_width_chars(field_width)
+        self.entry_fstype.set_size_request(field_width, -1)
         self.entry_fstype.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_fstype)
         basic_group.add(row)
@@ -101,14 +104,12 @@ class RemoteAddPage(Adw.NavigationPage):
         row.set_title(_('Credentials file'))
         self.entry_credentials = Gtk.Entry()
         self.entry_credentials.set_placeholder_text('/etc/nixos/smb-credentials')
-        self.entry_credentials.set_width_chars(field_width)
+        self.entry_credentials.set_size_request(field_width, -1)
         self.entry_credentials.set_valign(Gtk.Align.CENTER)
+        self.entry_credentials.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'document-open-symbolic')
+        self.entry_credentials.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Browse for credentials file'))
+        self.entry_credentials.connect('icon-press', lambda entry, _icon_pos: self._on_browse_credentials(entry))
         row.add_suffix(self.entry_credentials)
-        browse_button = Gtk.Button(icon_name='document-open-symbolic')
-        browse_button.set_valign(Gtk.Align.CENTER)
-        browse_button.set_tooltip_text(_('Browse for credentials file'))
-        browse_button.connect('clicked', self._on_browse_credentials)
-        row.add_suffix(browse_button)
         creds_group.add(row)
 
         # UID dropdown with system users
@@ -159,7 +160,7 @@ class RemoteAddPage(Adw.NavigationPage):
         self.entry_idle_timeout = Gtk.Entry()
         self.entry_idle_timeout.set_placeholder_text('300')
         self.entry_idle_timeout.set_text('300')
-        self.entry_idle_timeout.set_width_chars(field_width)
+        self.entry_idle_timeout.set_size_request(field_width, -1)
         self.entry_idle_timeout.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_idle_timeout)
         systemd_group.add(row)
@@ -169,7 +170,7 @@ class RemoteAddPage(Adw.NavigationPage):
         self.entry_device_timeout = Gtk.Entry()
         self.entry_device_timeout.set_placeholder_text('10s')
         self.entry_device_timeout.set_text('10s')
-        self.entry_device_timeout.set_width_chars(field_width)
+        self.entry_device_timeout.set_size_request(field_width, -1)
         self.entry_device_timeout.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_device_timeout)
         systemd_group.add(row)
@@ -179,7 +180,7 @@ class RemoteAddPage(Adw.NavigationPage):
         self.entry_mount_timeout = Gtk.Entry()
         self.entry_mount_timeout.set_placeholder_text('10s')
         self.entry_mount_timeout.set_text('10s')
-        self.entry_mount_timeout.set_width_chars(field_width)
+        self.entry_mount_timeout.set_size_request(field_width, -1)
         self.entry_mount_timeout.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_mount_timeout)
         systemd_group.add(row)
@@ -200,6 +201,19 @@ class RemoteAddPage(Adw.NavigationPage):
         scrolled.set_child(pref_page)
         toolbar_view.set_content(scrolled)
         self.set_child(toolbar_view)
+
+    def _on_browse_mount_path(self, _button):
+        dialog = Gtk.FileDialog()
+        dialog.set_title(_('Select mount folder'))
+        dialog.select_folder(self.get_root(), None, self._on_mount_path_selected)
+
+    def _on_mount_path_selected(self, dialog, result):
+        try:
+            folder = dialog.select_folder_finish(result)
+            if folder:
+                self.entry_mount_path.set_text(folder.get_path())
+        except Exception:
+            pass
 
     def _on_browse_credentials(self, _button):
         self.set_show_hidden(True)

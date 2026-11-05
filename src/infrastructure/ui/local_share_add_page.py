@@ -26,7 +26,7 @@ class LocalShareAddPage(Adw.NavigationPage):
         self._local_share_domain = local_share_domain
         self.set_title(_('Add Local Share'))
 
-        field_width=40
+        field_width=360  # pixels: fixed so entries with an icon keep the same width
 
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
@@ -49,7 +49,7 @@ class LocalShareAddPage(Adw.NavigationPage):
         row.set_title(_('Share name'))
         self.entry_name = Gtk.Entry()
         self.entry_name.set_placeholder_text(_('MyShare'))
-        self.entry_name.set_width_chars(field_width)
+        self.entry_name.set_size_request(field_width, -1)
         self.entry_name.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_name)
         basic_group.add(row)
@@ -58,21 +58,19 @@ class LocalShareAddPage(Adw.NavigationPage):
         row.set_title(_('Local folder'))
         self.entry_path = Gtk.Entry()
         self.entry_path.set_placeholder_text('/home/user/Shared')
-        self.entry_path.set_width_chars(field_width)
+        self.entry_path.set_size_request(field_width, -1)
         self.entry_path.set_valign(Gtk.Align.CENTER)
+        self.entry_path.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'folder-open-symbolic')
+        self.entry_path.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Browse for folder'))
+        self.entry_path.connect('icon-press', lambda entry, _icon_pos: self._on_browse_folder(entry))
         row.add_suffix(self.entry_path)
-        browse_button = Gtk.Button(icon_name='folder-open-symbolic')
-        browse_button.set_valign(Gtk.Align.CENTER)
-        browse_button.set_tooltip_text(_('Browse for folder'))
-        browse_button.connect('clicked', self._on_browse_folder)
-        row.add_suffix(browse_button)
         basic_group.add(row)
 
         row = Adw.ActionRow()
         row.set_title(_('Comment'))
         self.entry_comment = Gtk.Entry()
         self.entry_comment.set_placeholder_text(_('Optional description'))
-        self.entry_comment.set_width_chars(field_width)
+        self.entry_comment.set_size_request(field_width, -1)
         self.entry_comment.set_valign(Gtk.Align.CENTER)
         row.add_suffix(self.entry_comment)
         basic_group.add(row)
@@ -100,7 +98,7 @@ class LocalShareAddPage(Adw.NavigationPage):
         self.row_valid_users.set_subtitle(_('Space-separated system usernames. Each user needs a Samba password set with smbpasswd -a USERNAME'))
         self.entry_valid_users = Gtk.Entry()
         self.entry_valid_users.set_placeholder_text('alice bob')
-        self.entry_valid_users.set_width_chars(field_width)
+        self.entry_valid_users.set_size_request(field_width, -1)
         self.entry_valid_users.set_valign(Gtk.Align.CENTER)
         self.row_valid_users.add_suffix(self.entry_valid_users)
         access_group.add(self.row_valid_users)
