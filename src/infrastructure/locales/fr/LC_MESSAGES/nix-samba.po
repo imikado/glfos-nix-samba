@@ -508,3 +508,7 @@ msgstr "Partages locaux"
 #: infrastructure/ui/local_share_list_page.py:58
 msgid "List of local folders shared via Samba"
 msgstr "Liste des dossiers locaux partagés via Samba"
+
+#: infrastructure/ui/app_window.py:220
+msgid "Version"
+msgstr "Version"

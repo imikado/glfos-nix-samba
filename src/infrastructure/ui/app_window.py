@@ -19,6 +19,7 @@ from gi.repository import Gtk, Adw
 
 from infrastructure.ui.remote_list_page import RemoteListPage
 from infrastructure.ui.remote_add_page import RemoteAddPage
+from version import get_version
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -210,6 +211,9 @@ class MainWindow(Adw.ApplicationWindow):
         # Create toolbar view with header bar
         toolbar_view = Adw.ToolbarView()
         header_bar = Adw.HeaderBar()
+        header_bar.set_title_widget(
+            Adw.WindowTitle.new(_("Nix Samba"), _("Version") + " " + get_version())
+        )
 
         # Save button in header bar
         save_button = Gtk.Button()

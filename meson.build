@@ -1,6 +1,6 @@
 project(
   'glfos-nix-samba',
-  version: '1.0.0',
+  version: run_command('cat', 'src' / 'VERSION', check: true).stdout().strip(),
   meson_version: '>= 0.64.0',
   license: 'GPL-3.0-or-later',
 )
