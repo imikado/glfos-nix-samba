@@ -521,3 +521,91 @@ msgstr "Parcourir pour choisir l'emplacement du fichier"
 
 msgid "Choose where to save the credentials file"
 msgstr "Choisir où enregistrer le fichier d'identifiants"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Access denied: enter a username and password above, then list the shares again. You can also type the share name."
+msgstr "Accès refusé : saisissez un nom d'utilisateur et un mot de passe ci-dessus, puis listez à nouveau les partages. Vous pouvez aussi saisir le nom du partage."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Authentication"
+msgstr "Authentification"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Automatic discovery unavailable: the zeroconf Python library is not installed. Enter the server name or IP address."
+msgstr "Découverte automatique indisponible : la librairie Python zeroconf n'est pas installée. Saisissez le nom ou l'adresse IP du serveur."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Browse network"
+msgstr "Parcourir le réseau"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Choose a server or enter its name or IP address."
+msgstr "Choisissez un serveur ou saisissez son nom ou son adresse IP."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Choose a share or enter its name."
+msgstr "Choisissez un partage ou saisissez son nom."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Listing shares of "
+msgstr "Recherche des partages de "
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "List shares"
+msgstr "Lister les partages"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "No server found. Enter the server name or IP address."
+msgstr "Aucun serveur trouvé. Saisissez le nom ou l'adresse IP du serveur."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "No share found on this server. Enter the share name."
+msgstr "Aucun partage trouvé sur ce serveur. Saisissez le nom du partage."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Optional, only used to list the shares. Leave empty for anonymous access."
+msgstr "Facultatif, utilisé uniquement pour lister les partages. Laissez vide pour un accès anonyme."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Optional, only used to list the shares. Leave empty to use the credentials file: "
+msgstr "Facultatif, utilisé uniquement pour lister les partages. Laissez vide pour utiliser le fichier d'identifiants : "
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Search again"
+msgstr "Relancer la recherche"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Search failed: "
+msgstr "Échec de la recherche : "
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Searching for Samba servers on the network..."
+msgstr "Recherche des serveurs Samba sur le réseau..."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Select"
+msgstr "Sélectionner"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Server"
+msgstr "Serveur"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Server name or IP address"
+msgstr "Nom ou adresse IP du serveur"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Server unreachable: "
+msgstr "Serveur injoignable : "
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Share"
+msgstr "Partage"
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Share listing unavailable: the pysmb Python library is not installed. Enter the share name."
+msgstr "Liste des partages indisponible : la librairie Python pysmb n'est pas installée. Saisissez le nom du partage."
+
+#: infrastructure/ui/remote_browse_dialog.py
+msgid "Unable to list the shares. Enter the share name."
+msgstr "Impossible de lister les partages. Saisissez le nom du partage."

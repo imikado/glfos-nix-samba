@@ -26,6 +26,9 @@ python src/main.py
 ./buildDocker.sh    # Build once
 ./runWithDocker.sh  # Run
 
+# Regenerate README screenshots (fake data, needs a display)
+python tools/take_screenshots.py
+
 # Extract translation strings
 xgettext -d base -o src/infrastructure/locales/nix-samba.pot src/main.py
 ```
@@ -47,7 +50,8 @@ src/
     ├── api/                  # System implementations
     │   ├── nix_file_api.py  # Parse/generate Nix expressions using `nix eval`
     │   ├── samba_file_api.py # Orchestrates Nix file operations
-    │   └── system_api.py    # File I/O, sudo operations, NixOS rebuild
+    │   ├── system_api.py    # File I/O, sudo operations, NixOS rebuild
+    │   └── network_discovery_api.py # Samba server discovery (zeroconf) and share listing (pysmb)
     └── ui/                   # GTK4/Adw pages
         ├── app_window.py    # Main window, navigation, config checks
         ├── remote_list_page.py

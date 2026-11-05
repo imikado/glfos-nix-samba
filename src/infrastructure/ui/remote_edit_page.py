@@ -4,6 +4,9 @@ import grp
 
 from domain.entity.remote_share import RemoteShare
 from domain.remote_domain import RemoteDomain
+from domain.network_discovery_domain import NetworkDiscoveryDomain
+from infrastructure.api.network_discovery_api import NetworkDiscoveryApi
+from infrastructure.ui.remote_browse_dialog import RemoteBrowseDialog
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -76,6 +79,9 @@ class RemoteEditPage(Adw.NavigationPage):
         self.entry_device.set_text(remote.remote_path or '')
         self.entry_device.set_size_request(field_width, -1)
         self.entry_device.set_valign(Gtk.Align.CENTER)
+        self.entry_device.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'network-workgroup-symbolic')
+        self.entry_device.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Browse network'))
+        self.entry_device.connect('icon-press', lambda entry, _icon_pos: self._on_browse_remote_address(entry))
         row.add_suffix(self.entry_device)
         basic_group.add(row)
 
@@ -248,6 +254,15 @@ class RemoteEditPage(Adw.NavigationPage):
         settings = Gio.Settings.new("org.gtk.gtk4.Settings.FileChooser")
         settings.set_boolean("show-hidden", visible)
         settings.sync()
+
+    def _on_browse_remote_address(self, _entry):
+        dialog = RemoteBrowseDialog(
+            NetworkDiscoveryDomain(NetworkDiscoveryApi()),
+            self.entry_device.get_text(),
+            self.entry_credentials.get_text().strip(),
+            self.entry_device.set_text,
+        )
+        dialog.present(self.get_root())
 
     def _on_browse_mount_path(self, _button):
         dialog = Gtk.FileDialog()

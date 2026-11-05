@@ -18,6 +18,9 @@
           buildInputs = [
             python
             pythonPackages.pygobject3
+            # Network discovery in the remote address dialog
+            pythonPackages.zeroconf  # mDNS discovery of Samba servers
+            pythonPackages.pysmb     # list the shares of a server
 
             pkgs.gtk4
             pkgs.libadwaita
