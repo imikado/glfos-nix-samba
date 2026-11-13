@@ -663,6 +663,50 @@ msgstr "Chaque utilisateur doit avoir un mot de passe Samba défini avec smbpass
 msgid "No user found"
 msgstr "Aucun utilisateur trouvé"
 
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Dedicated account (this share only)"
+msgstr "Compte dédié (ce partage uniquement)"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Account dedicated to this share"
+msgstr "Compte dédié à ce partage"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Created for this share only: it cannot be used to log in to the computer"
+msgstr "Créé uniquement pour ce partage : il ne permet pas de se connecter à l'ordinateur"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Account name"
+msgstr "Nom du compte"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "New password (leave empty to keep the current one)"
+msgstr "Nouveau mot de passe (laisser vide pour conserver l'actuel)"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Confirm password"
+msgstr "Confirmer le mot de passe"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Account name: lowercase letters, digits, \"-\" and \"_\" only"
+msgstr "Nom du compte : lettres minuscules, chiffres, « - » et « _ » uniquement"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "This account name is already used"
+msgstr "Ce nom de compte est déjà utilisé"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "A password is required for a new account"
+msgstr "Un mot de passe est requis pour un nouveau compte"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "The password cannot contain a line break"
+msgstr "Le mot de passe ne peut pas contenir de retour à la ligne"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Passwords do not match"
+msgstr "Les mots de passe ne correspondent pas"
+
 #~ msgid ""
 #~ "The NixOS configuration is missing required settings (samba.nix and "
 #~ "samba_setup.nix import). Enter your password to fix it automatically."

@@ -344,23 +344,28 @@ class MainWindow(Adw.ApplicationWindow):
         system_api = SystemApi()
 
         rebuild_bash_path = system_api.write_rebuild_bash(
-            tmp_samba_nix_path, tmp_samba_server_nix_path, file_write_list
+            tmp_samba_nix_path,
+            tmp_samba_server_nix_path,
+            file_write_list,
+            self._local_share_domain.get_dedicated_account_actions(),
         )
 
         self._rebuild_dialog = RebuildDialog(
             system_api.get_rebuild_command(rebuild_bash_path),
-            lambda success, cancelled: self._on_rebuild_finished(rebuild_bash_path, success, cancelled),
+            lambda success, cancelled: self._on_rebuild_finished(system_api, rebuild_bash_path, success, cancelled),
         )
         self._rebuild_dialog.present(self)
         self._rebuild_dialog.start()
 
-    def _on_rebuild_finished(self, rebuild_bash_path: str, success: bool, cancelled: bool):
+    def _on_rebuild_finished(self, system_api, rebuild_bash_path: str, success: bool, cancelled: bool):
         try:
             os.unlink(rebuild_bash_path)
         except OSError:
             pass
+        system_api.remove_secret_tmp_files()
 
         if success:
+            self._local_share_domain.confirm_saved()
             self.show_notification(_("Configuration saved and system rebuilt"))
             return
 

@@ -66,3 +66,11 @@ class SystemApiContract:
     @abstractmethod
     def remove_desktop_shortcut(self,mount_path:str):
         pass
+
+    @abstractmethod
+    def user_exists(self,user_name:str)->bool:
+        pass
+
+    @abstractmethod
+    def get_path_owner(self,path:str)->str:
+        pass

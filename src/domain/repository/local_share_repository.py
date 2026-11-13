@@ -32,7 +32,8 @@ class LocalShareRepository:
 
         self._local_share_list=local_share_list
 
-    def load_from_dict(self,samba_settings:dict):
+    def load_from_dict(self,samba_settings:dict,dedicated_user_list:list=None):
+        dedicated_user_list=dedicated_user_list or []
         local_share_list=[]
 
         for share_name_loop,share_value_loop in samba_settings.items():
@@ -40,6 +41,12 @@ class LocalShareRepository:
                 continue
 
             valid_users_raw = share_value_loop.get('valid users','')
+            valid_users = valid_users_raw.split() if valid_users_raw else []
+
+            dedicated_user = ''
+            if len(valid_users) == 1 and valid_users[0] in dedicated_user_list:
+                dedicated_user = valid_users[0]
+                valid_users = []
 
             local_share_list.append(LocalShare(
                 name=share_name_loop,
@@ -47,7 +54,9 @@ class LocalShareRepository:
                 comment=share_value_loop.get('comment',''),
                 guest_ok=share_value_loop.get('guest ok','no')=='yes',
                 read_only=share_value_loop.get('read only','yes')=='yes',
-                valid_users=valid_users_raw.split() if valid_users_raw else [],
+                valid_users=valid_users,
+                dedicated_user=dedicated_user,
+                force_user=share_value_loop.get('force user','') if dedicated_user else '',
             ))
 
         self._local_share_list=local_share_list

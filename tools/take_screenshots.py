@@ -146,6 +146,9 @@ class FakeLocalSambaFileApi:
     def get_nix_dict(self) -> dict:
         return dict(FAKE_SAMBA_SETTINGS)
 
+    def get_dedicated_user_list(self) -> list:
+        return []
+
     def convert_local_share_list_to_nix_content(self, local_share_list: list) -> str:
         return ''
 

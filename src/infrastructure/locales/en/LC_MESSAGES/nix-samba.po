@@ -658,6 +658,50 @@ msgstr "Each user needs a Samba password set with smbpasswd -a USERNAME"
 msgid "No user found"
 msgstr "No user found"
 
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Dedicated account (this share only)"
+msgstr "Dedicated account (this share only)"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Account dedicated to this share"
+msgstr "Account dedicated to this share"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Created for this share only: it cannot be used to log in to the computer"
+msgstr "Created for this share only: it cannot be used to log in to the computer"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Account name"
+msgstr "Account name"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "New password (leave empty to keep the current one)"
+msgstr "New password (leave empty to keep the current one)"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Confirm password"
+msgstr "Confirm password"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Account name: lowercase letters, digits, \"-\" and \"_\" only"
+msgstr "Account name: lowercase letters, digits, \"-\" and \"_\" only"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "This account name is already used"
+msgstr "This account name is already used"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "A password is required for a new account"
+msgstr "A password is required for a new account"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "The password cannot contain a line break"
+msgstr "The password cannot contain a line break"
+
+#: infrastructure/ui/dedicated_account_rows.py
+msgid "Passwords do not match"
+msgstr "Passwords do not match"
+
 #~ msgid ""
 #~ "The NixOS configuration is missing required settings (samba.nix and "
 #~ "samba_setup.nix import). Enter your password to fix it automatically."

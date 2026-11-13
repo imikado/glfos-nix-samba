@@ -5,6 +5,8 @@ import subprocess
 import tempfile
 import os
 import datetime
+import getpass
+import pwd
 import xml.etree.ElementTree as ET
 
 from domain.contract.system_api_contract import SystemApiContract
@@ -24,6 +26,37 @@ class SystemApi(SystemApiContract):
             tmp_path = tmp.name
 
         return tmp_path
+
+    def user_exists(self,user_name:str)->bool:
+        try:
+            pwd.getpwnam(user_name)
+            return True
+        except KeyError:
+            return False
+
+    def get_path_owner(self,path:str)->str:
+        """Owner name of path, or the current user if it cannot be found."""
+        try:
+            return pwd.getpwuid(os.stat(path).st_uid).pw_name
+        except (OSError, KeyError):
+            return getpass.getuser()
+
+    def _write_secret_tmp(self, content: str)->str:
+        """Temporary file readable only by the current user (and root), removed after use."""
+        fd, tmp_path = tempfile.mkstemp(prefix='nix-samba-', suffix='.secret')
+        with os.fdopen(fd, 'w') as tmp:
+            tmp.write(content)
+        self._secret_tmp_file_list = getattr(self, '_secret_tmp_file_list', []) + [tmp_path]
+        return tmp_path
+
+    def remove_secret_tmp_files(self):
+        """Remove the password files left if the rebuild script did not run (pkexec cancelled)."""
+        for tmp_path in getattr(self, '_secret_tmp_file_list', []):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+        self._secret_tmp_file_list = []
 
     def execute(self,params:list):
         subprocess.Popen(params)
@@ -205,14 +238,20 @@ class SystemApi(SystemApiContract):
         if os.path.isfile(shortcut_path):
             os.remove(shortcut_path)
 
-    def write_rebuild_bash(self,tmp_samba_nix_path:str,tmp_samba_server_nix_path:str=None,file_write_list:list=None):
+    def write_rebuild_bash(self,tmp_samba_nix_path:str,tmp_samba_server_nix_path:str=None,file_write_list:list=None,samba_account_actions:dict=None):
         """Write the rebuild script, meant to run as root through pkexec (see get_rebuild_command).
 
         file_write_list: extra privileged writes applied first, as dicts {path, content, backup}
         (e.g. fixes of /etc/nixos/customConfig/default.nix).
+        samba_account_actions: {remove: [user], passwords: [(user, password)]} for the
+        share-only accounts (see LocalShareDomain.get_dedicated_account_actions).
         """
 
+        samba_account_actions=samba_account_actions or {}
+
         save_steps=self._get_file_write_steps(file_write_list or [])
+        save_steps+=self._get_samba_account_remove_steps(samba_account_actions.get('remove',[]))
+        password_steps=self._get_samba_account_password_steps(samba_account_actions.get('passwords',[]))
 
         save_steps+="""echo "======================================"
 echo "  save samba.nix"
@@ -265,7 +304,7 @@ else
     nixos-rebuild switch
 fi
 EXIT_CODE=$?
-
+"""+password_steps+"""
 if [ $EXIT_CODE -eq 0 ]; then
     echo ""
     echo "======================================"
@@ -300,6 +339,45 @@ exit $EXIT_CODE
                 steps+='if [ -f '+shlex.quote(path)+' ]; then cp -p '+shlex.quote(path)+' '+shlex.quote(path+backup_suffix)+' || exit 1; fi\n'
             steps+='install -m 644 -o root -g root '+shlex.quote(tmp_path)+' '+shlex.quote(path)+' || exit 1\n'
             steps+='rm -f '+shlex.quote(tmp_path)+'\n\n'
+        return steps
+
+    def _get_samba_account_remove_steps(self,user_list:list)->str:
+        if not user_list:
+            return ''
+        steps='echo "======================================"\n'
+        steps+='echo "  remove unused Samba share accounts"\n'
+        steps+='echo "======================================"\n'
+        steps+='echo ""\n\n'
+        for user in user_list:
+            # The Unix account itself is removed by nixos-rebuild (no longer declared)
+            steps+='pdbedit -x -u '+shlex.quote(user)+' >/dev/null 2>&1 && echo '+shlex.quote('  '+user+' removed')+'\n'
+        return steps+'\n'
+
+    def _get_samba_account_password_steps(self,password_list:list)->str:
+        if not password_list:
+            return ''
+        steps='\necho ""\n'
+        steps+='echo "======================================"\n'
+        steps+='echo "  set Samba share account passwords"\n'
+        steps+='echo "======================================"\n'
+        steps+='echo ""\n\n'
+        for user,password in password_list:
+            # smbpasswd -s reads the new password twice on stdin; never put it on the command line
+            password_path=self._write_secret_tmp(password+'\n'+password+'\n')
+            quoted_user=shlex.quote(user)
+            quoted_path=shlex.quote(password_path)
+            steps+='if id -u '+quoted_user+' >/dev/null 2>&1; then\n'
+            steps+='    if smbpasswd -s -a '+quoted_user+' < '+quoted_path+' >/dev/null; then\n'
+            steps+='        echo '+shlex.quote('  password set for '+user)+'\n'
+            steps+='    else\n'
+            steps+='        echo '+shlex.quote('  ERROR: unable to set the password of '+user)+'\n'
+            steps+='        EXIT_CODE=1\n'
+            steps+='    fi\n'
+            steps+='else\n'
+            steps+='    echo '+shlex.quote('  ERROR: account '+user+' was not created')+'\n'
+            steps+='    EXIT_CODE=1\n'
+            steps+='fi\n'
+            steps+='rm -f '+quoted_path+'\n'
         return steps
 
     def get_rebuild_command(self,rebuild_bash_path:str)->list:

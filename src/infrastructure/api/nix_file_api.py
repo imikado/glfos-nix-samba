@@ -173,10 +173,12 @@ gtk = {
             return raw_nix
 
 
-    def generate_samba_server_module(self, samba_settings: dict) -> str:
+    def generate_samba_server_module(self, samba_settings: dict, dedicated_users: dict = None, dedicated_user_group: str = None) -> str:
         """
         Generate a complete samba-server.nix NixOS module (services.samba)
         and format it with nixfmt.
+
+        dedicated_users: users.users entries of the share-only accounts, all in dedicated_user_group.
         """
         samba_config = {
             'enable': True,
@@ -185,6 +187,10 @@ gtk = {
         }
 
         body = 'services.samba = ' + self._to_nix_string(samba_config, indent=0) + ';'
+
+        if dedicated_users:
+            body += '\nusers.groups = ' + self._to_nix_string({dedicated_user_group: {}}, indent=0) + ';'
+            body += '\nusers.users = ' + self._to_nix_string(dedicated_users, indent=0) + ';'
 
         raw_nix = f'''{{
   lib,

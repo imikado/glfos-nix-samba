@@ -9,7 +9,13 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw
 
+from infrastructure.ui.dedicated_account_rows import DedicatedAccountRows
 from infrastructure.ui.valid_users_row import ValidUsersRow
+
+
+ACCESS_MODE_GUEST = 0
+ACCESS_MODE_USERS = 1
+ACCESS_MODE_DEDICATED = 2
 
 
 class LocalShareAddPage(Adw.NavigationPage):
@@ -90,6 +96,7 @@ class LocalShareAddPage(Adw.NavigationPage):
         access_mode_options = Gtk.StringList.new([
             _('Guest access (no login required)'),
             _('Restricted to specific users'),
+            _('Dedicated account (this share only)'),
         ])
         self.combo_access_mode.set_model(access_mode_options)
         self.combo_access_mode.connect('notify::selected', self._on_access_mode_changed)
@@ -98,7 +105,9 @@ class LocalShareAddPage(Adw.NavigationPage):
         self.row_valid_users = ValidUsersRow()
         access_group.add(self.row_valid_users)
 
-        self.combo_access_mode.set_selected(1)
+        self.dedicated_account_rows = DedicatedAccountRows(access_group, local_share_domain)
+
+        self.combo_access_mode.set_selected(ACCESS_MODE_USERS)
         self._on_access_mode_changed(self.combo_access_mode, None)
 
         self.switch_read_only = Adw.SwitchRow()
@@ -138,23 +147,37 @@ class LocalShareAddPage(Adw.NavigationPage):
             pass
 
     def _on_access_mode_changed(self, combo_row, _param):
-        is_guest = combo_row.get_selected() == 0
-        self.row_valid_users.set_sensitive(not is_guest)
+        access_mode = combo_row.get_selected()
+        self.row_valid_users.set_visible(access_mode == ACCESS_MODE_USERS)
+        self.dedicated_account_rows.set_visible(access_mode == ACCESS_MODE_DEDICATED)
+
+    def _build_local_share(self) -> LocalShare:
+        access_mode = self.combo_access_mode.get_selected()
+        path = self.entry_path.get_text().strip()
+
+        local_share = LocalShare(
+            name=self.entry_name.get_text().strip(),
+            path=path,
+            comment=self.entry_comment.get_text().strip(),
+            guest_ok=access_mode == ACCESS_MODE_GUEST,
+            read_only=self.switch_read_only.get_active(),
+        )
+
+        if access_mode == ACCESS_MODE_USERS:
+            local_share.valid_users = self.row_valid_users.get_selected_users()
+        elif access_mode == ACCESS_MODE_DEDICATED:
+            local_share.dedicated_user = self.dedicated_account_rows.get_user()
+            local_share.dedicated_password = self.dedicated_account_rows.get_password()
+            # The dedicated account has no right on the folder: files are accessed as its owner
+            local_share.force_user = self._local_share_domain.get_folder_owner(path)
+
+        return local_share
 
     def on_add_clicked(self, _button):
         if not self._validate():
             return
 
-        guest_ok = self.combo_access_mode.get_selected() == 0
-
-        local_share = LocalShare(
-            name=self.entry_name.get_text().strip(),
-            path=self.entry_path.get_text().strip(),
-            comment=self.entry_comment.get_text().strip(),
-            guest_ok=guest_ok,
-            read_only=self.switch_read_only.get_active(),
-            valid_users=[] if guest_ok else self.row_valid_users.get_selected_users(),
-        )
+        local_share = self._build_local_share()
 
         try:
             self._local_share_domain.add_item(local_share)
@@ -193,13 +216,22 @@ class LocalShareAddPage(Adw.NavigationPage):
             valid = False
 
         # Valid users: required when access is restricted
-        is_guest = self.combo_access_mode.get_selected() == 0
-        valid_users_error = not is_guest and not self.row_valid_users.get_selected_users()
+        access_mode = self.combo_access_mode.get_selected()
+        valid_users_error = access_mode == ACCESS_MODE_USERS and not self.row_valid_users.get_selected_users()
         self._set_row_error(self.row_valid_users, valid_users_error)
         if valid_users_error:
             valid = False
 
-        if not valid:
+        # Dedicated account: name, availability and password
+        dedicated_error_list = []
+        if access_mode == ACCESS_MODE_DEDICATED:
+            dedicated_error_list = self.dedicated_account_rows.validate()
+            if dedicated_error_list:
+                valid = False
+
+        if dedicated_error_list:
+            self._show_notification(dedicated_error_list[0])
+        elif not valid:
             self._show_notification(_('There are error during validation'))
 
         return valid
