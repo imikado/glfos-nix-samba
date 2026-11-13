@@ -11,6 +11,7 @@ from infrastructure.api.system_api import SystemApi
 from infrastructure.ui.create_creds_file_page import CreateCredsFilePage
 from infrastructure.ui.local_share_list_page import LocalShareListPage
 from infrastructure.ui.local_share_add_page import LocalShareAddPage
+from infrastructure.ui.rebuild_dialog import RebuildDialog
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -110,19 +111,14 @@ class MainWindow(Adw.ApplicationWindow):
         dialog.present(self)
 
     def _show_fix_requirements_dialog(self):
-        """Show dialog to ask password for fixing NixOS requirements."""
+        """Ask confirmation to fix NixOS requirements; applied as root with the rebuild."""
         dialog = Adw.AlertDialog()
         dialog.set_heading(_("Fix NixOS Configuration"))
         dialog.set_body(
             _(
-                "The NixOS configuration is missing required settings (samba.nix and samba_setup.nix import). Enter your password to fix it automatically."
+                "The NixOS configuration is missing required settings (samba.nix and samba_setup.nix import). They will be fixed automatically before the rebuild; your administrator password will be asked."
             )
         )
-
-        password_entry = Gtk.PasswordEntry()
-        password_entry.set_show_peek_icon(True)
-        password_entry.set_hexpand(True)
-        dialog.set_extra_child(password_entry)
 
         dialog.add_response("cancel", _("Cancel"))
         dialog.add_response("fix", _("Fix Configuration"))
@@ -130,7 +126,6 @@ class MainWindow(Adw.ApplicationWindow):
         dialog.set_default_response("fix")
         dialog.set_close_response("cancel")
 
-        self._fix_password_entry = password_entry
         dialog.connect("response", self._on_fix_requirements_response)
         dialog.present(self)
 
@@ -138,38 +133,22 @@ class MainWindow(Adw.ApplicationWindow):
         if response != "fix":
             return
 
-        password = self._fix_password_entry.get_text()
-
         try:
-            self._requirements_domain.fix_requirements(password)
-            self.show_notification(_("NixOS configuration fixed successfully"))
-
-            return self.save_and_rebuild()
-        except PermissionError:
-            # Bad password - show dialog again
-            self.show_notification(_("Incorrect password, please try again"))
-            self._show_fix_requirements_dialog()
+            file_write_list = self._requirements_domain.fix_requirements()
         except Exception as e:
-            error_dialog = Adw.AlertDialog()
-            error_dialog.set_heading(_("Error"))
-            error_dialog.set_body(str(e))
-            error_dialog.add_response("ok", _("OK"))
-            error_dialog.present(self)
+            return self._show_error(str(e))
+
+        self.save_and_rebuild(file_write_list)
 
     def _show_remove_imports_dialog(self):
-        """Show dialog to ask password for removing unused samba imports from NixOS configuration."""
+        """Ask confirmation to remove unused samba imports; applied as root with the rebuild."""
         dialog = Adw.AlertDialog()
         dialog.set_heading(_("Update NixOS Configuration"))
         dialog.set_body(
             _(
-                "No remote share is configured. Enter your password to remove the unused samba.nix and samba_setup.nix imports."
+                "No remote share is configured. The unused samba.nix and samba_setup.nix imports will be removed before the rebuild; your administrator password will be asked."
             )
         )
-
-        password_entry = Gtk.PasswordEntry()
-        password_entry.set_show_peek_icon(True)
-        password_entry.set_hexpand(True)
-        dialog.set_extra_child(password_entry)
 
         dialog.add_response("cancel", _("Cancel"))
         dialog.add_response("remove", _("Update Configuration"))
@@ -177,7 +156,6 @@ class MainWindow(Adw.ApplicationWindow):
         dialog.set_default_response("remove")
         dialog.set_close_response("cancel")
 
-        self._remove_imports_password_entry = password_entry
         dialog.connect("response", self._on_remove_imports_response)
         dialog.present(self)
 
@@ -185,23 +163,19 @@ class MainWindow(Adw.ApplicationWindow):
         if response != "remove":
             return
 
-        password = self._remove_imports_password_entry.get_text()
-
         try:
-            self._requirements_domain.remove_samba_imports(password)
-            self.show_notification(_("NixOS configuration updated successfully"))
-
-            return self.save_and_rebuild()
-        except PermissionError:
-            # Bad password - show dialog again
-            self.show_notification(_("Incorrect password, please try again"))
-            self._show_remove_imports_dialog()
+            file_write_list = self._requirements_domain.remove_samba_imports()
         except Exception as e:
-            error_dialog = Adw.AlertDialog()
-            error_dialog.set_heading(_("Error"))
-            error_dialog.set_body(str(e))
-            error_dialog.add_response("ok", _("OK"))
-            error_dialog.present(self)
+            return self._show_error(str(e))
+
+        self.save_and_rebuild(file_write_list)
+
+    def _show_error(self, message: str):
+        error_dialog = Adw.AlertDialog()
+        error_dialog.set_heading(_("Error"))
+        error_dialog.set_body(message)
+        error_dialog.add_response("ok", _("OK"))
+        error_dialog.present(self)
 
     def _create_home_page(self):
         page = Adw.NavigationPage.new(self._create_home_content(), _("Nix Samba"))
@@ -291,6 +265,10 @@ class MainWindow(Adw.ApplicationWindow):
         self.save_button.set_sensitive(self._remote_domain.need_to_save() or self._local_share_domain.need_to_save())
 
     def _on_close_request(self, _window):
+        rebuild_dialog = getattr(self, "_rebuild_dialog", None)
+        if rebuild_dialog is not None and rebuild_dialog.is_running():
+            self.show_notification(_("Please wait until the rebuild is finished"))
+            return True  # Prevent window from closing during the rebuild
         if self._remote_domain.need_to_save() or self._local_share_domain.need_to_save():
             dialog = Adw.AlertDialog()
             dialog.set_heading(_("Unsaved Changes"))
@@ -357,68 +335,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         
 
-    def _on_save_password_response(self, dialog, response):
-        if response != "save":
-            return
-
-        password = self._password_entry.get_text()
-
-        try:
-            tmp_samba_nix_path = self._remote_domain.save(password)
-
-            system_api = SystemApi()
-
-            rebuild_bash_path = system_api.write_rebuild_bash(
-                tmp_samba_nix_path, password
-            )
-
-            print(rebuild_bash_path + " created")
-
-            # Open terminal to run nixos-rebuild switch
-            import subprocess
-            import shutil
-
-            cmd = rebuild_bash_path + '; echo "Press Enter to close..."; read'
-
-            # Try different terminal emulators (including NixOS common ones)
-            if shutil.which("cosmic-term"):  # COSMIC desktop
-                subprocess.Popen(["cosmic-term", "--", "bash", "-c", cmd])
-            elif shutil.which("cosmic-terminal"):  # COSMIC desktop (alternate binary name)
-                subprocess.Popen(["cosmic-terminal", "--", "bash", "-c", cmd])
-            elif shutil.which("kgx"):  # GNOME Console
-                subprocess.Popen(["kgx", "--", "bash", "-c", cmd])
-            elif shutil.which("gnome-terminal"):
-                subprocess.Popen(["gnome-terminal", "--", "bash", "-c", cmd])
-            elif shutil.which("konsole"):
-                subprocess.Popen(["konsole", "-e", "bash", "-c", cmd])
-            elif shutil.which("foot"):  # Common on NixOS/Sway
-                subprocess.Popen(["foot", "bash", "-c", cmd])
-            elif shutil.which("alacritty"):
-                subprocess.Popen(["alacritty", "-e", "bash", "-c", cmd])
-            elif shutil.which("kitty"):
-                subprocess.Popen(["kitty", "bash", "-c", cmd])
-            elif shutil.which("xfce4-terminal"):
-                subprocess.Popen(["xfce4-terminal", "-e", f'bash -c "{cmd}"'])
-            elif shutil.which("tilix"):
-                subprocess.Popen(["tilix", "-e", f'bash -c "{cmd}"'])
-            elif shutil.which("xterm"):
-                subprocess.Popen(["xterm", "-e", "bash", "-c", cmd])
-            else:
-                # Fallback: run in background without terminal
-                subprocess.Popen(["bash", "-c", rebuild_bash_path])
-
-            self.save_button.set_sensitive(False)
-
-            self.show_notification(_("Configuration saved - rebuilding in terminal"))
-
-        except PermissionError as e:
-            error_dialog = Adw.AlertDialog()
-            error_dialog.set_heading(_("Error"))
-            error_dialog.set_body(str(e))
-            error_dialog.add_response("ok", _("OK"))
-            error_dialog.present(self)
-
-    def save_and_rebuild(self):
+    def save_and_rebuild(self, file_write_list: list = None):
         tmp_samba_nix_path = self._remote_domain.save()
         tmp_samba_server_nix_path = self._local_share_domain.save()
 
@@ -426,44 +343,31 @@ class MainWindow(Adw.ApplicationWindow):
 
         system_api = SystemApi()
 
-        rebuild_bash_path = system_api.write_rebuild_bash(tmp_samba_nix_path, tmp_samba_server_nix_path)
+        rebuild_bash_path = system_api.write_rebuild_bash(
+            tmp_samba_nix_path, tmp_samba_server_nix_path, file_write_list
+        )
 
-        print(rebuild_bash_path + " created")
+        self._rebuild_dialog = RebuildDialog(
+            system_api.get_rebuild_command(rebuild_bash_path),
+            lambda success, cancelled: self._on_rebuild_finished(rebuild_bash_path, success, cancelled),
+        )
+        self._rebuild_dialog.present(self)
+        self._rebuild_dialog.start()
 
-        # Open terminal to run nixos-rebuild switch
-        import subprocess
-        import shutil
+    def _on_rebuild_finished(self, rebuild_bash_path: str, success: bool, cancelled: bool):
+        try:
+            os.unlink(rebuild_bash_path)
+        except OSError:
+            pass
 
-        cmd = rebuild_bash_path + '; echo "Press Enter to close..."; read'
+        if success:
+            self.show_notification(_("Configuration saved and system rebuilt"))
+            return
 
-        # Try different terminal emulators (including NixOS common ones)
-        if shutil.which("cosmic-term"):  # COSMIC desktop
-            subprocess.Popen(["cosmic-term", "--", "bash", "-c", cmd])
-        elif shutil.which("cosmic-terminal"):  # COSMIC desktop (alternate binary name)
-            subprocess.Popen(["cosmic-terminal", "--", "bash", "-c", cmd])
-        elif shutil.which("kgx"):  # GNOME Console
-            subprocess.Popen(["kgx", "--", "bash", "-c", cmd])
-        elif shutil.which("gnome-terminal"):
-            subprocess.Popen(["gnome-terminal", "--", "bash", "-c", cmd])
-        elif shutil.which("konsole"):
-            subprocess.Popen(["konsole", "-e", "bash", "-c", cmd])
-        elif shutil.which("foot"):  # Common on NixOS/Sway
-            subprocess.Popen(["foot", "bash", "-c", cmd])
-        elif shutil.which("alacritty"):
-            subprocess.Popen(["alacritty", "-e", "bash", "-c", cmd])
-        elif shutil.which("kitty"):
-            subprocess.Popen(["kitty", "bash", "-c", cmd])
-        elif shutil.which("xfce4-terminal"):
-            subprocess.Popen(["xfce4-terminal", "-e", f'bash -c "{cmd}"'])
-        elif shutil.which("tilix"):
-            subprocess.Popen(["tilix", "-e", f'bash -c "{cmd}"'])
-        elif shutil.which("xterm"):
-            subprocess.Popen(["xterm", "-e", "bash", "-c", cmd])
-        else:
-            # Fallback: run in background without terminal
-            subprocess.Popen(["bash", "-c", rebuild_bash_path])
-
-        self.show_notification(_("Configuration saved - rebuilding in terminal"))
+        # Let the user retry: the configuration was not (fully) applied
+        self._remote_domain.mark_as_unsaved()
+        self._local_share_domain.mark_as_unsaved()
+        self.save_button.set_sensitive(True)
 
     def show_notification(self, text: str):
         toast = Adw.Toast.new(text)

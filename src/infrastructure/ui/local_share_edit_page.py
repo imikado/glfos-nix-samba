@@ -9,6 +9,8 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw
 
+from infrastructure.ui.valid_users_row import ValidUsersRow
+
 
 class LocalShareEditPage(Adw.NavigationPage):
 
@@ -95,15 +97,7 @@ class LocalShareEditPage(Adw.NavigationPage):
         self.combo_access_mode.connect('notify::selected', self._on_access_mode_changed)
         access_group.add(self.combo_access_mode)
 
-        self.row_valid_users = Adw.ActionRow()
-        self.row_valid_users.set_title(_('Valid users'))
-        self.row_valid_users.set_subtitle(_('Space-separated system usernames. Each user needs a Samba password set with smbpasswd -a USERNAME'))
-        self.entry_valid_users = Gtk.Entry()
-        self.entry_valid_users.set_placeholder_text('alice bob')
-        self.entry_valid_users.set_text(' '.join(local_share.valid_users or []))
-        self.entry_valid_users.set_size_request(field_width, -1)
-        self.entry_valid_users.set_valign(Gtk.Align.CENTER)
-        self.row_valid_users.add_suffix(self.entry_valid_users)
+        self.row_valid_users = ValidUsersRow(local_share.valid_users)
         access_group.add(self.row_valid_users)
 
         self.combo_access_mode.set_selected(0 if local_share.guest_ok else 1)
@@ -161,7 +155,7 @@ class LocalShareEditPage(Adw.NavigationPage):
             comment=self.entry_comment.get_text().strip(),
             guest_ok=guest_ok,
             read_only=self.switch_read_only.get_active(),
-            valid_users=[] if guest_ok else self.entry_valid_users.get_text().split(),
+            valid_users=[] if guest_ok else self.row_valid_users.get_selected_users(),
         )
 
         try:
@@ -202,7 +196,7 @@ class LocalShareEditPage(Adw.NavigationPage):
 
         # Valid users: required when access is restricted
         is_guest = self.combo_access_mode.get_selected() == 0
-        valid_users_error = not is_guest and not self.entry_valid_users.get_text().strip()
+        valid_users_error = not is_guest and not self.row_valid_users.get_selected_users()
         self._set_row_error(self.row_valid_users, valid_users_error)
         if valid_users_error:
             valid = False

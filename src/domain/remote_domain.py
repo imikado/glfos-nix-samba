@@ -23,6 +23,9 @@ class RemoteDomain():
     def need_to_save(self)->bool:
         return self._need_to_save
 
+    def mark_as_unsaved(self):
+        self._need_to_save=True
+
     def get_list(self)->list:
 
         if not self._loaded:
@@ -60,7 +63,6 @@ class RemoteDomain():
 
         new_content=self._samba_file_api.convert_remote_list_to_nix_content(self.get_list())
 
-        #self._system_api.write_file_sudo(self._samba_file_api.get_nix_file_path(), new_content, password) 
         tmp_samba_nix_path=self._system_api.write_file_tmp( new_content) 
 
         if self._system_api.is_current_desktop_kde():

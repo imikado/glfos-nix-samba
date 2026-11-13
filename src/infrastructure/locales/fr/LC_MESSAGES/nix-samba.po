@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nix-samba\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 18:01+0200\n"
+"POT-Creation-Date: 2026-11-13 10:07+0100\n"
 "PO-Revision-Date: 2026-02-22 16:04+0100\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -13,156 +13,149 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: infrastructure/ui/app_window.py:65
+#: infrastructure/ui/app_window.py:67
 msgid "Configuration file not found: "
 msgstr "Fichier de configuration introuvable : "
 
-#: infrastructure/ui/app_window.py:87
+#: infrastructure/ui/app_window.py:89
 msgid "Cannot read configuration file (permission denied)"
 msgstr "Impossible de lire le fichier de configuration (permission refusée)"
 
-#: infrastructure/ui/app_window.py:90
+#: infrastructure/ui/app_window.py:92
 msgid "Error reading configuration: "
 msgstr "Erreur lors de la lecture de la configuration : "
 
-#: infrastructure/ui/app_window.py:98
+#: infrastructure/ui/app_window.py:100
 msgid "NixOS Configuration Warning"
 msgstr "Avertissement de configuration NixOS"
 
-#: infrastructure/ui/app_window.py:101
+#: infrastructure/ui/app_window.py:103
 msgid "The following items are missing from your NixOS configuration:"
 msgstr ""
 "Votre configuration a besoin d'être mise à jour pour cette application :"
 
-#: infrastructure/ui/app_window.py:105
+#: infrastructure/ui/app_window.py:107
 msgid "Please add them to /etc/nixos/customConfig/default.nix"
 msgstr "Veuillez les ajouter à /etc/nixos/customConfig/default.nix"
 
-#: infrastructure/ui/app_window.py:108 infrastructure/ui/app_window.py:155
-#: infrastructure/ui/app_window.py:202 infrastructure/ui/app_window.py:414
-#: infrastructure/ui/create_creds_file_page.py:113
-#: infrastructure/ui/remote_add_page.py:246
-#: infrastructure/ui/remote_edit_page.py:287
-#: infrastructure/ui/local_share_add_page.py:176
-#: infrastructure/ui/local_share_edit_page.py:179
+#: infrastructure/ui/app_window.py:110 infrastructure/ui/app_window.py:177
+#: infrastructure/ui/create_creds_file_page.py:130
+#: infrastructure/ui/local_share_add_page.py:169
+#: infrastructure/ui/local_share_edit_page.py:171
+#: infrastructure/ui/remote_add_page.py:275
+#: infrastructure/ui/remote_edit_page.py:316
 msgid "OK"
 msgstr "OK"
 
-#: infrastructure/ui/app_window.py:114
+#: infrastructure/ui/app_window.py:116
 msgid "Fix NixOS Configuration"
 msgstr "Mettre à jour la configuration NixOS"
 
-#: infrastructure/ui/app_window.py:117
+#: infrastructure/ui/app_window.py:119
 msgid ""
 "The NixOS configuration is missing required settings (samba.nix and "
-"samba_setup.nix import). Enter your password to fix it automatically."
-msgstr ""
-"La configuration NixOS doit être mise à jour pour cette application. Entrez "
-"votre mot de passe le faire automatiquement."
+"samba_setup.nix import). They will be fixed automatically before the "
+"rebuild; your administrator password will be asked."
+msgstr "La configuration NixOS doit être mise à jour pour cette application (import de samba.nix et samba_setup.nix). Elle sera corrigée automatiquement avant la reconstruction ; votre mot de passe administrateur vous sera demandé."
 
-#: infrastructure/ui/app_window.py:126 infrastructure/ui/app_window.py:173
-#: infrastructure/ui/app_window.py:298
-#: infrastructure/ui/remote_list_page.py:107
+#: infrastructure/ui/app_window.py:123 infrastructure/ui/app_window.py:153
+#: infrastructure/ui/app_window.py:280
 #: infrastructure/ui/local_share_list_page.py:104
+#: infrastructure/ui/remote_browse_dialog.py:47
+#: infrastructure/ui/remote_list_page.py:107
 msgid "Cancel"
 msgstr "Annuler"
 
-#: infrastructure/ui/app_window.py:127
+#: infrastructure/ui/app_window.py:124
 msgid "Fix Configuration"
 msgstr "Mettre à jour la configuration"
 
-#: infrastructure/ui/app_window.py:144
-msgid "NixOS configuration fixed successfully"
-msgstr "Configuration NixOS mise à jour avec succès"
-
-#: infrastructure/ui/app_window.py:149 infrastructure/ui/app_window.py:196
-msgid "Incorrect password, please try again"
-msgstr "Mot de passe incorrect, veuillez réessayer"
-
-#: infrastructure/ui/app_window.py:153 infrastructure/ui/app_window.py:200
-#: infrastructure/ui/app_window.py:412
-#: infrastructure/ui/create_creds_file_page.py:111
-#: infrastructure/ui/remote_add_page.py:244
-#: infrastructure/ui/remote_edit_page.py:285
-#: infrastructure/ui/local_share_add_page.py:174
-#: infrastructure/ui/local_share_edit_page.py:177
-msgid "Error"
-msgstr "Erreur"
-
-#: infrastructure/ui/app_window.py:161
+#: infrastructure/ui/app_window.py:146
 msgid "Update NixOS Configuration"
 msgstr "Mettre à jour la configuration NixOS"
 
-#: infrastructure/ui/app_window.py:164
+#: infrastructure/ui/app_window.py:149
 msgid ""
-"No remote share is configured. Enter your password to remove the unused "
-"samba.nix and samba_setup.nix imports."
-msgstr ""
-"Aucun partage distant n'est configuré. Entrez votre mot de passe pour "
-"supprimer les imports inutilisés samba.nix et samba_setup.nix."
+"No remote share is configured. The unused samba.nix and samba_setup.nix "
+"imports will be removed before the rebuild; your administrator password will "
+"be asked."
+msgstr "Aucun partage distant n'est configuré. Les imports inutilisés de samba.nix et samba_setup.nix seront supprimés avant la reconstruction ; votre mot de passe administrateur vous sera demandé."
 
-#: infrastructure/ui/app_window.py:174
+#: infrastructure/ui/app_window.py:154
 msgid "Update Configuration"
 msgstr "Mettre à jour la configuration"
 
-#: infrastructure/ui/app_window.py:191
-msgid "NixOS configuration updated successfully"
-msgstr "Configuration NixOS mise à jour avec succès"
+#: infrastructure/ui/app_window.py:175
+#: infrastructure/ui/create_creds_file_page.py:128
+#: infrastructure/ui/local_share_add_page.py:167
+#: infrastructure/ui/local_share_edit_page.py:169
+#: infrastructure/ui/remote_add_page.py:273
+#: infrastructure/ui/remote_edit_page.py:314
+msgid "Error"
+msgstr "Erreur"
 
-#: infrastructure/ui/app_window.py:206
+#: infrastructure/ui/app_window.py:181 infrastructure/ui/app_window.py:189
 msgid "Nix Samba"
 msgstr "Nix Samba"
 
-#: infrastructure/ui/app_window.py:217 infrastructure/ui/app_window.py:218
-#: infrastructure/ui/remote_list_page.py:46
-#: infrastructure/ui/remote_list_page.py:47
+#: infrastructure/ui/app_window.py:189
+msgid "Version"
+msgstr "Version"
+
+#: infrastructure/ui/app_window.py:195 infrastructure/ui/app_window.py:196
 #: infrastructure/ui/local_share_list_page.py:43
 #: infrastructure/ui/local_share_list_page.py:44
+#: infrastructure/ui/remote_list_page.py:46
+#: infrastructure/ui/remote_list_page.py:47
 msgid "Save on disk"
 msgstr "Enregistrer sur le disque"
 
-#: infrastructure/ui/app_window.py:231 infrastructure/ui/app_window.py:235
+#: infrastructure/ui/app_window.py:209 infrastructure/ui/app_window.py:213
 msgid "Remote share"
 msgstr "Partage réseau"
 
-#: infrastructure/ui/app_window.py:236
+#: infrastructure/ui/app_window.py:214
 msgid "Mange your remote samba shares"
 msgstr "Gérez vos partages Samba distants"
 
-#: infrastructure/ui/app_window.py:240
+#: infrastructure/ui/app_window.py:218
 msgid "List remote shares"
 msgstr "Liste des partages distants"
 
-#: infrastructure/ui/app_window.py:247
+#: infrastructure/ui/app_window.py:225
 msgid "Add remote share"
 msgstr "Ajouter un partage distant"
 
-#: infrastructure/ui/app_window.py:254
+#: infrastructure/ui/app_window.py:232
 #: infrastructure/ui/create_creds_file_page.py:24
 msgid "Create credentials file"
 msgstr "Créer un fichier d'identifiants"
 
-#: infrastructure/ui/app_window.py:263
+#: infrastructure/ui/app_window.py:241
 msgid "Local share"
 msgstr "Partage local"
 
-#: infrastructure/ui/app_window.py:264
+#: infrastructure/ui/app_window.py:242
 msgid "Share a local folder on your network via Samba"
 msgstr "Partagez un dossier local sur votre réseau via Samba"
 
-#: infrastructure/ui/app_window.py:268
+#: infrastructure/ui/app_window.py:246
 msgid "List local shares"
 msgstr "Liste des partages locaux"
 
-#: infrastructure/ui/app_window.py:275
+#: infrastructure/ui/app_window.py:253
 msgid "Add local share"
 msgstr "Ajouter un partage local"
 
-#: infrastructure/ui/app_window.py:292
+#: infrastructure/ui/app_window.py:270
+msgid "Please wait until the rebuild is finished"
+msgstr "Veuillez attendre la fin de la reconstruction"
+
+#: infrastructure/ui/app_window.py:274
 msgid "Unsaved Changes"
 msgstr "Modifications non enregistrées"
 
-#: infrastructure/ui/app_window.py:295
+#: infrastructure/ui/app_window.py:277
 msgid ""
 "You have modifications not saved. Are you sure you want to quit without "
 "saving?"
@@ -170,13 +163,13 @@ msgstr ""
 "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir "
 "quitter sans enregistrer ?"
 
-#: infrastructure/ui/app_window.py:299
+#: infrastructure/ui/app_window.py:281
 msgid "Quit without saving"
 msgstr "Quitter sans enregistrer"
 
-#: infrastructure/ui/app_window.py:408 infrastructure/ui/app_window.py:462
-msgid "Configuration saved - rebuilding in terminal"
-msgstr "Configuration enregistrée - reconstruction en cours dans le terminal"
+#: infrastructure/ui/app_window.py:364
+msgid "Configuration saved and system rebuilt"
+msgstr "Configuration enregistrée et système reconstruit"
 
 #: infrastructure/ui/create_creds_file_page.py:42
 msgid "File"
@@ -190,243 +183,86 @@ msgstr "Chemin où le fichier d'identifiants sera enregistré"
 msgid "File path"
 msgstr "Chemin du fichier"
 
-#: infrastructure/ui/create_creds_file_page.py:58
-#: infrastructure/ui/remote_add_page.py:97
-#: infrastructure/ui/remote_edit_page.py:99
+#: infrastructure/ui/create_creds_file_page.py:52
+msgid "Browse for file location"
+msgstr "Parcourir pour choisir l'emplacement du fichier"
+
+#: infrastructure/ui/create_creds_file_page.py:61
+#: infrastructure/ui/remote_add_page.py:106
+#: infrastructure/ui/remote_edit_page.py:108
 msgid "Credentials"
 msgstr "Identifiants"
 
-#: infrastructure/ui/create_creds_file_page.py:59
+#: infrastructure/ui/create_creds_file_page.py:62
 msgid "Samba authentication credentials"
 msgstr "Identifiants d'authentification Samba"
 
-#: infrastructure/ui/create_creds_file_page.py:62
+#: infrastructure/ui/create_creds_file_page.py:65
+#: infrastructure/ui/remote_browse_dialog.py:94
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: infrastructure/ui/create_creds_file_page.py:71
+#: infrastructure/ui/create_creds_file_page.py:74
+#: infrastructure/ui/remote_browse_dialog.py:98
 msgid "Password"
 msgstr "Mot de passe"
 
-#: infrastructure/ui/create_creds_file_page.py:86
+#: infrastructure/ui/create_creds_file_page.py:89
 msgid "Create file"
 msgstr "Créer le fichier"
 
-#: infrastructure/ui/create_creds_file_page.py:107
+#: infrastructure/ui/create_creds_file_page.py:102
+msgid "Choose where to save the credentials file"
+msgstr "Choisir où enregistrer le fichier d'identifiants"
+
+#: infrastructure/ui/create_creds_file_page.py:124
 msgid "Credentials file created"
 msgstr "Fichier d'identifiants créé"
 
-#: infrastructure/ui/create_creds_file_page.py:147
-#: infrastructure/ui/remote_add_page.py:310
-#: infrastructure/ui/remote_edit_page.py:351
-#: infrastructure/ui/local_share_add_page.py:210
-#: infrastructure/ui/local_share_edit_page.py:213
+#: infrastructure/ui/create_creds_file_page.py:164
+#: infrastructure/ui/local_share_add_page.py:203
+#: infrastructure/ui/local_share_edit_page.py:205
+#: infrastructure/ui/remote_add_page.py:339
+#: infrastructure/ui/remote_edit_page.py:380
 msgid "There are error during validation"
 msgstr "Des erreurs sont survenues lors de la validation"
 
-#: infrastructure/ui/remote_add_page.py:29
-msgid "Add Remote Share"
-msgstr "Ajouter un partage distant"
-
-#: infrastructure/ui/remote_add_page.py:47
-#: infrastructure/ui/remote_edit_page.py:46
-#: infrastructure/ui/local_share_add_page.py:45
-#: infrastructure/ui/local_share_edit_page.py:44
-msgid "Basic Settings"
-msgstr "Paramètres de base"
-
-#: infrastructure/ui/remote_add_page.py:48
-#: infrastructure/ui/remote_edit_page.py:47
-msgid "Mount point and remote share configuration"
-msgstr "Configuration du point de montage et du partage distant"
-
-#: infrastructure/ui/remote_add_page.py:51
-#: infrastructure/ui/remote_edit_page.py:50
-msgid "Bookmark"
-msgstr "Signet"
-
-#: infrastructure/ui/remote_add_page.py:53
-#: infrastructure/ui/remote_edit_page.py:52
-msgid "My Share"
-msgstr "Mon partage"
-
-#: infrastructure/ui/remote_add_page.py:60
-#: infrastructure/ui/remote_edit_page.py:60
-msgid "Mount path"
-msgstr "Point de montage"
-
-#: infrastructure/ui/remote_add_page.py:70
-#: infrastructure/ui/remote_edit_page.py:70
-msgid "Remote address"
-msgstr "Adresse distante"
-
-#: infrastructure/ui/remote_add_page.py:79
-#: infrastructure/ui/remote_edit_page.py:80
-msgid "Filesystem type"
-msgstr "Type de système de fichiers"
-
-#: infrastructure/ui/remote_add_page.py:89
-#: infrastructure/ui/remote_edit_page.py:90
-msgid "Show on desktop"
-msgstr "Afficher sur le bureau"
-
-#: infrastructure/ui/remote_add_page.py:90
-#: infrastructure/ui/remote_edit_page.py:91
-msgid "Create a shortcut to this share on your desktop"
-msgstr "Créer un raccourci vers ce partage sur votre bureau"
-
-#: infrastructure/ui/remote_add_page.py:98
-#: infrastructure/ui/remote_edit_page.py:100
-msgid "Authentication settings"
-msgstr "Paramètres d'authentification"
-
-#: infrastructure/ui/remote_add_page.py:101
-#: infrastructure/ui/remote_edit_page.py:103
-msgid "Credentials file"
-msgstr "Fichier d'identifiants"
-
-#: infrastructure/ui/remote_add_page.py:109
-#: infrastructure/ui/remote_edit_page.py:112
-msgid "Browse for credentials file"
-msgstr "Parcourir pour le fichier d'identifiants"
-
-#: infrastructure/ui/remote_add_page.py:120
-#: infrastructure/ui/remote_edit_page.py:123
-msgid "User (UID)"
-msgstr "Utilisateur (UID)"
-
-#: infrastructure/ui/remote_add_page.py:132
-#: infrastructure/ui/remote_edit_page.py:142
-msgid "Group (GID)"
-msgstr "Groupe (GID)"
-
-#: infrastructure/ui/remote_add_page.py:142
-#: infrastructure/ui/remote_edit_page.py:159
-msgid "Systemd Options"
-msgstr "Options Systemd"
-
-#: infrastructure/ui/remote_add_page.py:143
-#: infrastructure/ui/remote_edit_page.py:160
-msgid "Automount and timeout settings"
-msgstr "Paramètres de montage automatique et délai d'attente"
-
-#: infrastructure/ui/remote_add_page.py:147
-#: infrastructure/ui/remote_edit_page.py:164
-msgid "Mount behavior"
-msgstr "Comportement de montage"
-
-#: infrastructure/ui/remote_add_page.py:148
-#: infrastructure/ui/remote_edit_page.py:165
-msgid "When to mount the share"
-msgstr "Quand monter le partage"
-
-#: infrastructure/ui/remote_add_page.py:150
-#: infrastructure/ui/remote_edit_page.py:167
-msgid "Auto mount at boot"
-msgstr "Montage automatique au démarrage"
-
-#: infrastructure/ui/remote_add_page.py:151
-#: infrastructure/ui/remote_edit_page.py:168
-msgid "Mount on access"
-msgstr "Montage à l'accès"
-
-#: infrastructure/ui/remote_add_page.py:158
-#: infrastructure/ui/remote_edit_page.py:180
-msgid "Idle timeout (seconds)"
-msgstr "Délai d'inactivité (secondes)"
-
-#: infrastructure/ui/remote_add_page.py:168
-#: infrastructure/ui/remote_edit_page.py:191
-msgid "Device timeout"
-msgstr "Délai du périphérique"
-
-#: infrastructure/ui/remote_add_page.py:178
-#: infrastructure/ui/remote_edit_page.py:202
-msgid "Mount timeout"
-msgstr "Délai de montage"
-
-#: infrastructure/ui/remote_add_page.py:193
-#: infrastructure/ui/local_share_add_page.py:123
-msgid "Add share"
-msgstr "Ajouter le partage"
-
-#: infrastructure/ui/remote_add_page.py:207
-#: infrastructure/ui/remote_edit_page.py:254
-msgid "Select credentials file"
-msgstr "Sélectionner le fichier d'identifiants"
-
-#: infrastructure/ui/remote_add_page.py:239
-#: infrastructure/ui/remote_edit_page.py:280
-#: infrastructure/ui/local_share_add_page.py:169
-#: infrastructure/ui/local_share_edit_page.py:172
-msgid "Save in memory, don't forget to press the top save button"
-msgstr ""
-"Enregistré en mémoire, n'oubliez pas d'appuyer sur le bouton d'enregistrement"
-
-#: infrastructure/ui/remote_edit_page.py:28
-msgid "Edit Remote Share"
-msgstr "Modifier le partage distant"
-
-#: infrastructure/ui/remote_edit_page.py:217
-#: infrastructure/ui/local_share_edit_page.py:126
-msgid "Update share"
-msgstr "Mettre à jour le partage"
-
-#: infrastructure/ui/remote_list_page.py:27
-msgid "Remote Shares"
-msgstr "Partages distants"
-
-#: infrastructure/ui/remote_list_page.py:60
-#: infrastructure/ui/local_share_list_page.py:57
-msgid "Available Shares"
-msgstr "Partages disponibles"
-
-#: infrastructure/ui/remote_list_page.py:61
-msgid "List of remote Samba shares"
-msgstr "Liste des partages Samba distants"
-
-#: infrastructure/ui/remote_list_page.py:104
-#: infrastructure/ui/local_share_list_page.py:101
-msgid "Delete Share"
-msgstr "Supprimer le partage"
-
-#: infrastructure/ui/remote_list_page.py:105
-#: infrastructure/ui/local_share_list_page.py:102
-#, python-format
-msgid "Are you sure you want to delete the share \"%s\"?"
-msgstr "Êtes-vous sûr de vouloir supprimer le partage « %s » ?"
-
-#: infrastructure/ui/remote_list_page.py:108
-#: infrastructure/ui/local_share_list_page.py:105
-msgid "Delete"
-msgstr "Supprimer"
-
-#: infrastructure/ui/local_share_add_page.py:27
+#: infrastructure/ui/local_share_add_page.py:29
 msgid "Add Local Share"
 msgstr "Ajouter un partage local"
 
-#: infrastructure/ui/local_share_add_page.py:46
-#: infrastructure/ui/local_share_edit_page.py:45
+#: infrastructure/ui/local_share_add_page.py:47
+#: infrastructure/ui/local_share_edit_page.py:46
+#: infrastructure/ui/remote_add_page.py:50
+#: infrastructure/ui/remote_edit_page.py:49
+msgid "Basic Settings"
+msgstr "Paramètres de base"
+
+#: infrastructure/ui/local_share_add_page.py:48
+#: infrastructure/ui/local_share_edit_page.py:47
 msgid "Local folder to share on your network"
 msgstr "Dossier local à partager sur votre réseau"
 
-#: infrastructure/ui/local_share_add_page.py:49
-#: infrastructure/ui/local_share_edit_page.py:48
+#: infrastructure/ui/local_share_add_page.py:51
+#: infrastructure/ui/local_share_edit_page.py:50
+#: infrastructure/ui/remote_browse_dialog.py:118
 msgid "Share name"
 msgstr "Nom du partage"
 
-#: infrastructure/ui/local_share_add_page.py:51
-#: infrastructure/ui/local_share_edit_page.py:50
+#: infrastructure/ui/local_share_add_page.py:53
+#: infrastructure/ui/local_share_edit_page.py:52
 msgid "MyShare"
 msgstr "MonPartage"
 
-#: infrastructure/ui/local_share_add_page.py:58
-#: infrastructure/ui/local_share_edit_page.py:58
+#: infrastructure/ui/local_share_add_page.py:60
+#: infrastructure/ui/local_share_edit_page.py:60
 msgid "Local folder"
 msgstr "Dossier local"
 
 #: infrastructure/ui/local_share_add_page.py:66
 #: infrastructure/ui/local_share_edit_page.py:67
+#: infrastructure/ui/remote_add_page.py:70
+#: infrastructure/ui/remote_edit_page.py:70
 msgid "Browse for folder"
 msgstr "Parcourir pour un dossier"
 
@@ -470,142 +306,393 @@ msgstr "Accès invité (aucune connexion requise)"
 msgid "Restricted to specific users"
 msgstr "Restreint à des utilisateurs spécifiques"
 
-#: infrastructure/ui/local_share_add_page.py:99
-#: infrastructure/ui/local_share_edit_page.py:101
-msgid "Valid users"
-msgstr "Utilisateurs autorisés"
-
-#: infrastructure/ui/local_share_add_page.py:100
-#: infrastructure/ui/local_share_edit_page.py:102
-msgid ""
-"Space-separated system usernames. Each user needs a Samba password set with "
-"smbpasswd -a USERNAME"
-msgstr "Noms d'utilisateurs système séparés par des espaces. Chaque utilisateur doit avoir un mot de passe Samba défini avec smbpasswd -a NOMUTILISATEUR"
-
-#: infrastructure/ui/local_share_add_page.py:112
-#: infrastructure/ui/local_share_edit_page.py:115
+#: infrastructure/ui/local_share_add_page.py:105
+#: infrastructure/ui/local_share_edit_page.py:107
 msgid "Read only"
 msgstr "Lecture seule"
 
-#: infrastructure/ui/local_share_add_page.py:113
-#: infrastructure/ui/local_share_edit_page.py:116
+#: infrastructure/ui/local_share_add_page.py:106
+#: infrastructure/ui/local_share_edit_page.py:108
 msgid "Prevent writing to this share"
 msgstr "Empêcher l'écriture sur ce partage"
 
-#: infrastructure/ui/local_share_add_page.py:136
-#: infrastructure/ui/local_share_edit_page.py:139
+#: infrastructure/ui/local_share_add_page.py:116
+#: infrastructure/ui/remote_add_page.py:200
+msgid "Add share"
+msgstr "Ajouter le partage"
+
+#: infrastructure/ui/local_share_add_page.py:129
+#: infrastructure/ui/local_share_edit_page.py:131
 msgid "Select folder to share"
 msgstr "Sélectionner le dossier à partager"
 
-#: infrastructure/ui/local_share_edit_page.py:26
+#: infrastructure/ui/local_share_add_page.py:162
+#: infrastructure/ui/local_share_edit_page.py:164
+#: infrastructure/ui/remote_add_page.py:268
+#: infrastructure/ui/remote_edit_page.py:309
+msgid "Save in memory, don't forget to press the top save button"
+msgstr ""
+"Enregistré en mémoire, n'oubliez pas d'appuyer sur le bouton d'enregistrement"
+
+#: infrastructure/ui/local_share_edit_page.py:28
 msgid "Edit Local Share"
 msgstr "Modifier le partage local"
+
+#: infrastructure/ui/local_share_edit_page.py:118
+#: infrastructure/ui/remote_edit_page.py:224
+msgid "Update share"
+msgstr "Mettre à jour le partage"
 
 #: infrastructure/ui/local_share_list_page.py:25
 msgid "Local Shares"
 msgstr "Partages locaux"
 
+#: infrastructure/ui/local_share_list_page.py:57
+#: infrastructure/ui/remote_list_page.py:60
+msgid "Available Shares"
+msgstr "Partages disponibles"
+
 #: infrastructure/ui/local_share_list_page.py:58
 msgid "List of local folders shared via Samba"
 msgstr "Liste des dossiers locaux partagés via Samba"
 
-#: infrastructure/ui/app_window.py:220
-msgid "Version"
-msgstr "Version"
+#: infrastructure/ui/local_share_list_page.py:101
+#: infrastructure/ui/remote_list_page.py:104
+msgid "Delete Share"
+msgstr "Supprimer le partage"
 
-msgid "Select mount folder"
-msgstr "Sélectionner le dossier de montage"
+#: infrastructure/ui/local_share_list_page.py:102
+#: infrastructure/ui/remote_list_page.py:105
+#, python-format
+msgid "Are you sure you want to delete the share \"%s\"?"
+msgstr "Êtes-vous sûr de vouloir supprimer le partage « %s » ?"
 
-msgid "Browse for file location"
-msgstr "Parcourir pour choisir l'emplacement du fichier"
+#: infrastructure/ui/local_share_list_page.py:105
+#: infrastructure/ui/remote_list_page.py:108
+msgid "Delete"
+msgstr "Supprimer"
 
-msgid "Choose where to save the credentials file"
-msgstr "Choisir où enregistrer le fichier d'identifiants"
+#: infrastructure/ui/rebuild_dialog.py:28
+msgid "NixOS rebuild"
+msgstr "Reconstruction NixOS"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Access denied: enter a username and password above, then list the shares again. You can also type the share name."
-msgstr "Accès refusé : saisissez un nom d'utilisateur et un mot de passe ci-dessus, puis listez à nouveau les partages. Vous pouvez aussi saisir le nom du partage."
+#: infrastructure/ui/rebuild_dialog.py:79
+msgid "Close"
+msgstr "Fermer"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Authentication"
-msgstr "Authentification"
+#: infrastructure/ui/rebuild_dialog.py:94
+#: infrastructure/ui/rebuild_dialog.py:136
+msgid "Waiting for authentication…"
+msgstr "En attente d'authentification…"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Automatic discovery unavailable: the zeroconf Python library is not installed. Enter the server name or IP address."
-msgstr "Découverte automatique indisponible : la librairie Python zeroconf n'est pas installée. Saisissez le nom ou l'adresse IP du serveur."
+#: infrastructure/ui/rebuild_dialog.py:103
+msgid "Unable to start the rebuild (is polkit/pkexec available?)"
+msgstr "Impossible de lancer la reconstruction (polkit/pkexec est-il disponible ?)"
 
-#: infrastructure/ui/remote_browse_dialog.py
+#: infrastructure/ui/rebuild_dialog.py:137
+msgid "Rebuilding the system, this may take a few minutes…"
+msgstr "Reconstruction du système, cela peut prendre quelques minutes…"
+
+#: infrastructure/ui/rebuild_dialog.py:154
+msgid "System rebuilt successfully"
+msgstr "Système reconstruit avec succès"
+
+#: infrastructure/ui/rebuild_dialog.py:156
+msgid "Authentication cancelled: nothing was saved"
+msgstr "Authentification annulée : rien n'a été enregistré"
+
+#: infrastructure/ui/rebuild_dialog.py:158
+msgid "Error during rebuild, see the log above"
+msgstr "Erreur pendant la reconstruction, voir le journal ci-dessus"
+
+#: infrastructure/ui/remote_add_page.py:32
+msgid "Add Remote Share"
+msgstr "Ajouter un partage distant"
+
+#: infrastructure/ui/remote_add_page.py:51
+#: infrastructure/ui/remote_edit_page.py:50
+msgid "Mount point and remote share configuration"
+msgstr "Configuration du point de montage et du partage distant"
+
+#: infrastructure/ui/remote_add_page.py:54
+#: infrastructure/ui/remote_edit_page.py:53
+msgid "Bookmark"
+msgstr "Signet"
+
+#: infrastructure/ui/remote_add_page.py:56
+#: infrastructure/ui/remote_edit_page.py:55
+msgid "My Share"
+msgstr "Mon partage"
+
+#: infrastructure/ui/remote_add_page.py:63
+#: infrastructure/ui/remote_edit_page.py:63
+msgid "Mount path"
+msgstr "Point de montage"
+
+#: infrastructure/ui/remote_add_page.py:76
+#: infrastructure/ui/remote_edit_page.py:76
+msgid "Remote address"
+msgstr "Adresse distante"
+
+#: infrastructure/ui/remote_add_page.py:82
+#: infrastructure/ui/remote_browse_dialog.py:37
+#: infrastructure/ui/remote_edit_page.py:83
 msgid "Browse network"
 msgstr "Parcourir le réseau"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Choose a server or enter its name or IP address."
-msgstr "Choisissez un serveur ou saisissez son nom ou son adresse IP."
+#: infrastructure/ui/remote_add_page.py:88
+#: infrastructure/ui/remote_edit_page.py:89
+msgid "Filesystem type"
+msgstr "Type de système de fichiers"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Choose a share or enter its name."
-msgstr "Choisissez un partage ou saisissez son nom."
+#: infrastructure/ui/remote_add_page.py:98
+#: infrastructure/ui/remote_edit_page.py:99
+msgid "Show on desktop"
+msgstr "Afficher sur le bureau"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Listing shares of "
-msgstr "Recherche des partages de "
+#: infrastructure/ui/remote_add_page.py:99
+#: infrastructure/ui/remote_edit_page.py:100
+msgid "Create a shortcut to this share on your desktop"
+msgstr "Créer un raccourci vers ce partage sur votre bureau"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "List shares"
-msgstr "Lister les partages"
+#: infrastructure/ui/remote_add_page.py:107
+#: infrastructure/ui/remote_edit_page.py:109
+msgid "Authentication settings"
+msgstr "Paramètres d'authentification"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "No server found. Enter the server name or IP address."
-msgstr "Aucun serveur trouvé. Saisissez le nom ou l'adresse IP du serveur."
+#: infrastructure/ui/remote_add_page.py:110
+#: infrastructure/ui/remote_edit_page.py:112
+msgid "Credentials file"
+msgstr "Fichier d'identifiants"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "No share found on this server. Enter the share name."
-msgstr "Aucun partage trouvé sur ce serveur. Saisissez le nom du partage."
+#: infrastructure/ui/remote_add_page.py:116
+#: infrastructure/ui/remote_edit_page.py:119
+msgid "Browse for credentials file"
+msgstr "Parcourir pour le fichier d'identifiants"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Optional, only used to list the shares. Leave empty for anonymous access."
-msgstr "Facultatif, utilisé uniquement pour lister les partages. Laissez vide pour un accès anonyme."
+#: infrastructure/ui/remote_add_page.py:127
+#: infrastructure/ui/remote_edit_page.py:130
+msgid "User (UID)"
+msgstr "Utilisateur (UID)"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Optional, only used to list the shares. Leave empty to use the credentials file: "
-msgstr "Facultatif, utilisé uniquement pour lister les partages. Laissez vide pour utiliser le fichier d'identifiants : "
+#: infrastructure/ui/remote_add_page.py:139
+#: infrastructure/ui/remote_edit_page.py:149
+msgid "Group (GID)"
+msgstr "Groupe (GID)"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Search again"
-msgstr "Relancer la recherche"
+#: infrastructure/ui/remote_add_page.py:149
+#: infrastructure/ui/remote_edit_page.py:166
+msgid "Systemd Options"
+msgstr "Options Systemd"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Search failed: "
-msgstr "Échec de la recherche : "
+#: infrastructure/ui/remote_add_page.py:150
+#: infrastructure/ui/remote_edit_page.py:167
+msgid "Automount and timeout settings"
+msgstr "Paramètres de montage automatique et délai d'attente"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Searching for Samba servers on the network..."
-msgstr "Recherche des serveurs Samba sur le réseau..."
+#: infrastructure/ui/remote_add_page.py:154
+#: infrastructure/ui/remote_edit_page.py:171
+msgid "Mount behavior"
+msgstr "Comportement de montage"
 
-#: infrastructure/ui/remote_browse_dialog.py
+#: infrastructure/ui/remote_add_page.py:155
+#: infrastructure/ui/remote_edit_page.py:172
+msgid "When to mount the share"
+msgstr "Quand monter le partage"
+
+#: infrastructure/ui/remote_add_page.py:157
+#: infrastructure/ui/remote_edit_page.py:174
+msgid "Auto mount at boot"
+msgstr "Montage automatique au démarrage"
+
+#: infrastructure/ui/remote_add_page.py:158
+#: infrastructure/ui/remote_edit_page.py:175
+msgid "Mount on access"
+msgstr "Montage à l'accès"
+
+#: infrastructure/ui/remote_add_page.py:165
+#: infrastructure/ui/remote_edit_page.py:187
+msgid "Idle timeout (seconds)"
+msgstr "Délai d'inactivité (secondes)"
+
+#: infrastructure/ui/remote_add_page.py:175
+#: infrastructure/ui/remote_edit_page.py:198
+msgid "Device timeout"
+msgstr "Délai du périphérique"
+
+#: infrastructure/ui/remote_add_page.py:185
+#: infrastructure/ui/remote_edit_page.py:209
+msgid "Mount timeout"
+msgstr "Délai de montage"
+
+#: infrastructure/ui/remote_add_page.py:222
+#: infrastructure/ui/remote_edit_page.py:269
+msgid "Select mount folder"
+msgstr "Sélectionner le dossier de montage"
+
+#: infrastructure/ui/remote_add_page.py:236
+#: infrastructure/ui/remote_edit_page.py:283
+msgid "Select credentials file"
+msgstr "Sélectionner le fichier d'identifiants"
+
+#: infrastructure/ui/remote_browse_dialog.py:51
 msgid "Select"
 msgstr "Sélectionner"
 
-#: infrastructure/ui/remote_browse_dialog.py
+#: infrastructure/ui/remote_browse_dialog.py:62
 msgid "Server"
 msgstr "Serveur"
 
-#: infrastructure/ui/remote_browse_dialog.py
+#: infrastructure/ui/remote_browse_dialog.py:70
+msgid "Search again"
+msgstr "Relancer la recherche"
+
+#: infrastructure/ui/remote_browse_dialog.py:76
 msgid "Server name or IP address"
 msgstr "Nom ou adresse IP du serveur"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Server unreachable: "
-msgstr "Serveur injoignable : "
+#: infrastructure/ui/remote_browse_dialog.py:85
+msgid "Authentication"
+msgstr "Authentification"
 
-#: infrastructure/ui/remote_browse_dialog.py
+#: infrastructure/ui/remote_browse_dialog.py:88
+msgid ""
+"Optional, only used to list the shares. Leave empty to use the credentials "
+"file: "
+msgstr ""
+"Facultatif, utilisé uniquement pour lister les partages. Laissez vide pour "
+"utiliser le fichier d'identifiants : "
+
+#: infrastructure/ui/remote_browse_dialog.py:91
+msgid ""
+"Optional, only used to list the shares. Leave empty for anonymous access."
+msgstr ""
+"Facultatif, utilisé uniquement pour lister les partages. Laissez vide pour "
+"un accès anonyme."
+
+#: infrastructure/ui/remote_browse_dialog.py:106
 msgid "Share"
 msgstr "Partage"
 
-#: infrastructure/ui/remote_browse_dialog.py
-msgid "Share listing unavailable: the pysmb Python library is not installed. Enter the share name."
-msgstr "Liste des partages indisponible : la librairie Python pysmb n'est pas installée. Saisissez le nom du partage."
+#: infrastructure/ui/remote_browse_dialog.py:111
+msgid "List shares"
+msgstr "Lister les partages"
 
-#: infrastructure/ui/remote_browse_dialog.py
+#: infrastructure/ui/remote_browse_dialog.py:138
+msgid ""
+"Share listing unavailable: the pysmb Python library is not installed. Enter "
+"the share name."
+msgstr ""
+"Liste des partages indisponible : la librairie Python pysmb n'est pas "
+"installée. Saisissez le nom du partage."
+
+#: infrastructure/ui/remote_browse_dialog.py:145
+msgid ""
+"Automatic discovery unavailable: the zeroconf Python library is not "
+"installed. Enter the server name or IP address."
+msgstr ""
+"Découverte automatique indisponible : la librairie Python zeroconf n'est pas "
+"installée. Saisissez le nom ou l'adresse IP du serveur."
+
+#: infrastructure/ui/remote_browse_dialog.py:189
+msgid "Searching for Samba servers on the network..."
+msgstr "Recherche des serveurs Samba sur le réseau..."
+
+#: infrastructure/ui/remote_browse_dialog.py:198
+msgid "Search failed: "
+msgstr "Échec de la recherche : "
+
+#: infrastructure/ui/remote_browse_dialog.py:201
+msgid "No server found. Enter the server name or IP address."
+msgstr "Aucun serveur trouvé. Saisissez le nom ou l'adresse IP du serveur."
+
+#: infrastructure/ui/remote_browse_dialog.py:203
+msgid "Choose a server or enter its name or IP address."
+msgstr "Choisissez un serveur ou saisissez son nom ou son adresse IP."
+
+#: infrastructure/ui/remote_browse_dialog.py:237
+msgid "Listing shares of "
+msgstr "Recherche des partages de "
+
+#: infrastructure/ui/remote_browse_dialog.py:255
+msgid ""
+"Access denied: enter a username and password above, then list the shares "
+"again. You can also type the share name."
+msgstr ""
+"Accès refusé : saisissez un nom d'utilisateur et un mot de passe ci-dessus, "
+"puis listez à nouveau les partages. Vous pouvez aussi saisir le nom du "
+"partage."
+
+#: infrastructure/ui/remote_browse_dialog.py:257
+msgid "Server unreachable: "
+msgstr "Serveur injoignable : "
+
+#: infrastructure/ui/remote_browse_dialog.py:259
 msgid "Unable to list the shares. Enter the share name."
 msgstr "Impossible de lister les partages. Saisissez le nom du partage."
+
+#: infrastructure/ui/remote_browse_dialog.py:262
+msgid "No share found on this server. Enter the share name."
+msgstr "Aucun partage trouvé sur ce serveur. Saisissez le nom du partage."
+
+#: infrastructure/ui/remote_browse_dialog.py:264
+msgid "Choose a share or enter its name."
+msgstr "Choisissez un partage ou saisissez son nom."
+
+#: infrastructure/ui/remote_edit_page.py:31
+msgid "Edit Remote Share"
+msgstr "Modifier le partage distant"
+
+#: infrastructure/ui/remote_list_page.py:27
+msgid "Remote Shares"
+msgstr "Partages distants"
+
+#: infrastructure/ui/remote_list_page.py:61
+msgid "List of remote Samba shares"
+msgstr "Liste des partages Samba distants"
+
+#: infrastructure/ui/valid_users_row.py:41
+msgid "Valid users"
+msgstr "Utilisateurs autorisés"
+
+#: infrastructure/ui/valid_users_row.py:42
+msgid "Each user needs a Samba password set with smbpasswd -a USERNAME"
+msgstr "Chaque utilisateur doit avoir un mot de passe Samba défini avec smbpasswd -a UTILISATEUR"
+
+#: infrastructure/ui/valid_users_row.py:63
+msgid "No user found"
+msgstr "Aucun utilisateur trouvé"
+
+#~ msgid ""
+#~ "The NixOS configuration is missing required settings (samba.nix and "
+#~ "samba_setup.nix import). Enter your password to fix it automatically."
+#~ msgstr ""
+#~ "La configuration NixOS doit être mise à jour pour cette application. "
+#~ "Entrez votre mot de passe le faire automatiquement."
+
+#~ msgid "NixOS configuration fixed successfully"
+#~ msgstr "Configuration NixOS mise à jour avec succès"
+
+#~ msgid "Incorrect password, please try again"
+#~ msgstr "Mot de passe incorrect, veuillez réessayer"
+
+#~ msgid ""
+#~ "No remote share is configured. Enter your password to remove the unused "
+#~ "samba.nix and samba_setup.nix imports."
+#~ msgstr ""
+#~ "Aucun partage distant n'est configuré. Entrez votre mot de passe pour "
+#~ "supprimer les imports inutilisés samba.nix et samba_setup.nix."
+
+#~ msgid "NixOS configuration updated successfully"
+#~ msgstr "Configuration NixOS mise à jour avec succès"
+
+#~ msgid "Configuration saved - rebuilding in terminal"
+#~ msgstr ""
+#~ "Configuration enregistrée - reconstruction en cours dans le terminal"
+
+#~ msgid ""
+#~ "Space-separated system usernames. Each user needs a Samba password set "
+#~ "with smbpasswd -a USERNAME"
+#~ msgstr ""
+#~ "Noms d'utilisateurs système séparés par des espaces. Chaque utilisateur "
+#~ "doit avoir un mot de passe Samba défini avec smbpasswd -a NOMUTILISATEUR"

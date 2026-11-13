@@ -16,15 +16,6 @@ class SystemApiContract:
         pass
 
     @abstractmethod
-    def backup_file_sudo(self,path:str,password:str):
-        pass
-
-    @abstractmethod
-    def write_file_sudo(path: str, content: str, password: str):
-        """Write file with elevated privileges using sudo."""
-        pass
-
-    @abstractmethod
     def file_exists(self,path:str)->bool:
         pass
 
@@ -58,10 +49,6 @@ class SystemApiContract:
 
     @abstractmethod
     def write_kde_bookmark_list(self,bookmark_list:list):
-        pass
-
-    @abstractmethod
-    def nix_rebuild_sudo(self,password:str):
         pass
 
     @abstractmethod

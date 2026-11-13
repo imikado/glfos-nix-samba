@@ -21,6 +21,9 @@ class LocalShareDomain():
     def need_to_save(self)->bool:
         return self._need_to_save
 
+    def mark_as_unsaved(self):
+        self._need_to_save=True
+
     def get_list(self)->list:
 
         if not self._loaded:

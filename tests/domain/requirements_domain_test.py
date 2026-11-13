@@ -21,9 +21,6 @@ class MockSystemApi(SystemApiContract):
     def write_file(self, path: str, content: str):
         self.written_files[path] = content
 
-    def write_file_sudo(self, path: str, content: str, password: str):
-        self.written_files[path] = content
-
     def file_exists(self, path: str) -> bool:
         return path in self.written_files
 
@@ -31,9 +28,6 @@ class MockSystemApi(SystemApiContract):
         pass
 
     def chown_smb_creds_file(self, path: str):
-        pass
-
-    def nix_rebuild_sudo(self, password: str):
         pass
 
 
@@ -159,7 +153,7 @@ class TestRequirementsDomain(unittest.TestCase):
         content = """{
   environment.systemPackages = [];
 }"""
-        result = self.requirements_domain.get_content_with_missing_import_block(content)
+        result = self.requirements_domain.get_content_with_missing_import_block(content, ['./samba.nix', './samba_setup.nix'])
 
         # Check that imports block is added with both required imports
         self.assertIn('imports', result)
@@ -172,12 +166,70 @@ class TestRequirementsDomain(unittest.TestCase):
   environment.systemPackages = [];
 }
 """
-        result = self.requirements_domain.get_content_with_missing_import_block(content)
+        result = self.requirements_domain.get_content_with_missing_import_block(content, ['./samba.nix', './samba_setup.nix'])
 
         # Check that imports block is added with both required imports
         self.assertIn('imports', result)
         self.assertIn('samba.nix', result)
         self.assertIn('samba_setup.nix', result)
+
+    def test_fix_requirements_missing_imports_returns_file_writes(self):
+        """fix_requirements writes nothing itself and returns the privileged writes to apply."""
+        content = """{
+  imports = [
+    ./other.nix
+  ];
+}"""
+        self.assertFalse(self.requirements_domain.is_requirements_valid(content))
+
+        file_write_list = self.requirements_domain.fix_requirements()
+
+        self.assertEqual(self.mock_system_api.written_files, {})
+        paths = [file_write['path'] for file_write in file_write_list]
+        self.assertEqual(paths, [
+            '/etc/nixos/customConfig/samba.nix',
+            '/etc/nixos/customConfig/samba_setup.nix',
+            '/etc/nixos/customConfig/default.nix',
+        ])
+        default_write = file_write_list[-1]
+        self.assertTrue(default_write['backup'])
+        self.assertIn('./samba.nix', default_write['content'])
+        self.assertIn('./samba_setup.nix', default_write['content'])
+        self.assertFalse(file_write_list[0]['backup'])
+
+    def test_fix_requirements_skips_existing_files(self):
+        """Existing samba.nix / samba_setup.nix are not overwritten."""
+        self.mock_system_api.written_files['/etc/nixos/customConfig/samba.nix'] = '{}'
+        self.mock_system_api.written_files['/etc/nixos/customConfig/samba_setup.nix'] = '{}'
+        content = """{
+  environment.systemPackages = [];
+}"""
+        self.assertFalse(self.requirements_domain.is_requirements_valid(content))
+
+        file_write_list = self.requirements_domain.fix_requirements()
+
+        self.assertEqual([file_write['path'] for file_write in file_write_list],
+                         ['/etc/nixos/customConfig/default.nix'])
+        self.assertIn('imports', file_write_list[0]['content'])
+
+    def test_remove_samba_imports_returns_file_write(self):
+        content = """{
+  imports = [
+    ./other.nix
+    ./samba.nix
+    ./samba_setup.nix
+  ];
+}"""
+        self.assertTrue(self.requirements_domain.has_samba_imports(content))
+
+        file_write_list = self.requirements_domain.remove_samba_imports()
+
+        self.assertEqual(self.mock_system_api.written_files, {})
+        self.assertEqual(len(file_write_list), 1)
+        self.assertEqual(file_write_list[0]['path'], '/etc/nixos/customConfig/default.nix')
+        self.assertTrue(file_write_list[0]['backup'])
+        self.assertNotIn('samba', file_write_list[0]['content'])
+        self.assertIn('./other.nix', file_write_list[0]['content'])
 
 
 if __name__ == '__main__':

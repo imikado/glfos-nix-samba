@@ -1,4 +1,6 @@
 from genericpath import exists
+import shlex
+import shutil
 import subprocess
 import tempfile
 import os
@@ -10,23 +12,11 @@ from domain.contract.system_api_contract import SystemApiContract
 
 class SystemApi(SystemApiContract):
 
-    _password:str
-
     def read_file(self, path: str):
         return open(path, 'r').read()
 
     def write_file(self, path: str, content: str):
         open(path, 'w').write(content)
-
-    def backup_file_sudo(self,path:str,password:str):
-        self._password=password
-
-
-        datetime_now = datetime.datetime.now()
-
-        backup_file_path=path+'.nix-samba.back'+datetime_now.strftime('%Y%m%d')
-
-        self.sudo_execute(['sudo','-S','cp',path,backup_file_path])
 
     def write_file_tmp(self, content: str)->str:
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.nix') as tmp:
@@ -35,56 +25,14 @@ class SystemApi(SystemApiContract):
 
         return tmp_path
 
-    def write_file_sudo(self, path: str, content: str, password: str):
-
-        self._password=password
-        
-        """Write file with elevated privileges using sudo."""
-        # Write content to a temporary file first
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.nix') as tmp:
-            tmp.write(content)
-            tmp_path = tmp.name
-
-        try:
-            if False==exists(path):
-
-                self.sudo_execute(['sudo', '-S', 'touch', path])
-                self.sudo_execute(['sudo', '-S', 'chmod','644', path])
-
-                
-            self.sudo_execute(['sudo', '-S', 'cp', tmp_path, path])
-        finally:
-            # Clean up temp file
-            os.unlink(tmp_path)
-
     def execute(self,params:list):
         subprocess.Popen(params)
     
-    def sudo_execute(self,params:list):
-        process = subprocess.Popen(
-                params,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-        stdout, stderr = process.communicate(input=f"{self._password}\n")
-
-        if process.returncode != 0:
-            if "incorrect password" in stderr.lower() or "sorry" in stderr.lower():
-                raise PermissionError("Incorrect password")
-            raise PermissionError(f"Failed to excute commands: {stderr}")
-
     def file_exists(self,path:str)->bool:
         return exists(path)
     
     def create_dir(self,path:str):
         os.mkdir(path, mode=0o777,)
-
-    def nix_rebuild_sudo(self,password:str):
-        self._password=password
-        self.sudo_execute(['sudo', '-S', 'nixos-rebuild','switch'])
-        pass
 
     def chown_smb_creds_file(self,path:str):
         subprocess.Popen(['chmod','600',path])
@@ -257,14 +205,22 @@ class SystemApi(SystemApiContract):
         if os.path.isfile(shortcut_path):
             os.remove(shortcut_path)
 
-    def write_rebuild_bash(self,tmp_samba_nix_path:str,tmp_samba_server_nix_path:str=None):
+    def write_rebuild_bash(self,tmp_samba_nix_path:str,tmp_samba_server_nix_path:str=None,file_write_list:list=None):
+        """Write the rebuild script, meant to run as root through pkexec (see get_rebuild_command).
 
-        save_steps="""echo "======================================"
+        file_write_list: extra privileged writes applied first, as dicts {path, content, backup}
+        (e.g. fixes of /etc/nixos/customConfig/default.nix).
+        """
+
+        save_steps=self._get_file_write_steps(file_write_list or [])
+
+        save_steps+="""echo "======================================"
 echo "  save samba.nix"
 echo "======================================"
 echo ""
 
-sudo mv """+tmp_samba_nix_path+""" /etc/nixos/customConfig/samba.nix
+install -m 644 -o root -g root '"""+tmp_samba_nix_path+"""' /etc/nixos/customConfig/samba.nix || exit 1
+rm -f '"""+tmp_samba_nix_path+"""'
 """
 
         if tmp_samba_server_nix_path:
@@ -274,10 +230,17 @@ echo "  save samba-server.nix"
 echo "======================================"
 echo ""
 
-sudo mv """+tmp_samba_server_nix_path+""" /etc/nixos/customConfig/samba-server.nix
+install -m 644 -o root -g root '"""+tmp_samba_server_nix_path+"""' /etc/nixos/customConfig/samba-server.nix || exit 1
+rm -f '"""+tmp_samba_server_nix_path+"""'
 """
 
         rebuld_bash_content="""#!/usr/bin/env bash
+# pkexec runs with a minimal environment: restore the NixOS one (PATH, NIX_PATH...)
+if [ -f /etc/set-environment ]; then
+    . /etc/set-environment
+fi
+export PATH="/run/wrappers/bin:/run/current-system/sw/bin:$PATH"
+
 """+save_steps+"""
 
 echo "======================================"
@@ -297,9 +260,9 @@ fi
 
 if [ -n "$FLAKE_ATTR" ]; then
     echo "Configuration flake detectee : $FLAKE_ATTR"
-    sudo nixos-rebuild switch --flake "/etc/nixos#$FLAKE_ATTR"
+    nixos-rebuild switch --flake "/etc/nixos#$FLAKE_ATTR"
 else
-    sudo nixos-rebuild switch
+    nixos-rebuild switch
 fi
 EXIT_CODE=$?
 
@@ -315,11 +278,31 @@ else
     echo "======================================"
 fi
 
-echo ""
-echo "You can close this terminal window."
+exit $EXIT_CODE
 """
 
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.sh') as tmp:
-                tmp.write(rebuld_bash_content)
-                self.execute(['chmod','+x',tmp.name])
-                return tmp.name
+            tmp.write(rebuld_bash_content)
+        os.chmod(tmp.name, 0o700)
+        return tmp.name
+
+    def _get_file_write_steps(self,file_write_list:list)->str:
+        backup_suffix='.nix-samba.back'+datetime.datetime.now().strftime('%Y%m%d')
+        steps=''
+        for file_write in file_write_list:
+            path=file_write['path']
+            tmp_path=self.write_file_tmp(file_write['content'])
+            steps+='echo "======================================"\n'
+            steps+='echo '+shlex.quote('  update '+path)+'\n'
+            steps+='echo "======================================"\n'
+            steps+='echo ""\n\n'
+            if file_write.get('backup'):
+                steps+='if [ -f '+shlex.quote(path)+' ]; then cp -p '+shlex.quote(path)+' '+shlex.quote(path+backup_suffix)+' || exit 1; fi\n'
+            steps+='install -m 644 -o root -g root '+shlex.quote(tmp_path)+' '+shlex.quote(path)+' || exit 1\n'
+            steps+='rm -f '+shlex.quote(tmp_path)+'\n\n'
+        return steps
+
+    def get_rebuild_command(self,rebuild_bash_path:str)->list:
+        """Command running the rebuild script as root, authenticated by polkit (graphical prompt)."""
+        bash_path = shutil.which('bash') or '/run/current-system/sw/bin/bash'
+        return ['pkexec', bash_path, rebuild_bash_path]

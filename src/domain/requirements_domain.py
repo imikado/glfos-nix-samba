@@ -53,7 +53,14 @@ class RequirementsDomain:
         return _is_valid
 
 
-    def fix_requirements(self,password:str):
+    def fix_requirements(self)->list:
+        """Return the privileged file writes fixing the configuration.
+
+        Nothing is written here: each item is a dict {path, content, backup} applied as root
+        by the rebuild script (single pkexec authentication).
+        """
+
+        file_write_list=[]
 
         need_to_create_samba_setup_file=False
         need_to_create_samba=False
@@ -83,7 +90,7 @@ class RequirementsDomain:
         if need_to_create_samba==True and not self._system_api.file_exists(self._config_samba_file_path):
             samba_content="""{}"""
 
-            self._system_api.write_file_sudo(self._config_samba_file_path,samba_content,password)
+            file_write_list.append(self._file_write(self._config_samba_file_path,samba_content))
 
 
         if need_to_create_samba_setup_file==True and not self._system_api.file_exists(self._config_samba_setup_file_path):
@@ -102,7 +109,7 @@ class RequirementsDomain:
   };
 }
 """
-            self._system_api.write_file_sudo(self._config_samba_setup_file_path,samba_setup_content,password)
+            file_write_list.append(self._file_write(self._config_samba_setup_file_path,samba_setup_content))
 
         if need_to_create_samba_server==True and not self._system_api.file_exists(self._config_samba_server_file_path):
 
@@ -111,11 +118,14 @@ class RequirementsDomain:
   services.samba.enable = true;
 }
 """
-            self._system_api.write_file_sudo(self._config_samba_server_file_path,samba_server_content,password)
+            file_write_list.append(self._file_write(self._config_samba_server_file_path,samba_server_content))
 
-        self._system_api.backup_file_sudo(self._config_file_path,password)
+        file_write_list.append(self._file_write(self._config_file_path,new_content,backup=True))
 
-        self._system_api.write_file_sudo(self._config_file_path,new_content,password)
+        return file_write_list
+
+    def _file_write(self,path:str,content:str,backup:bool=False)->dict:
+        return {'path':path,'content':content,'backup':backup}
 
     def get_content_with_missing_import_block(self,content:str,needed_imports:list):
         new_content=''
@@ -151,13 +161,12 @@ imports=[
             or bool(re.search(r'[./]*samba_setup\.nix', default_nix_content)) \
             or bool(re.search(r'[./]*samba-server\.nix', default_nix_content))
 
-    def remove_samba_imports(self,password:str):
+    def remove_samba_imports(self)->list:
+        """Return the privileged file write removing the samba imports (see fix_requirements)."""
 
         new_content=self.get_content_without_imports(self._default_nix_content,[self.IMPORT_SAMBA,self.IMPORT_SAMBA_SETUP,self.IMPORT_SAMBA_SERVER])
 
-        self._system_api.backup_file_sudo(self._config_file_path,password)
-
-        self._system_api.write_file_sudo(self._config_file_path,new_content,password)
+        return [self._file_write(self._config_file_path,new_content,backup=True)]
 
     def get_content_without_imports(self,content:str,import_list:list):
         new_content=''
