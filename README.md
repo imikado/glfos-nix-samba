@@ -113,3 +113,15 @@ python -m unittest discover -s tests/domain -p '*_test.py'
 ## License
 
 See [LICENSE](LICENSE).
+
+### Icon theme packaging
+
+The application uses Adwaita icons. Install `adwaita-icon-theme` and include its
+share directory in `XDG_DATA_DIRS`. At application startup, installed Adwaita
+search paths take priority over desktop-specific paths such as KDE/Breeze.
+GTK/Libadwaita resource icons remain available.
+
+Packagers can explicitly select the dependency with
+`GLFOS_SAMBA_ICON_DIR=/path/to/adwaita-icon-theme/share/icons` (the directory
+containing `Adwaita/index.theme`). For Nix wrappers, use
+`${pkgs.adwaita-icon-theme}/share/icons` as that environment variable's value.
