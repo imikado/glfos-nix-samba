@@ -120,8 +120,9 @@ class RebuildDialog(Adw.Dialog):
             self._finish(False, False, _('Unable to start the rebuild (is polkit/pkexec available?)'))
             return
 
-        self._stream = Gio.DataInputStream.new(self._process.get_stdout_pipe())
-        self._stream.read_line_async(GLib.PRIORITY_DEFAULT, None, self._on_line_read)
+        self._pending_output = b''
+        self._stream = self._process.get_stdout_pipe()
+        self._stream.read_bytes_async(8192, GLib.PRIORITY_DEFAULT, None, self._on_output_read)
         self._process.wait_async(None, self._on_process_exited)
 
     def _set_running(self, running: bool):
@@ -140,20 +141,33 @@ class RebuildDialog(Adw.Dialog):
         self._progress_bar.pulse()
         return GLib.SOURCE_CONTINUE
 
-    def _on_line_read(self, stream, result):
+    def _on_output_read(self, stream, result):
         try:
-            raw_line, _length = stream.read_line_finish(result)
-        except GLib.Error:
-            raw_line = None
-        if raw_line is None:
-            return  # end of output
+            chunk = stream.read_bytes_finish(result).get_data()
+        except GLib.Error as error:
+            self._append_line(str(error.message))
+            return
+        if not chunk:
+            # An empty byte chunk is unambiguously EOF. With read_line_finish,
+            # PyGObject can return b'' for both a blank line and EOF, causing
+            # repeated reads and an endlessly growing log after completion.
+            if self._pending_output:
+                self._append_output_line(self._pending_output)
+                self._pending_output = b''
+            return
+        lines = (self._pending_output + chunk).split(b'\n')
+        self._pending_output = lines.pop()
+        for raw_line in lines:
+            self._append_output_line(raw_line)
+        stream.read_bytes_async(8192, GLib.PRIORITY_DEFAULT, None, self._on_output_read)
+
+    def _append_output_line(self, raw_line):
         line = ANSI_ESCAPE_PATTERN.sub('', raw_line.decode('utf-8', errors='replace'))
         if line.startswith('====='):
             self._script_started = True  # authentication passed, the script is running as root
         if self._status_label.get_label() == _('Waiting for authentication…'):
             self._status_label.set_label(_('Updating the system, this may take a few minutes…'))
         self._append_line(line.split('\r')[-1])
-        stream.read_line_async(GLib.PRIORITY_DEFAULT, None, self._on_line_read)
 
     def _append_line(self, line: str):
         self._buffer.insert(self._buffer.get_end_iter(), line + '\n')
