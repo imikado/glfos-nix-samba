@@ -366,7 +366,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         if success:
             self._local_share_domain.confirm_saved()
-            self.show_notification(_("Configuration saved and system rebuilt"))
+            self.show_notification(_("Configuration saved: reboot to apply it"))
             return
 
         # Let the user retry: the configuration was not (fully) applied

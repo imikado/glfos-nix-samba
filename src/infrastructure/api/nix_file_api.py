@@ -173,6 +173,26 @@ gtk = {
             return raw_nix
 
 
+    # Sets the Samba passwords of the share-only accounts created by the new generation
+    # (the system is rebuilt for next boot, see SystemApi.write_rebuild_bash).
+    # No pkgs reference: parse_config_file evaluates the module with empty mock arguments.
+    PENDING_PASSWORD_SERVICE = '''systemd.services.nix-samba-pending-passwords = {
+  description = "Set pending Samba passwords (nix-samba)";
+  wantedBy = [ "multi-user.target" ];
+  before = [ "samba-smbd.service" ];
+  unitConfig.ConditionDirectoryNotEmpty = "/var/lib/nix-samba/pending-passwords";
+  serviceConfig.Type = "oneshot";
+  script = ''
+    for f in /var/lib/nix-samba/pending-passwords/*; do
+      [ -f "$f" ] || continue
+      user=$(basename "$f")
+      if id -u "$user" >/dev/null 2>&1 && /run/current-system/sw/bin/smbpasswd -s -a "$user" < "$f" >/dev/null; then
+        rm -f "$f"
+      fi
+    done
+  '';
+};'''
+
     def generate_samba_server_module(self, samba_settings: dict, dedicated_users: dict = None, dedicated_user_group: str = None) -> str:
         """
         Generate a complete samba-server.nix NixOS module (services.samba)
@@ -191,6 +211,7 @@ gtk = {
         if dedicated_users:
             body += '\nusers.groups = ' + self._to_nix_string({dedicated_user_group: {}}, indent=0) + ';'
             body += '\nusers.users = ' + self._to_nix_string(dedicated_users, indent=0) + ';'
+            body += '\n' + self.PENDING_PASSWORD_SERVICE
 
         raw_nix = f'''{{
   lib,

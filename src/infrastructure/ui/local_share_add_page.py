@@ -9,13 +9,11 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw
 
+from infrastructure.ui.access_mode_row import AccessModeRow, ACCESS_MODE_GUEST, ACCESS_MODE_USERS, ACCESS_MODE_DEDICATED
 from infrastructure.ui.dedicated_account_rows import DedicatedAccountRows
 from infrastructure.ui.valid_users_row import ValidUsersRow
 
 
-ACCESS_MODE_GUEST = 0
-ACCESS_MODE_USERS = 1
-ACCESS_MODE_DEDICATED = 2
 
 
 class LocalShareAddPage(Adw.NavigationPage):
@@ -90,15 +88,7 @@ class LocalShareAddPage(Adw.NavigationPage):
         access_group.set_title(_('Access'))
         access_group.set_description(_('Who can access this share and how'))
 
-        self.combo_access_mode = Adw.ComboRow()
-        self.combo_access_mode.set_title(_('Access mode'))
-        self.combo_access_mode.set_subtitle(_('Who can connect to this share'))
-        access_mode_options = Gtk.StringList.new([
-            _('Guest access (no login required)'),
-            _('Restricted to specific users'),
-            _('Dedicated account (this share only)'),
-        ])
-        self.combo_access_mode.set_model(access_mode_options)
+        self.combo_access_mode = AccessModeRow()
         self.combo_access_mode.connect('notify::selected', self._on_access_mode_changed)
         access_group.add(self.combo_access_mode)
 

@@ -17,7 +17,7 @@ Built with Python, GTK4 and Libadwaita. Available in English and French.
 - **Local shares (Samba server)**: share a local folder on your network
   - public access (guest) or restricted to specific users
   - read-only or read/write
-- **Save and rebuild**: writes the NixOS configuration and runs `nixos-rebuild switch` in a terminal
+- **Save and rebuild**: writes the NixOS configuration and runs `glf-update` (next-boot generation, reboot to apply)
 - **Configuration check**: detects missing imports in `/etc/nixos/customConfig/default.nix` and offers to fix them
 
 ## Screenshots
@@ -52,7 +52,7 @@ Changes are kept in memory until you click **Save on disk**. The application the
    - `/etc/nixos/customConfig/samba.nix`: remote shares (`fileSystems`)
    - `/etc/nixos/customConfig/samba-server.nix`: local shares (`services.samba`)
 2. checks that `/etc/nixos/customConfig/default.nix` imports `samba.nix`, `samba_setup.nix` (cifs-utils and the `mount.cifs` wrapper) and `samba-server.nix` as needed. If an import is missing, it asks for your password to add it.
-3. opens a terminal that moves the files into place and runs `sudo nixos-rebuild switch`.
+3. asks for your password (polkit), moves the files into place and runs `glf-update` (or `nixos-rebuild boot` outside GLF-OS) with a live log. The new configuration is applied after a reboot (a *Reboot now* button is offered); passwords of new dedicated accounts are set at that boot.
 
 If you close the window with unsaved changes, the application asks for confirmation.
 

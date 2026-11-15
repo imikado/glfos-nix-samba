@@ -5,12 +5,40 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nix-samba\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-13 10:07+0100\n"
+"POT-Creation-Date: 2026-11-15 14:49+0100\n"
 "PO-Revision-Date: 2026-02-22 16:04+0100\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: infrastructure/ui/access_mode_row.py:22
+msgid "Access mode"
+msgstr "Access mode"
+
+#: infrastructure/ui/access_mode_row.py:25
+msgid "Guest"
+msgstr "Guest"
+
+#: infrastructure/ui/access_mode_row.py:26
+msgid "Specific users"
+msgstr "Specific users"
+
+#: infrastructure/ui/access_mode_row.py:27
+msgid "Dedicated account"
+msgstr "Dedicated account"
+
+#: infrastructure/ui/access_mode_row.py:30
+msgid "Guest access (no login required)"
+msgstr "Guest access (no login required)"
+
+#: infrastructure/ui/access_mode_row.py:31
+msgid "Restricted to specific users"
+msgstr "Restricted to specific users"
+
+#: infrastructure/ui/access_mode_row.py:32
+msgid "Dedicated account (this share only)"
+msgstr "Dedicated account (this share only)"
 
 #: infrastructure/ui/app_window.py:67
 msgid "Configuration file not found: "
@@ -38,8 +66,8 @@ msgstr "Please add them to /etc/nixos/customConfig/default.nix"
 
 #: infrastructure/ui/app_window.py:110 infrastructure/ui/app_window.py:177
 #: infrastructure/ui/create_creds_file_page.py:130
-#: infrastructure/ui/local_share_add_page.py:169
-#: infrastructure/ui/local_share_edit_page.py:171
+#: infrastructure/ui/local_share_add_page.py:182
+#: infrastructure/ui/local_share_edit_page.py:190
 #: infrastructure/ui/remote_add_page.py:275
 #: infrastructure/ui/remote_edit_page.py:316
 msgid "OK"
@@ -54,7 +82,10 @@ msgid ""
 "The NixOS configuration is missing required settings (samba.nix and "
 "samba_setup.nix import). They will be fixed automatically before the "
 "rebuild; your administrator password will be asked."
-msgstr "The NixOS configuration is missing required settings (samba.nix and samba_setup.nix import). They will be fixed automatically before the rebuild; your administrator password will be asked."
+msgstr ""
+"The NixOS configuration is missing required settings (samba.nix and "
+"samba_setup.nix import). They will be fixed automatically before the "
+"rebuild; your administrator password will be asked."
 
 #: infrastructure/ui/app_window.py:123 infrastructure/ui/app_window.py:153
 #: infrastructure/ui/app_window.py:280
@@ -77,7 +108,10 @@ msgid ""
 "No remote share is configured. The unused samba.nix and samba_setup.nix "
 "imports will be removed before the rebuild; your administrator password will "
 "be asked."
-msgstr "No remote share is configured. The unused samba.nix and samba_setup.nix imports will be removed before the rebuild; your administrator password will be asked."
+msgstr ""
+"No remote share is configured. The unused samba.nix and samba_setup.nix "
+"imports will be removed before the rebuild; your administrator password will "
+"be asked."
 
 #: infrastructure/ui/app_window.py:154
 msgid "Update Configuration"
@@ -85,8 +119,8 @@ msgstr "Update Configuration"
 
 #: infrastructure/ui/app_window.py:175
 #: infrastructure/ui/create_creds_file_page.py:128
-#: infrastructure/ui/local_share_add_page.py:167
-#: infrastructure/ui/local_share_edit_page.py:169
+#: infrastructure/ui/local_share_add_page.py:180
+#: infrastructure/ui/local_share_edit_page.py:188
 #: infrastructure/ui/remote_add_page.py:273
 #: infrastructure/ui/remote_edit_page.py:314
 msgid "Error"
@@ -165,9 +199,9 @@ msgstr ""
 msgid "Quit without saving"
 msgstr "Quit without saving"
 
-#: infrastructure/ui/app_window.py:364
-msgid "Configuration saved and system rebuilt"
-msgstr "Configuration saved and system rebuilt"
+#: infrastructure/ui/app_window.py:369
+msgid "Configuration saved: reboot to apply it"
+msgstr "Configuration saved: reboot to apply it"
 
 #: infrastructure/ui/create_creds_file_page.py:42
 msgid "File"
@@ -201,6 +235,7 @@ msgid "Username"
 msgstr "Username"
 
 #: infrastructure/ui/create_creds_file_page.py:74
+#: infrastructure/ui/dedicated_account_rows.py:40
 #: infrastructure/ui/remote_browse_dialog.py:98
 msgid "Password"
 msgstr "Password"
@@ -218,124 +253,146 @@ msgid "Credentials file created"
 msgstr "Credentials file created"
 
 #: infrastructure/ui/create_creds_file_page.py:164
-#: infrastructure/ui/local_share_add_page.py:203
-#: infrastructure/ui/local_share_edit_page.py:205
+#: infrastructure/ui/local_share_add_page.py:225
+#: infrastructure/ui/local_share_edit_page.py:233
 #: infrastructure/ui/remote_add_page.py:339
 #: infrastructure/ui/remote_edit_page.py:380
 msgid "There are error during validation"
 msgstr "There are errors during validation"
 
-#: infrastructure/ui/local_share_add_page.py:29
+#: infrastructure/ui/dedicated_account_rows.py:25
+msgid "Account dedicated to this share"
+msgstr "Account dedicated to this share"
+
+#: infrastructure/ui/dedicated_account_rows.py:26
+msgid ""
+"Created for this share only: it cannot be used to log in to the computer"
+msgstr ""
+"Created for this share only: it cannot be used to log in to the computer"
+
+#: infrastructure/ui/dedicated_account_rows.py:32
+msgid "Account name"
+msgstr "Account name"
+
+#: infrastructure/ui/dedicated_account_rows.py:38
+msgid "New password (leave empty to keep the current one)"
+msgstr "New password (leave empty to keep the current one)"
+
+#: infrastructure/ui/dedicated_account_rows.py:44
+msgid "Confirm password"
+msgstr "Confirm password"
+
+#: infrastructure/ui/dedicated_account_rows.py:75
+msgid "Account name: lowercase letters, digits, \"-\" and \"_\" only"
+msgstr "Account name: lowercase letters, digits, \"-\" and \"_\" only"
+
+#: infrastructure/ui/dedicated_account_rows.py:78
+msgid "This account name is already used"
+msgstr "This account name is already used"
+
+#: infrastructure/ui/dedicated_account_rows.py:88
+msgid "A password is required for a new account"
+msgstr "A password is required for a new account"
+
+#: infrastructure/ui/dedicated_account_rows.py:91
+msgid "The password cannot contain a line break"
+msgstr "The password cannot contain a line break"
+
+#: infrastructure/ui/dedicated_account_rows.py:96
+msgid "Passwords do not match"
+msgstr "Passwords do not match"
+
+#: infrastructure/ui/local_share_add_page.py:33
 msgid "Add Local Share"
 msgstr "Add Local Share"
 
-#: infrastructure/ui/local_share_add_page.py:47
-#: infrastructure/ui/local_share_edit_page.py:46
+#: infrastructure/ui/local_share_add_page.py:51
+#: infrastructure/ui/local_share_edit_page.py:50
 #: infrastructure/ui/remote_add_page.py:50
 #: infrastructure/ui/remote_edit_page.py:49
 msgid "Basic Settings"
 msgstr "Basic Settings"
 
-#: infrastructure/ui/local_share_add_page.py:48
-#: infrastructure/ui/local_share_edit_page.py:47
+#: infrastructure/ui/local_share_add_page.py:52
+#: infrastructure/ui/local_share_edit_page.py:51
 msgid "Local folder to share on your network"
 msgstr "Local folder to share on your network"
 
-#: infrastructure/ui/local_share_add_page.py:51
-#: infrastructure/ui/local_share_edit_page.py:50
+#: infrastructure/ui/local_share_add_page.py:55
+#: infrastructure/ui/local_share_edit_page.py:54
 #: infrastructure/ui/remote_browse_dialog.py:118
 msgid "Share name"
 msgstr "Share name"
 
-#: infrastructure/ui/local_share_add_page.py:53
-#: infrastructure/ui/local_share_edit_page.py:52
+#: infrastructure/ui/local_share_add_page.py:57
+#: infrastructure/ui/local_share_edit_page.py:56
 msgid "MyShare"
 msgstr "MyShare"
 
-#: infrastructure/ui/local_share_add_page.py:60
-#: infrastructure/ui/local_share_edit_page.py:60
+#: infrastructure/ui/local_share_add_page.py:64
+#: infrastructure/ui/local_share_edit_page.py:64
 msgid "Local folder"
 msgstr "Local folder"
 
-#: infrastructure/ui/local_share_add_page.py:66
-#: infrastructure/ui/local_share_edit_page.py:67
+#: infrastructure/ui/local_share_add_page.py:70
+#: infrastructure/ui/local_share_edit_page.py:71
 #: infrastructure/ui/remote_add_page.py:70
 #: infrastructure/ui/remote_edit_page.py:70
 msgid "Browse for folder"
 msgstr "Browse for folder"
 
-#: infrastructure/ui/local_share_add_page.py:72
-#: infrastructure/ui/local_share_edit_page.py:73
+#: infrastructure/ui/local_share_add_page.py:76
+#: infrastructure/ui/local_share_edit_page.py:77
 msgid "Comment"
 msgstr "Comment"
 
-#: infrastructure/ui/local_share_add_page.py:74
-#: infrastructure/ui/local_share_edit_page.py:75
+#: infrastructure/ui/local_share_add_page.py:78
+#: infrastructure/ui/local_share_edit_page.py:79
 msgid "Optional description"
 msgstr "Optional description"
 
-#: infrastructure/ui/local_share_add_page.py:84
-#: infrastructure/ui/local_share_edit_page.py:86
+#: infrastructure/ui/local_share_add_page.py:88
+#: infrastructure/ui/local_share_edit_page.py:90
 msgid "Access"
 msgstr "Access"
 
-#: infrastructure/ui/local_share_add_page.py:85
-#: infrastructure/ui/local_share_edit_page.py:87
+#: infrastructure/ui/local_share_add_page.py:89
+#: infrastructure/ui/local_share_edit_page.py:91
 msgid "Who can access this share and how"
 msgstr "Who can access this share and how"
 
-#: infrastructure/ui/local_share_add_page.py:88
-#: infrastructure/ui/local_share_edit_page.py:90
-msgid "Access mode"
-msgstr "Access mode"
-
-#: infrastructure/ui/local_share_add_page.py:89
-#: infrastructure/ui/local_share_edit_page.py:91
-msgid "Who can connect to this share"
-msgstr "Who can connect to this share"
-
-#: infrastructure/ui/local_share_add_page.py:91
-#: infrastructure/ui/local_share_edit_page.py:93
-msgid "Guest access (no login required)"
-msgstr "Guest access (no login required)"
-
-#: infrastructure/ui/local_share_add_page.py:92
-#: infrastructure/ui/local_share_edit_page.py:94
-msgid "Restricted to specific users"
-msgstr "Restricted to specific users"
-
-#: infrastructure/ui/local_share_add_page.py:105
-#: infrastructure/ui/local_share_edit_page.py:107
+#: infrastructure/ui/local_share_add_page.py:104
+#: infrastructure/ui/local_share_edit_page.py:112
 msgid "Read only"
 msgstr "Read only"
 
-#: infrastructure/ui/local_share_add_page.py:106
-#: infrastructure/ui/local_share_edit_page.py:108
+#: infrastructure/ui/local_share_add_page.py:105
+#: infrastructure/ui/local_share_edit_page.py:113
 msgid "Prevent writing to this share"
 msgstr "Prevent writing to this share"
 
-#: infrastructure/ui/local_share_add_page.py:116
+#: infrastructure/ui/local_share_add_page.py:115
 #: infrastructure/ui/remote_add_page.py:200
 msgid "Add share"
 msgstr "Add share"
 
-#: infrastructure/ui/local_share_add_page.py:129
-#: infrastructure/ui/local_share_edit_page.py:131
+#: infrastructure/ui/local_share_add_page.py:128
+#: infrastructure/ui/local_share_edit_page.py:136
 msgid "Select folder to share"
 msgstr "Select folder to share"
 
-#: infrastructure/ui/local_share_add_page.py:162
-#: infrastructure/ui/local_share_edit_page.py:164
+#: infrastructure/ui/local_share_add_page.py:175
+#: infrastructure/ui/local_share_edit_page.py:183
 #: infrastructure/ui/remote_add_page.py:268
 #: infrastructure/ui/remote_edit_page.py:309
 msgid "Save in memory, don't forget to press the top save button"
 msgstr "Saved in memory, don't forget to press the top save button"
 
-#: infrastructure/ui/local_share_edit_page.py:28
+#: infrastructure/ui/local_share_edit_page.py:32
 msgid "Edit Local Share"
 msgstr "Edit Local Share"
 
-#: infrastructure/ui/local_share_edit_page.py:118
+#: infrastructure/ui/local_share_edit_page.py:123
 #: infrastructure/ui/remote_edit_page.py:224
 msgid "Update share"
 msgstr "Update share"
@@ -369,36 +426,44 @@ msgstr "Are you sure you want to delete the share \"%s\"?"
 msgid "Delete"
 msgstr "Delete"
 
-#: infrastructure/ui/rebuild_dialog.py:28
-msgid "NixOS rebuild"
-msgstr "NixOS rebuild"
+#: infrastructure/ui/rebuild_dialog.py:34
+msgid "System update"
+msgstr "System update"
 
-#: infrastructure/ui/rebuild_dialog.py:79
+#: infrastructure/ui/rebuild_dialog.py:88
+msgid "Reboot now"
+msgstr "Reboot now"
+
+#: infrastructure/ui/rebuild_dialog.py:95
 msgid "Close"
 msgstr "Close"
 
-#: infrastructure/ui/rebuild_dialog.py:94
-#: infrastructure/ui/rebuild_dialog.py:136
+#: infrastructure/ui/rebuild_dialog.py:111
+#: infrastructure/ui/rebuild_dialog.py:153
 msgid "Waiting for authentication…"
 msgstr "Waiting for authentication…"
 
-#: infrastructure/ui/rebuild_dialog.py:103
+#: infrastructure/ui/rebuild_dialog.py:120
 msgid "Unable to start the rebuild (is polkit/pkexec available?)"
 msgstr "Unable to start the rebuild (is polkit/pkexec available?)"
 
-#: infrastructure/ui/rebuild_dialog.py:137
-msgid "Rebuilding the system, this may take a few minutes…"
-msgstr "Rebuilding the system, this may take a few minutes…"
-
 #: infrastructure/ui/rebuild_dialog.py:154
-msgid "System rebuilt successfully"
-msgstr "System rebuilt successfully"
+msgid "Updating the system, this may take a few minutes…"
+msgstr "Updating the system, this may take a few minutes…"
 
-#: infrastructure/ui/rebuild_dialog.py:156
+#: infrastructure/ui/rebuild_dialog.py:172
+msgid "System updated: reboot to apply the changes"
+msgstr "System updated: reboot to apply the changes"
+
+#: infrastructure/ui/rebuild_dialog.py:174
 msgid "Authentication cancelled: nothing was saved"
 msgstr "Authentication cancelled: nothing was saved"
 
-#: infrastructure/ui/rebuild_dialog.py:158
+#: infrastructure/ui/rebuild_dialog.py:176
+msgid "Another system update is already running, retry once it is finished"
+msgstr "Another system update is already running, retry once it is finished"
+
+#: infrastructure/ui/rebuild_dialog.py:178
 msgid "Error during rebuild, see the log above"
 msgstr "Error during rebuild, see the log above"
 
@@ -658,49 +723,17 @@ msgstr "Each user needs a Samba password set with smbpasswd -a USERNAME"
 msgid "No user found"
 msgstr "No user found"
 
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Dedicated account (this share only)"
-msgstr "Dedicated account (this share only)"
+#~ msgid "Configuration saved and system rebuilt"
+#~ msgstr "Configuration saved and system rebuilt"
 
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Account dedicated to this share"
-msgstr "Account dedicated to this share"
+#~ msgid "Who can connect to this share"
+#~ msgstr "Who can connect to this share"
 
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Created for this share only: it cannot be used to log in to the computer"
-msgstr "Created for this share only: it cannot be used to log in to the computer"
+#~ msgid "NixOS rebuild"
+#~ msgstr "NixOS rebuild"
 
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Account name"
-msgstr "Account name"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "New password (leave empty to keep the current one)"
-msgstr "New password (leave empty to keep the current one)"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Confirm password"
-msgstr "Confirm password"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Account name: lowercase letters, digits, \"-\" and \"_\" only"
-msgstr "Account name: lowercase letters, digits, \"-\" and \"_\" only"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "This account name is already used"
-msgstr "This account name is already used"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "A password is required for a new account"
-msgstr "A password is required for a new account"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "The password cannot contain a line break"
-msgstr "The password cannot contain a line break"
-
-#: infrastructure/ui/dedicated_account_rows.py
-msgid "Passwords do not match"
-msgstr "Passwords do not match"
+#~ msgid "System rebuilt successfully"
+#~ msgstr "System rebuilt successfully"
 
 #~ msgid ""
 #~ "The NixOS configuration is missing required settings (samba.nix and "
@@ -724,9 +757,6 @@ msgstr "Passwords do not match"
 
 #~ msgid "NixOS configuration updated successfully"
 #~ msgstr "NixOS configuration updated successfully"
-
-#~ msgid "Configuration saved - rebuilding in terminal"
-#~ msgstr "Configuration saved - rebuilding in terminal"
 
 #~ msgid ""
 #~ "Space-separated system usernames. Each user needs a Samba password set "

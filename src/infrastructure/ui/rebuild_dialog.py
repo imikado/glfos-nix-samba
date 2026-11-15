@@ -3,11 +3,17 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
+import re
+
 from gi.repository import Adw, Gio, GLib, Gtk
 
 
 # pkexec exit codes: authentication dialog dismissed / not authorized
 PKEXEC_CANCELLED_CODES = (126, 127)
+# glf-update exit code when another update (e.g. the automatic one) holds its lock
+GLF_UPDATE_LOCKED_CODE = 75
+
+ANSI_ESCAPE_PATTERN = re.compile(r'\x1b\[[0-9;?]*[A-Za-z]')
 
 
 class RebuildDialog(Adw.Dialog):
@@ -25,7 +31,7 @@ class RebuildDialog(Adw.Dialog):
         self._running = False
         self._script_started = False
 
-        self.set_title(_('NixOS rebuild'))
+        self.set_title(_('System update'))
         self.set_content_width(720)
         self.set_content_height(480)
         self.set_can_close(False)
@@ -76,12 +82,23 @@ class RebuildDialog(Adw.Dialog):
         scrolled.set_child(self._text_view)
         box.append(scrolled)
 
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        button_box.set_halign(Gtk.Align.END)
+
+        self._reboot_button = Gtk.Button(label=_('Reboot now'))
+        self._reboot_button.add_css_class('pill')
+        self._reboot_button.add_css_class('suggested-action')
+        self._reboot_button.set_visible(False)
+        self._reboot_button.connect('clicked', self._on_reboot_clicked)
+        button_box.append(self._reboot_button)
+
         self._close_button = Gtk.Button(label=_('Close'))
-        self._close_button.set_halign(Gtk.Align.END)
         self._close_button.add_css_class('pill')
         self._close_button.set_sensitive(False)
         self._close_button.connect('clicked', lambda _button: self.force_close())
-        box.append(self._close_button)
+        button_box.append(self._close_button)
+
+        box.append(button_box)
 
         toolbar_view.set_content(box)
         self.set_child(toolbar_view)
@@ -130,11 +147,11 @@ class RebuildDialog(Adw.Dialog):
             raw_line = None
         if raw_line is None:
             return  # end of output
-        line = raw_line.decode('utf-8', errors='replace')
+        line = ANSI_ESCAPE_PATTERN.sub('', raw_line.decode('utf-8', errors='replace'))
         if line.startswith('====='):
             self._script_started = True  # authentication passed, the script is running as root
         if self._status_label.get_label() == _('Waiting for authentication…'):
-            self._status_label.set_label(_('Rebuilding the system, this may take a few minutes…'))
+            self._status_label.set_label(_('Updating the system, this may take a few minutes…'))
         self._append_line(line.split('\r')[-1])
         stream.read_line_async(GLib.PRIORITY_DEFAULT, None, self._on_line_read)
 
@@ -145,20 +162,34 @@ class RebuildDialog(Adw.Dialog):
 
     def _on_process_exited(self, process, result):
         try:
-            process.wait_finish(result)
-        except GLib.Error:
-            pass
-        exit_status = process.get_exit_status() if process.get_if_exited() else -1
+            try:
+                process.wait_finish(result)
+            except GLib.Error:
+                pass
+            exit_status = process.get_exit_status() if process.get_if_exited() else -1
 
-        if exit_status == 0:
-            self._finish(True, False, _('System rebuilt successfully'))
-        elif exit_status in PKEXEC_CANCELLED_CODES and not self._script_started:
-            self._finish(False, True, _('Authentication cancelled: nothing was saved'))
-        else:
-            self._finish(False, False, _('Error during rebuild, see the log above'))
+            if exit_status == 0:
+                self._finish(True, False, _('System updated: reboot to apply the changes'))
+            elif exit_status in PKEXEC_CANCELLED_CODES and not self._script_started:
+                self._finish(False, True, _('Authentication cancelled: nothing was saved'))
+            elif exit_status == GLF_UPDATE_LOCKED_CODE:
+                self._finish(False, False, _('Another system update is already running, retry once it is finished'))
+            else:
+                self._finish(False, False, _('Error during rebuild, see the log above'))
+        except Exception as e:
+            # Never leave the dialog (and the window) impossible to close
+            self._append_line(str(e))
+            self._set_running(False)
+
+    def _on_reboot_clicked(self, _button):
+        try:
+            Gio.Subprocess.new(['systemctl', 'reboot'], Gio.SubprocessFlags.NONE)
+        except GLib.Error as e:
+            self._append_line(str(e.message))
 
     def _finish(self, success: bool, cancelled: bool, message: str):
         self._set_running(False)
+        self._reboot_button.set_visible(success)
         self._progress_bar.set_fraction(1.0 if success else 0.0)
         self._status_icon.set_from_icon_name(
             'emblem-ok-symbolic' if success else 'dialog-warning-symbolic' if cancelled else 'dialog-error-symbolic')
@@ -167,7 +198,10 @@ class RebuildDialog(Adw.Dialog):
         self._status_icon.add_css_class('success' if success else 'error')
         self._status_icon.set_visible(True)
         self._status_label.set_label(message)
-        self._close_button.grab_focus()
+        (self._reboot_button if success else self._close_button).grab_focus()
 
         if self._on_finished:
-            self._on_finished(success, cancelled)
+            try:
+                self._on_finished(success, cancelled)
+            except Exception as e:
+                self._append_line(str(e))

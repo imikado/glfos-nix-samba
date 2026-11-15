@@ -14,6 +14,9 @@ from domain.contract.system_api_contract import SystemApiContract
 
 class SystemApi(SystemApiContract):
 
+    # Must match the directory read by nix-samba-pending-passwords.service (NixFileApi)
+    PENDING_PASSWORD_DIR='/var/lib/nix-samba/pending-passwords'
+
     def read_file(self, path: str):
         return open(path, 'r').read()
 
@@ -283,32 +286,36 @@ export PATH="/run/wrappers/bin:/run/current-system/sw/bin:$PATH"
 """+save_steps+"""
 
 echo "======================================"
-echo "  NIX REBUILD with samba setup"
+echo "  GLF-OS update with samba setup"
 echo "======================================"
 echo ""
 
-
-echo "nixos-rebuild..."
-echo ""
-
-# Detect flake configuration name for --flake flag
-FLAKE_ATTR=""
-if [ -f /etc/nixos/flake.nix ]; then
-    FLAKE_ATTR=$(grep -oP 'nixosConfigurations\\.\\s*"?\\K[^"= ]+' /etc/nixos/flake.nix | head -1)
-fi
-
-if [ -n "$FLAKE_ATTR" ]; then
-    echo "Configuration flake detectee : $FLAKE_ATTR"
-    nixos-rebuild switch --flake "/etc/nixos#$FLAKE_ATTR"
+# Build the next boot generation only (no switch): activating it live can leave services
+# not restarted and an inconsistent system on GLF-OS. Changes apply after a reboot.
+if command -v glf-update >/dev/null 2>&1; then
+    echo "glf-update..."
+    echo ""
+    glf-update
 else
-    nixos-rebuild switch
+    echo "nixos-rebuild boot..."
+    echo ""
+    FLAKE_ATTR=""
+    if [ -f /etc/nixos/flake.nix ]; then
+        FLAKE_ATTR=$(grep -oP 'nixosConfigurations\\.\\s*"?\\K[^"= ]+' /etc/nixos/flake.nix | head -1)
+    fi
+    if [ -n "$FLAKE_ATTR" ]; then
+        echo "Configuration flake detectee : $FLAKE_ATTR"
+        nixos-rebuild boot --flake "/etc/nixos#$FLAKE_ATTR"
+    else
+        nixos-rebuild boot
+    fi
 fi
 EXIT_CODE=$?
 """+password_steps+"""
 if [ $EXIT_CODE -eq 0 ]; then
     echo ""
     echo "======================================"
-    echo "  REBUILD successfully"
+    echo "  REBUILD successfully: reboot to apply"
     echo "======================================"
 else
     echo ""
@@ -351,6 +358,7 @@ exit $EXIT_CODE
         for user in user_list:
             # The Unix account itself is removed by nixos-rebuild (no longer declared)
             steps+='pdbedit -x -u '+shlex.quote(user)+' >/dev/null 2>&1 && echo '+shlex.quote('  '+user+' removed')+'\n'
+            steps+='rm -f '+shlex.quote(self.PENDING_PASSWORD_DIR+'/'+user)+'\n'
         return steps+'\n'
 
     def _get_samba_account_password_steps(self,password_list:list)->str:
@@ -361,21 +369,26 @@ exit $EXIT_CODE
         steps+='echo "  set Samba share account passwords"\n'
         steps+='echo "======================================"\n'
         steps+='echo ""\n\n'
+        steps+='install -d -m 700 -o root -g root '+shlex.quote(self.PENDING_PASSWORD_DIR)+'\n'
         for user,password in password_list:
             # smbpasswd -s reads the new password twice on stdin; never put it on the command line
             password_path=self._write_secret_tmp(password+'\n'+password+'\n')
             quoted_user=shlex.quote(user)
             quoted_path=shlex.quote(password_path)
+            quoted_pending=shlex.quote(self.PENDING_PASSWORD_DIR+'/'+user)
             steps+='if id -u '+quoted_user+' >/dev/null 2>&1; then\n'
             steps+='    if smbpasswd -s -a '+quoted_user+' < '+quoted_path+' >/dev/null; then\n'
             steps+='        echo '+shlex.quote('  password set for '+user)+'\n'
+            steps+='        rm -f '+quoted_pending+'\n'
             steps+='    else\n'
             steps+='        echo '+shlex.quote('  ERROR: unable to set the password of '+user)+'\n'
             steps+='        EXIT_CODE=1\n'
             steps+='    fi\n'
-            steps+='else\n'
-            steps+='    echo '+shlex.quote('  ERROR: account '+user+' was not created')+'\n'
-            steps+='    EXIT_CODE=1\n'
+            steps+='elif [ $EXIT_CODE -eq 0 ]; then\n'
+            # The account is created when the new generation boots: nix-samba-pending-passwords.service
+            # (declared in samba-server.nix) sets the password then
+            steps+='    install -m 600 -o root -g root '+quoted_path+' '+quoted_pending+' || EXIT_CODE=1\n'
+            steps+='    echo '+shlex.quote('  password of '+user+' will be set at next boot')+'\n'
             steps+='fi\n'
             steps+='rm -f '+quoted_path+'\n'
         return steps
