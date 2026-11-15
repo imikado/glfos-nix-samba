@@ -12,6 +12,7 @@ from infrastructure.ui.create_creds_file_page import CreateCredsFilePage
 from infrastructure.ui.local_share_list_page import LocalShareListPage
 from infrastructure.ui.local_share_add_page import LocalShareAddPage
 from infrastructure.ui.rebuild_dialog import RebuildDialog
+from infrastructure.ui.icon_theme import configure_icon_theme
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
@@ -384,7 +385,10 @@ class AppWindow(Adw.Application):
     def __init__(self):
         super().__init__(application_id="org.dupot.glfosnixsamba")
 
+    def do_startup(self):
+        Adw.Application.do_startup(self)
+        configure_icon_theme()
+
     def do_activate(self):
-        Gtk.Settings.get_default().set_property("gtk-icon-theme-name", "Adwaita")
         win = MainWindow(application=self)
         win.present()

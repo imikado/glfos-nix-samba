@@ -192,7 +192,7 @@ class RebuildDialog(Adw.Dialog):
         self._reboot_button.set_visible(success)
         self._progress_bar.set_fraction(1.0 if success else 0.0)
         self._status_icon.set_from_icon_name(
-            'emblem-ok-symbolic' if success else 'dialog-warning-symbolic' if cancelled else 'dialog-error-symbolic')
+            'object-select-symbolic' if success else 'dialog-warning-symbolic' if cancelled else 'dialog-error-symbolic')
         self._status_icon.remove_css_class('success')
         self._status_icon.remove_css_class('error')
         self._status_icon.add_css_class('success' if success else 'error')

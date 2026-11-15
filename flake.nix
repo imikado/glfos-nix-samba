@@ -24,6 +24,7 @@
 
             pkgs.gtk4
             pkgs.libadwaita
+            pkgs.adwaita-icon-theme
             pkgs.gobject-introspection
 
             pkgs.meson
@@ -32,6 +33,7 @@
           ];
 
           shellHook = ''
+            export GLFOS_SAMBA_ICON_DIR="${pkgs.adwaita-icon-theme}/share/icons"
             echo "Python GTK4/Libadwaita development environment"
             echo "Python version: $(python --version)"
           '';
