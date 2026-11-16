@@ -12,6 +12,7 @@ class LocalShare:
     # (the Nix store is world readable). Empty means "keep the current password".
     dedicated_password:str
     # Unix account used for file access (folder owner), needed by the dedicated account
+    # and by guest access (the guest account "nobody" cannot enter a home folder)
     force_user:str
 
     def __init__(self,name,path,comment='',guest_ok=False,read_only=True,valid_users=None,dedicated_user='',dedicated_password='',force_user=''):
@@ -28,6 +29,9 @@ class LocalShare:
     def has_dedicated_user(self)->bool:
         return not self.guest_ok and bool(self.dedicated_user)
 
+    def uses_force_user(self)->bool:
+        return self.guest_ok or self.has_dedicated_user()
+
     def get_nixcontent(self)->dict:
         nix_dict:dict={}
         nix_dict['path']=self.path
@@ -38,10 +42,15 @@ class LocalShare:
         if self.comment:
             nix_dict['comment']=self.comment
 
+        if self.guest_ok:
+            # Everyone is connected as guest, even a client sending its own login
+            nix_dict['guest only']='yes'
+
+        if self.uses_force_user() and self.force_user:
+            nix_dict['force user']=self.force_user
+
         if self.has_dedicated_user():
             nix_dict['valid users']=self.dedicated_user
-            if self.force_user:
-                nix_dict['force user']=self.force_user
         elif not self.guest_ok and self.valid_users:
             nix_dict['valid users']=' '.join(self.valid_users)
 

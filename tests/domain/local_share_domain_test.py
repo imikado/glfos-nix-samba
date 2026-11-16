@@ -70,6 +70,31 @@ class TestLocalShareDomainDedicatedAccount(unittest.TestCase):
         self.assertEqual(nix_content['valid users'], 'docshare')
         self.assertEqual(nix_content['force user'], 'alice')
 
+    def test_nix_content_guest_uses_folder_owner(self):
+        share = LocalShare('Public', '/home/alice/Public', guest_ok=True, force_user='alice', valid_users=['bob'])
+        nix_content = share.get_nixcontent()
+
+        self.assertEqual(nix_content['guest ok'], 'yes')
+        self.assertEqual(nix_content['guest only'], 'yes')
+        self.assertEqual(nix_content['force user'], 'alice')
+        self.assertNotIn('valid users', nix_content)
+
+    def test_nix_content_specific_users_has_no_force_user(self):
+        share = LocalShare('Family', '/srv/family', valid_users=['alice', 'bob'], force_user='alice')
+        nix_content = share.get_nixcontent()
+
+        self.assertNotIn('force user', nix_content)
+        self.assertNotIn('guest only', nix_content)
+
+    def test_load_keeps_guest_force_user(self):
+        samba_settings = {'Public': {'path': '/home/alice/Public', 'guest ok': 'yes', 'guest only': 'yes', 'force user': 'alice'}}
+        domain = LocalShareDomain(MockSystemApi([]), MockLocalSambaFileApi(samba_settings, []))
+        domain._local_share_repository._local_share_list = []
+        public, = domain.get_list()
+
+        self.assertTrue(public.guest_ok)
+        self.assertEqual(public.force_user, 'alice')
+
     def test_user_name_validation(self):
         domain = self._create_domain()
 

@@ -48,15 +48,17 @@ class LocalShareRepository:
                 dedicated_user = valid_users[0]
                 valid_users = []
 
+            guest_ok=share_value_loop.get('guest ok','no')=='yes'
+
             local_share_list.append(LocalShare(
                 name=share_name_loop,
                 path=share_value_loop.get('path',''),
                 comment=share_value_loop.get('comment',''),
-                guest_ok=share_value_loop.get('guest ok','no')=='yes',
+                guest_ok=guest_ok,
                 read_only=share_value_loop.get('read only','yes')=='yes',
                 valid_users=valid_users,
                 dedicated_user=dedicated_user,
-                force_user=share_value_loop.get('force user','') if dedicated_user else '',
+                force_user=share_value_loop.get('force user','') if (dedicated_user or guest_ok) else '',
             ))
 
         self._local_share_list=local_share_list

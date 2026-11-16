@@ -166,7 +166,10 @@ class LocalShareEditPage(Adw.NavigationPage):
         elif access_mode == ACCESS_MODE_DEDICATED:
             local_share.dedicated_user = self.dedicated_account_rows.get_user()
             local_share.dedicated_password = self.dedicated_account_rows.get_password()
-            # The dedicated account has no right on the folder: files are accessed as its owner
+
+        if local_share.uses_force_user():
+            # The guest ("nobody") and the dedicated account have no right on the folder
+            # (home folders are 700 on NixOS): files are accessed as its owner
             local_share.force_user = self._local_share_domain.get_folder_owner(path)
 
         return local_share
