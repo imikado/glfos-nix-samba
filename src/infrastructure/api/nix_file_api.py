@@ -202,7 +202,7 @@ gtk = {
         """
         samba_config = {
             'enable': True,
-            'openFirewall': False,
+            'openFirewall': True,
             'settings': samba_settings,
         }
 
