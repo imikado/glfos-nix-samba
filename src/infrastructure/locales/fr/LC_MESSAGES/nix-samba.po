@@ -146,7 +146,7 @@ msgstr "Enregistrer sur le disque"
 
 #: infrastructure/ui/app_window.py:209 infrastructure/ui/app_window.py:213
 msgid "Remote share"
-msgstr "Partage réseau"
+msgstr "Se connecter à un partage distant"
 
 #: infrastructure/ui/app_window.py:214
 msgid "Mange your remote samba shares"
@@ -167,7 +167,7 @@ msgstr "Créer un fichier d'identifiants"
 
 #: infrastructure/ui/app_window.py:241
 msgid "Local share"
-msgstr "Partage local"
+msgstr "Créer un partage"
 
 #: infrastructure/ui/app_window.py:242
 msgid "Share a local folder on your network via Samba"
@@ -475,7 +475,7 @@ msgstr "Erreur pendant la reconstruction, voir le journal ci-dessus"
 
 #: infrastructure/ui/remote_add_page.py:32
 msgid "Add Remote Share"
-msgstr "Ajouter un partage distant"
+msgstr "Créer un partage"
 
 #: infrastructure/ui/remote_add_page.py:51
 #: infrastructure/ui/remote_edit_page.py:50
